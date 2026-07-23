@@ -3464,12 +3464,16 @@ function closeSignOutModal() {
 
             compileDriversRegistryCards(chronData);
             compileSecurityRegistryCards(chronData); 
+            // AUTO-SYNC GUARD DATABASE FROM GOOGLE SHEET
+if (responsePayload && responsePayload.guards) {
+    window.globalGuardsList = responsePayload.guards;
+    renderGuardDatabase(responsePayload.guards);
+}
 
             if(chronData.length === 0) { renderHistoryTable([]); return; }
             document.getElementById('metric-total-checkins').innerText = chronData.length;
 
-            let activeList = chronData.filter(r => !r.checkOutTime);
-            
+
             document.getElementById('metric-active-now').innerText = activeList.length;
             if (document.getElementById('activeYardCounter')) { document.getElementById('activeYardCounter').innerText = activeList.length; }
 
@@ -3552,7 +3556,40 @@ function closeSignOutModal() {
             populateDatalists(globalHistoryListCache); 
             if(userRole === 'admin') renderNotifications();
         };
+function renderGuardDatabase(guardsData) {
+    const tableBody = document.getElementById('guardTableBody') || document.querySelector('#securityGuardView tbody') || document.querySelector('#security-guard-database tbody');
+    const emptyMsg = document.getElementById('noGuardsMessage') || document.querySelector('#securityGuardView .no-data');
 
+    if (!guardsData || guardsData.length === 0) {
+        if (tableBody) tableBody.innerHTML = '';
+        if (emptyMsg) emptyMsg.style.display = 'block';
+        return;
+    }
+
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    let rowsHtml = '';
+    const startIndex = (Array.isArray(guardsData[0]) && String(guardsData[0][0]).toLowerCase().includes('id')) ? 1 : 0;
+
+    for (let i = startIndex; i < guardsData.length; i++) {
+        const item = guardsData[i];
+        const id = Array.isArray(item) ? item[0] : (item.id || item.guardId || 'N/A');
+        const name = Array.isArray(item) ? item[1] : (item.name || item.guardName || 'N/A');
+
+        if (!id && !name) continue;
+
+        rowsHtml += `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;">
+                <td style="padding: 12px 16px; font-weight: bold; color: #fcc200; font-family: monospace; font-size: 1.05rem;">${id}</td>
+                <td style="padding: 12px 16px; color: #f0f2f5; font-weight: 500;">${name}</td>
+            </tr>
+        `;
+    }
+
+    if (tableBody) {
+        tableBody.innerHTML = rowsHtml;
+    }
+}
         function fetchLogs() {
             const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
             const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
