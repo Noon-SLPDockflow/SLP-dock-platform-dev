@@ -453,7 +453,12 @@
         <canvas id="particleCanvas"></canvas>
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
-
+<!-- Arabic / English Switch Button for Login -->
+<div style="text-align: right; width: 100%; margin-bottom: 0.5rem;">
+    <button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color, #fcc200); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
+        🌐 العربية
+    </button>
+</div>
             <div class="login-tabs">
                 <button class="login-tab active" onclick="switchLoginMode('guard')">🛡️ <span data-i18n="Guard">Guard</span></button>
                 <button class="login-tab" onclick="switchLoginMode('ops')">📊 <span data-i18n="Operations">Operations</span></button>
@@ -3799,6 +3804,53 @@ document.querySelectorAll('.app-view').forEach(v => v.style.display = '');
         fetchLogs(); 
         setInterval(fetchLogs, 15000);
         setInterval(checkSessionExpiry, 60000); 
+  let currentLoginLang = 'EN';
+
+function toggleLoginLanguage() {
+    currentLoginLang = (currentLoginLang === 'EN') ? 'AR' : 'EN';
+
+    const btn = document.getElementById('loginLangBtn');
+    if (btn) btn.innerText = (currentLoginLang === 'AR') ? '🌐 English' : '🌐 العربية';
+
+    // Translations dictionary for Login Screen
+    const translations = {
+        'Guard': { en: 'Guard', ar: 'حارس' },
+        'Operations': { en: 'Operations', ar: 'العمليات' },
+        'Admin': { en: 'Admin', ar: 'المسؤول' },
+        'Scan Security ID': { en: 'Scan Security ID', ar: 'مسح هوية الأمان' },
+        'LOGIN OFFICER': { en: 'LOGIN OFFICER', ar: 'مسؤول الدخول' },
+        'Use Camera': { en: 'Use Camera', ar: 'استخدام الكاميرا' }
+    };
+
+    // 1. Translate data-i18n elements
+    document.querySelectorAll('#introOverlay [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[key]) {
+            el.innerText = translations[key][currentLoginLang.toLowerCase()];
+        }
+    });
+
+    // 2. Update Placeholders safely (does NOT break form submission)
+    const nameInput = document.getElementById('loginName');
+    const noonIdInput = document.getElementById('loginNoonId');
+    const emailInput = document.getElementById('loginEmail');
+    const adminPassInput = document.getElementById('adminPassword');
+    const authBtn = document.getElementById('customSignInBtn');
+
+    if (currentLoginLang === 'AR') {
+        if (nameInput) nameInput.placeholder = 'الاسم';
+        if (noonIdInput) noonIdInput.placeholder = 'رقم هوية نون (تلقائي بواسطة المسح)';
+        if (emailInput) emailInput.placeholder = 'البريد الإلكتروني المعتمد لنون';
+        if (adminPassInput) adminPassInput.placeholder = 'أدخل كلمة مرور المسؤول';
+        if (authBtn) authBtn.innerHTML = '<span>تسجيل الدخول</span>';
+    } else {
+        if (nameInput) nameInput.placeholder = 'Name';
+        if (noonIdInput) noonIdInput.placeholder = 'Noon ID (Auto-filled by Scan)';
+        if (emailInput) emailInput.placeholder = 'Authorized Noon Email';
+        if (adminPassInput) adminPassInput.placeholder = 'Enter Admin Password';
+        if (authBtn) authBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> AUTHORIZE ACCESS';
+    }
+}
     </script>
 </body>
 </html>
