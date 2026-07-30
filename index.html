@@ -743,9 +743,19 @@
                                 <input type="text" id="securityNameId" class="input-box-styled" required data-i18n="Security ID *" placeholder="Enter staff token number (e.g. LP0023)" autocomplete="off">
                             </div>
 
-                            <div class="form-group"><label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
-                                <input type="text" id="dockNumber" class="input-box-styled" list="dl-docks" required data-i18n="Dock Number *" placeholder="e.g. 25 or Dock 4" autocomplete="off">
-                            </div>
+<div class="form-group">
+    <label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
+    
+    <!-- 1. SELECT DROPDOWN -->
+    <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value)">
+        <option value="" disabled selected>Select Dock (15 - 90)...</option>
+        <!-- Docks 15 to 90 populated dynamically via JS in Step 3 -->
+        <option value="Others">Others / آخر</option>
+    </select>
+
+    <!-- 2. CUSTOM NUMERIC DOCK INPUT (Opens when "Others" is selected) -->
+    <input type="number" id="dockNumberCustom" class="input-box-styled" placeholder="Enter Custom Numeric Dock..." style="display:none; margin-top:0.5rem;" min="1" oninput="this.value = this.value.replace(/[^0-9]/g, '');" autocomplete="off">
+</div>
 
                             <div class="form-group"><label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
                                 <select id="direction" class="input-box-styled" style="font-size: 0.85rem;" onchange="handlePurposeChange(this)">
@@ -1423,7 +1433,41 @@ function checkDockOccupation() {
                 customInput.value = '';
             }
         }
+function toggleCustomDockInput(val) {
+    const customInput = document.getElementById('dockNumberCustom');
+    if (!customInput) return;
 
+    if (val === 'Others') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+    } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+
+function initDockDropdown() {
+    const dockSelect = document.getElementById('dockNumber');
+    if (!dockSelect) return;
+
+    dockSelect.innerHTML = `<option value="" disabled selected>Select Dock (15 - 90)...</option>`;
+
+    for (let i = 15; i <= 90; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+opt.innerText = i;
+        dockSelect.appendChild(opt);
+    }
+
+    const othersOpt = document.createElement('option');
+    othersOpt.value = "Others";
+    othersOpt.innerText = "Others / آخر";
+    dockSelect.appendChild(othersOpt);
+}
+
+document.addEventListener('DOMContentLoaded', initDockDropdown);
   function handleDispatchChange(selectEl) {
             if (!selectEl) return;
             const scannersRow = document.getElementById('checkinScannersRow');
@@ -2863,11 +2907,22 @@ function closeSignOutModal() {
             if (currentLang === 'ar') return `${h}س ${m}د`;
             return `${h}h ${m}m`;
         }
-        function generatePlateBumperUI(plateStr) {
-            let parts = plateStr ? plateStr.split(' ') : ['--'];
-            if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
-            return `<div class="plate-box-split"><div class="plate-segment">${plateStr || '--'}</div></div>`;
-        }
+function generatePlateBumperUI(plateStr) {
+    plateStr = String(plateStr || "").trim();
+
+    if (!plateStr || plateStr === "--") {
+        return `<span style="color:#a0a0a0;">N/A</span>`;
+    }
+
+    const parts = plateStr.split(' ');
+    let numbers = parts[0] || '';
+    let letters = parts.slice(1).join(' ') || '';
+
+    return `<div class="plate-bumper">
+        <span class="plate-num">${numbers}</span>
+        <span class="plate-let">${letters}</span>
+    </div>`;
+}
 
         function getBadgeClass(displayDir, isOut) {
             if(isOut || displayDir.includes("OUTBOUND") || displayDir.includes("مغادرة")) return "badge out";
@@ -3220,46 +3275,68 @@ function closeSignOutModal() {
             if(dlDocks) dlDocks.innerHTML = [...docks].sort().map(v => `<option value="${v}">`).join('');
         }
 
-        function compileDriversRegistryCards(data) {
-            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
-            const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
-            let uniqueDriversMap = {};
+function compileDriversRegistryCards(data) {
+    let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
+    const container = document.getElementById('driversRegistryContainer');
+    if (container) container.innerHTML = '';
+    let uniqueDriversMap = {};
 
-            data.forEach(item => {
-                if(!item.driverName || item.driverName.trim() === "") return;
-                if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return; 
+    if (!data) return;
 
-                if(!uniqueDriversMap[item.driverName]) {
-                    uniqueDriversMap[item.driverName] = { 
-                        name: item.driverName, plate: item.plateNumber || "--", registered: item.checkInTime || item.timestamp, id: item.iqamaNumber || "N/A", phone: item.mobileNumber || "N/A"
-                    };
-                } else {
-                    if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
-                        uniqueDriversMap[item.driverName].phone = item.mobileNumber;
-                    }
-                    if (item.iqamaNumber && item.iqamaNumber !== "N/A" && item.iqamaNumber !== "--") {
-                        uniqueDriversMap[item.driverName].id = item.iqamaNumber;
-                    }
-                }
-            });
+    data.forEach(item => {
+        if (!item.driverName || String(item.driverName).trim() === "") return;
+        if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return;
 
-            let list = Object.values(uniqueDriversMap);
-            driversRegistryList = list; 
-            document.getElementById('metric-drivers-count').innerText = list.length;
-            if(list.length === 0) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`; return; }
+        // Wrap plateNumber with String() to prevent numeric crashes
+        const safePlate = String(item.plateNumber || "--");
 
-            list.forEach(driver => {
-                let dateFormatted = fmtDate(driver.registered);
-                container.innerHTML += `
-                    <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${String(driver.phone || '').replace(/'/g, "\\'")}', false)">✏️</button></div>
-                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
-                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${String(driver.phone || '').replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
-                    </div>`;
-            });
+        if (!uniqueDriversMap[item.driverName]) {
+            uniqueDriversMap[item.driverName] = {
+                name: item.driverName,
+                plate: safePlate,
+                registered: item.checkInTime || item.timestamp,
+                id: item.iqamaNumber || "N/A",
+                phone: item.mobileNumber || "N/A"
+            };
+        } else {
+            if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
+                uniqueDriversMap[item.driverName].phone = item.mobileNumber;
+            }
+            if (item.iqamaNumber && item.iqamaNumber !== "N/A" && item.iqamaNumber !== "--") {
+                uniqueDriversMap[item.driverName].id = item.iqamaNumber;
+            }
+            if (safePlate && safePlate !== "--") {
+                uniqueDriversMap[item.driverName].plate = safePlate;
+            }
         }
+    });
 
+    let list = Object.values(uniqueDriversMap);
+    driversRegistryList = list;
+    
+    const countElem = document.getElementById('metric-drivers-count');
+    if (countElem) countElem.innerText = list.length;
+
+    if (list.length === 0) { 
+        if (container) container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`; 
+        return; 
+    }
+
+    list.forEach(driver => {
+        let dateFormatted = fmtDate(driver.registered);
+        // Safe string lowercasing for search blob
+        const searchName = String(driver.name || "").toLowerCase();
+        const searchPlate = String(driver.plate || "").toLowerCase();
+
+        container.innerHTML += `
+            <div class="driver-registry-card" data-search-blob="${searchName} ${searchPlate}">
+                <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${String(driver.plate || '').replace(/'/g, "\\'")}', '${String(driver.phone || '').replace(/'/g, "\\'")}', false)">✏️ </button></div>
+                <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div></div>
+                <div class="driver-card-info-grid"><div><p class="info-block">${tr('Iqama/National ID')}</p><p>${driver.id}</p></div><div class="info-block"><p>${tr('Registered Date')}</p><p>${dateFormatted}</p></div><div class="info-block" style="grid-column: 1 / -1;"><p>${tr('Mobile Number')}</p><p>${driver.phone}</p></div></div>
+                <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${String(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${String(driver.phone || '').replace(/'/g, "\\'")}')">${tr('View Records')}</button>
+            </div>`;
+    });
+}
         function filterRegistryCards() {
             let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
             document.querySelectorAll('.driver-registry-card:not(.security-card)').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
@@ -3545,8 +3622,7 @@ function closeSignOutModal() {
                             <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, null)}</td>
                             <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
                             <td style="text-align:right; padding-right:1rem;">
-                                <button class="btn-checkout-action" onclick="promptSignOut('${r.driverName.replace(/'/g, "\\'")}', '${(r.plateNumber || '').replace(/'/g, "\\'")}', '${(r.securityName || tr('Guard')).replace(/'/g, "\\'")}', '${r.dockNumber}', '${activeDispType}')">${tr('CHECK OUT')}</button>
-                            </td>
+<button class="btn-checkout-action" onclick="promptSignOut('${r.driverName.replace(/'/g, "\\'")}', '${String(r.plateNumber || '').replace(/'/g, "\\'")}', '${(r.securityName || tr('Guard')).replace(/'/g, "\\'")}', '${r.dockNumber}', '${activeDispType}')">${tr('CHECK OUT')}</button>                            </td>
                         </tr>`;
                     });
                 }
@@ -3585,8 +3661,19 @@ function closeSignOutModal() {
             }
 
             // --- DOUBLE CHECK DOCK OCCUPATION SECURITY GATEWAY ON SUBMIT ---
-            const dockVal = document.getElementById('dockNumber').value.trim().toUpperCase();
-            if (globalLogsCache) {
+let dockVal = document.getElementById('dockNumber').value;
+if (dockVal === 'Others') {
+    dockVal = document.getElementById('dockNumberCustom').value;
+}
+dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
+
+if (!dockVal) {
+    alert(typeof currentLang !== 'undefined' && currentLang === 'ar' ? 'يرجى إدخال رقم رصيف صحيح (أرقام فقط)' : 'Please enter a valid numeric Dock Number.');
+    return;
+}
+
+if (globalLogsCache) {
+    // ... rest of dockOccupied check
                 let dockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim().toUpperCase() === dockVal);
                 if (dockOccupied) {
                     if (currentLang === 'ar') {
@@ -3854,3 +3941,4 @@ function toggleLoginLanguage() {
     </script>
 </body>
 </html>
+
