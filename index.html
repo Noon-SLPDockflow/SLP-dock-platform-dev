@@ -3539,6 +3539,21 @@ function compileDriversRegistryCards(data) {
 
             let chronData = processedData.sort((a,b) => new Date(a.checkInTime || a.timestamp) - new Date(b.checkInTime || b.timestamp)); 
             globalHistoryListCache = chronData.slice().reverse(); 
+            // 🟢 KEEP LOCAL PENDING CHECK-INS VISIBLE (SPACE-PROOF MATCHING)
+    if (window.pendingCheckIns && window.pendingCheckIns.length > 0) {
+        window.pendingCheckIns.forEach(pendingLog => {
+            const existsInServer = chronData.some(s => 
+                String(s.plateNumber || '').replace(/\s+/g, '').toLowerCase() === String(pendingLog.plateNumber || '').replace(/\s+/g, '').toLowerCase() && 
+                !s.checkOutTime
+            );
+
+            if (existsInServer) {
+                window.pendingCheckIns = window.pendingCheckIns.filter(p => p !== pendingLog);
+            } else {
+                chronData.unshift(pendingLog);
+            }
+        });
+    }
             globalLogsCache = chronData;
 
             const activeBody = document.getElementById('activeYardTableBody');
@@ -3771,10 +3786,7 @@ if (globalLogsCache) {
             })
                     .catch(e => console.error("Background save issue:", e));
 
-                globalLogsCache.push({
-                    ...payload,
-                    checkInTime: new Date().toISOString()
-                });
+
                 // 🟢 PUSH TO LOCAL PENDING LIST IMMEDIATELY SO TRUCK NEVER DISAPPEARS
 if (!window.pendingCheckIns) window.pendingCheckIns = [];
 
@@ -3788,9 +3800,7 @@ const newLocalLog = {
 
 window.pendingCheckIns.push(newLocalLog);
 
-if (typeof globalLogsCache !== 'undefined' && Array.isArray(globalLogsCache)) {
-    globalLogsCache.unshift(newLocalLog);
-}
+
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
 
                 document.getElementById('entryForm').reset(); 
