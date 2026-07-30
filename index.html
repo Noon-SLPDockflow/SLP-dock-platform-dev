@@ -3634,11 +3634,36 @@ function compileDriversRegistryCards(data) {
             if(userRole === 'admin') renderNotifications();
         };
 
-        function fetchLogs() {
-            const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
-            const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
-        }
+       let isFetchingLogs = false;
 
+function fetchLogs() {
+    // 🟢 BLOCK OVERLAPPING REQUESTS TO PREVENT FREEZING
+    if (isFetchingLogs) return; 
+    
+    isFetchingLogs = true;
+
+    const old = document.getElementById('jsonp-fetcher');
+    if (old) old.remove();
+
+    const s = document.createElement('script');
+    s.id = 'jsonp-fetcher';
+    s.src = API_URL + "?callback=handleLogsResponseWrapper&prefix=handleLogsResponse&_" + new Date().getTime();
+    
+    // Safety net: release lock if network fails
+    s.onerror = function() {
+        isFetchingLogs = false;
+    };
+
+    document.body.appendChild(s);
+}
+
+// 🟢 WRAPPER TO RELEASE NETWORK LOCK WHEN DATA ARRIVES
+window.handleLogsResponseWrapper = function(data) {
+    isFetchingLogs = false; // Release lock so next polling cycle can run smoothly
+    if (typeof window.handleLogsResponse === 'function') {
+        window.handleLogsResponse(data);
+    }
+};
         document.getElementById('entryForm').addEventListener('submit', async e => {
             e.preventDefault(); 
             
@@ -3750,7 +3775,22 @@ if (globalLogsCache) {
                     ...payload,
                     checkInTime: new Date().toISOString()
                 });
-                
+                // 🟢 PUSH TO LOCAL PENDING LIST IMMEDIATELY SO TRUCK NEVER DISAPPEARS
+if (!window.pendingCheckIns) window.pendingCheckIns = [];
+
+const newLocalLog = {
+    ...payload,
+    dockNumber: typeof dockVal !== 'undefined' ? dockVal : payload.dockNumber,
+    direction: typeof directionVal !== 'undefined' ? directionVal : payload.direction,
+    checkInTime: new Date().toISOString(),
+    checkOutTime: null
+};
+
+window.pendingCheckIns.push(newLocalLog);
+
+if (typeof globalLogsCache !== 'undefined' && Array.isArray(globalLogsCache)) {
+    globalLogsCache.unshift(newLocalLog);
+}
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
 
                 document.getElementById('entryForm').reset(); 
