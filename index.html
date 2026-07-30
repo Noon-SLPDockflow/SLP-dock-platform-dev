@@ -2876,6 +2876,11 @@ function closeSignOutModal() {
             `;
             toast.innerHTML = `<span style="font-size: 1.3rem;">✅</span> CHECK OUT COMPLETE — ${identifier || 'Vehicle'}`;
             document.body.appendChild(toast);
+            // 🔴 ADD TO LOCAL PENDING LIST SO SERVER LAG DOESN'T BRING IT BACK
+if (!window.pendingCheckOuts) window.pendingCheckOuts = [];
+if (typeof identifier !== 'undefined') {
+    window.pendingCheckOuts.push(String(identifier).replace(/\s+/g, '').toLowerCase());
+}
 
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -3551,6 +3556,24 @@ function compileDriversRegistryCards(data) {
                 window.pendingCheckIns = window.pendingCheckIns.filter(p => p !== pendingLog);
             } else {
                 chronData.unshift(pendingLog);
+            }
+        });
+    }
+            // 🔴 KEEP LOCAL CHECK-OUTS HIDDEN UNTIL CONFIRMED BY SERVER
+    if (window.pendingCheckOuts && window.pendingCheckOuts.length > 0) {
+        window.pendingCheckOuts.forEach(plate => {
+            const serverRecord = chronData.find(s => 
+                String(s.plateNumber || '').replace(/\s+/g, '').toLowerCase() === plate
+            );
+            
+            if (serverRecord) {
+                if (serverRecord.checkOutTime) {
+                    // Server officially registered the checkout! Remove from pending list
+                    window.pendingCheckOuts = window.pendingCheckOuts.filter(p => p !== plate);
+                } else {
+                    // Server is lagging: force a local checkout time so it stays off the Active screen
+                    serverRecord.checkOutTime = new Date().toISOString(); 
+                }
             }
         });
     }
