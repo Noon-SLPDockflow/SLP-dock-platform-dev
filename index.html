@@ -3322,26 +3322,55 @@
                 if (!item.driverName || String(item.driverName).trim() === "") return;
                 if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return;
 
-                // Wrap plateNumber with String() to prevent numeric crashes
+                const driverName = String(item.driverName).trim();
                 const safePlate = String(item.plateNumber || "--");
+                const checkInTime = item.checkInTime || item.timestamp || "";
+                const photoUrl = item.driverPhoto || item.truckPhoto || item.checkInItemPhoto || "";
+                const isActive = !item.checkOutTime;
 
-                if (!uniqueDriversMap[item.driverName]) {
-                    uniqueDriversMap[item.driverName] = {
-                        name: item.driverName,
+                if (!uniqueDriversMap[driverName]) {
+                    uniqueDriversMap[driverName] = {
+                        name: driverName,
                         plate: safePlate,
-                        registered: item.checkInTime || item.timestamp,
+                        registered: checkInTime,
                         id: item.iqamaNumber || "N/A",
-                        phone: item.mobileNumber || "N/A"
+                        phone: item.mobileNumber || "N/A",
+                        lastActiveDock: item.dockNumber || "--",
+                        lastActiveDispatchType: item.dispatchType || "--",
+                        lastActiveSeal: item.sealNumber || "--",
+                        lastActiveCheckIn: checkInTime,
+                        lastActiveDirection: item.direction || "--",
+                        lastActivePhoto: photoUrl,
+                        isActive: isActive
                     };
                 } else {
+                    const driverRecord = uniqueDriversMap[driverName];
                     if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
-                        uniqueDriversMap[item.driverName].phone = item.mobileNumber;
+                        driverRecord.phone = item.mobileNumber;
                     }
                     if (item.iqamaNumber && item.iqamaNumber !== "N/A" && item.iqamaNumber !== "--") {
-                        uniqueDriversMap[item.driverName].id = item.iqamaNumber;
+                        driverRecord.id = item.iqamaNumber;
                     }
                     if (safePlate && safePlate !== "--") {
-                        uniqueDriversMap[item.driverName].plate = safePlate;
+                        driverRecord.plate = safePlate;
+                    }
+                    if (!driverRecord.registered || driverRecord.registered === "") {
+                        driverRecord.registered = checkInTime;
+                    }
+
+                    const previousTs = new Date(driverRecord.lastActiveCheckIn || 0).getTime();
+                    const currentTs = new Date(checkInTime).getTime();
+                    if (!isNaN(currentTs) && currentTs >= previousTs) {
+                        driverRecord.lastActiveDock = item.dockNumber || driverRecord.lastActiveDock;
+                        driverRecord.lastActiveDispatchType = item.dispatchType || driverRecord.lastActiveDispatchType;
+                        driverRecord.lastActiveSeal = item.sealNumber || driverRecord.lastActiveSeal;
+                        driverRecord.lastActiveCheckIn = checkInTime;
+                        driverRecord.lastActiveDirection = item.direction || driverRecord.lastActiveDirection;
+                        driverRecord.lastActivePhoto = photoUrl || driverRecord.lastActivePhoto;
+                    }
+
+                    if (isActive) {
+                        driverRecord.isActive = true;
                     }
                 }
             });
@@ -3359,15 +3388,23 @@
 
             list.forEach(driver => {
                 let dateFormatted = fmtDate(driver.registered);
-                // Safe string lowercasing for search blob
                 const searchName = String(driver.name || "").toLowerCase();
                 const searchPlate = String(driver.plate || "").toLowerCase();
-
-                container.innerHTML += `
-                    <div class="driver-registry-card" data-search-blob="${searchName} ${searchPlate}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${String(driver.plate || '').replace(/'/g, "\\'")}', '${String(driver.phone || '').replace(/'/g, "\\'")}', false)">✏️ </button></div>
-                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div></div>
-                        <div class="driver-card-info-grid"><div><p class="info-block">${tr('Iqama/National ID')}</p><p>${driver.id}</p></div><div class="info-block"><p>${tr('Registered Date')}</p><p>${dateFormatted}</p></div><div class="info-block" style="grid-column: 1 / -1;"><p>${tr('Mobile Number')}</p><p>${driver.phone}</p></div></div>
+                const searchDock = String(driver.lastActiveDock || "").toLowerCase();
+                const searchType = String(driver.lastActiveDispatchType || "").toLowerCase();
+                const safePhoto = String(driver.lastActivePhoto || "");
+                const safePhotoEscaped = safePhoto.replace(/(['"\\])/g, "\\$1");
+                const avatarHtml = safePhoto ? `<div class="driver-avatar-img" style="background-image:url('${safePhotoEscaped}'); background-size:cover; background-position:center; background-repeat:no-repeat;"> </div>` : `<div class="driver-avatar-img">👤</div>`;
+                        <div class="driver-card-info-grid">
+                            <div><p class="info-block">${tr('Plate')}</p><p>${driver.plate}</p></div>
+                            <div><p class="info-block">${tr('Dock')}</p><p>${driver.lastActiveDock}</p></div>
+                            <div><p class="info-block">${tr('Type')}</p><p>${tr(driver.lastActiveDispatchType.toUpperCase())}</p></div>
+                            <div><p class="info-block">${tr('Seal Number')}</p><p>${driver.lastActiveSeal}</p></div>
+                            <div><p class="info-block">${tr('Check-In Time')}</p><p>${fmtDate(driver.lastActiveCheckIn)}</p></div>
+                            <div><p class="info-block">${tr('Status')}</p><p>${driver.isActive ? tr('Inside') : tr('Checked-Out')}</p></div>
+                            <div class="info-block" style="grid-column: 1 / -1;"><p class="info-block">${tr('Iqama/National ID')}</p><p>${driver.id}</p></div>
+                            <div class="info-block" style="grid-column: 1 / -1;"><p class="info-block">${tr('Mobile Number')}</p><p>${driver.phone}</p></div>
+                        </div>
                         <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${String(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${String(driver.phone || '').replace(/'/g, "\\'")}')">${tr('View Records')}</button>
                     </div>`;
             });
@@ -3807,12 +3844,13 @@
                     btn.style.pointerEvents = 'none'; 
                 }            try {
                         const payload = { 
+                            action: 'checkin',
                             driverName: document.getElementById('driverName').value, 
                             iqamaNumber: document.getElementById('iqamaNumber').value, 
                             plateNumber: document.getElementById('plateNumber').value, 
                             mobileNumber: document.getElementById('mobileNumber').value.trim() || "N/A", 
                             securityName: document.getElementById('securityNameField').value, 
-                            dockNumber: document.getElementById('dockNumber').value, 
+                            dockNumber: dockVal || document.getElementById('dockNumber').value, 
                             direction: directionVal,
                             dispatchType: dispatchMode,
                             noonEmployeeId: document.getElementById('noonEmployeeId').value.trim() || "N/A",
@@ -3838,10 +3876,22 @@
                     }
                     fetch(API_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        headers: { 'Content-Type': 'application/json;charset=utf-8' },
                         body: JSON.stringify(payload)
                     })
-                            .catch(e => console.error("Background save issue:", e));
+                    .then(async response => {
+                        const text = await response.text();
+                        let result = null;
+                        try { result = JSON.parse(text); } catch (err) { console.error('Invalid JSON response:', text); }
+                        if (!response.ok || !result || !result.success) {
+                            console.error('Check-in failed response:', response.status, result || text);
+                            alert('Check-in failed. See console for details.');
+                        }
+                    })
+                    .catch(e => {
+                        console.error("Background save issue:", e);
+                        alert('Network error while saving. Please try again.');
+                    });
 
 
                         // 🟢 PUSH TO LOCAL PENDING LIST IMMEDIATELY SO TRUCK NEVER DISAPPEARS
