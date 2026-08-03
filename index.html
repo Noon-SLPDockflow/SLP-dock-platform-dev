@@ -1982,11 +1982,13 @@ window.logoutUser = function() {
                 setInterval(updateHeroDateTime, 1000);
                 updateHeroDateTime();
 
- window.switchView = function(viewId, element) {
-                    document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
-                    document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
-                }
-
+function switchView(viewId, element) {
+    document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
+    if (element) {
+        document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
+    }
+}
+window.switchView = switchView;
                 window.toggleFullscreen = function() {
                     const fsBtnText = document.getElementById('fsBtnLabel');
                     const fsIcon = document.getElementById('fsIcon');
