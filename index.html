@@ -6,33 +6,35 @@
   <title>Noon SLP Dock Security Platform</title>
   <style>
     :root {
-      --bg:#0b0e14; --panel:rgba(18,22,31,.9); --panel-2:#12161f; --border:rgba(255,255,255,.08); --accent:#fcc200; --text:#f5f7fb; --muted:#8b949e; --success:#2ea043; --danger:#f85149;
+      --bg:#0b0e14; --panel:rgba(18,22,31,.92); --border:rgba(255,255,255,.08); --accent:#fcc200; --text:#f5f7fb; --muted:#8b949e; --success:#2ea043; --danger:#f85149;
     }
     *{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,system-ui,-apple-system,sans-serif}
-    body{margin:0;background:linear-gradient(rgba(11,14,20,.94),rgba(11,14,20,.94)),url('background.jpg.jpeg');background-size:55%;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text);min-height:100vh;overflow-x:hidden}
+    body{margin:0;min-height:100vh;background:linear-gradient(rgba(11,14,20,.94),rgba(11,14,20,.94)),url('background.jpg.jpeg');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text);overflow-x:hidden}
     button,input,select,textarea{font:inherit}
     .hidden{display:none!important}
+    .small{font-size:.82rem;color:var(--muted)}
     .intro-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:99999;transition:opacity .7s,transform .7s}
     .intro-overlay.hide{opacity:0;pointer-events:none;transform:scale(1.03)}
-    .intro-card{background:var(--panel);border:1px solid var(--border);padding:2rem 2.4rem;border-radius:16px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-    .intro-card h1{font-size:2rem;margin-bottom:.5rem}
+    .intro-card{background:var(--panel);border:1px solid var(--border);padding:2rem 2.4rem;border-radius:16px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .intro-card h1{font-size:2rem;margin-bottom:.4rem}
     .intro-card p{color:var(--muted);margin-top:.4rem}
-    .auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem}
+    .auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.2rem}
     .auth-card{width:min(460px,100%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:1.5rem;box-shadow:0 18px 60px rgba(0,0,0,.35)}
     .auth-tabs{display:flex;gap:.5rem;margin:1rem 0}.auth-tab{flex:1;padding:.75rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}.auth-tab.active{background:var(--accent);color:#000}
-    .field{display:flex;flex-direction:column;gap:.35rem;margin:.7rem 0}.field input,.field select,.field textarea{padding:.8rem;border-radius:8px;border:1px solid var(--border);background:#0f1320;color:var(--text)}
+    .field{display:flex;flex-direction:column;gap:.35rem;margin:.7rem 0}
+    .field input,.field select,.field textarea{padding:.8rem;border-radius:8px;border:1px solid var(--border);background:#0f1320;color:var(--text)}
     .btn{padding:.8rem 1rem;border:none;border-radius:8px;cursor:pointer;font-weight:700}.btn.primary{background:var(--accent);color:#000}.btn.secondary{background:#202531;color:var(--text)}
     .shell{display:flex;min-height:100vh}
-    .sidebar{width:260px;background:rgba(7,9,12,.95);border-right:1px solid var(--border);padding:1rem;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:.8rem}
-    .sidebar .brand{padding-bottom:1rem;border-bottom:1px solid var(--border)}
-    .sidebar .brand h2{font-size:1.15rem}.sidebar .brand p{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+    .sidebar{width:270px;background:rgba(7,9,12,.95);border-right:1px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:.8rem;position:sticky;top:0;height:100vh}
+    .brand{padding-bottom:1rem;border-bottom:1px solid var(--border)}
+    .brand h2{font-size:1.15rem}.brand p{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
     .nav-item{display:flex;align-items:center;gap:.7rem;padding:.8rem .9rem;border-radius:8px;color:var(--muted);cursor:pointer;text-decoration:none}.nav-item.active,.nav-item:hover{background:rgba(252,194,0,.12);color:var(--accent)}
     .sidebar .footer{margin-top:auto;padding-top:1rem;border-top:1px solid var(--border)}
-    .main{flex:1;padding:1.4rem 1.6rem 2rem}
-    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+    .main{flex:1;padding:1.35rem 1.6rem 2rem;overflow:auto}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
     .topbar .title h1{font-size:1.35rem}.topbar .title p{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.15em}
     .chip{display:inline-block;padding:.35rem .7rem;border-radius:999px;font-size:.72rem;border:1px solid var(--border);color:var(--muted)}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem;box-shadow:0 12px 28px rgba(0,0,0,.22)}
     .hero{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1.2rem 1.3rem;margin-bottom:1rem;border:1px solid rgba(252,194,0,.2);border-radius:16px;background:linear-gradient(135deg, rgba(252,194,0,.16), rgba(18,22,31,.95));box-shadow:0 14px 30px rgba(0,0,0,.2)}
     .hero-badges{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.6rem}
     .pill{display:inline-block;padding:.35rem .6rem;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em}
@@ -46,16 +48,21 @@
     .quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:.8rem}
     .action-btn{padding:.8rem;border:none;border-radius:10px;background:rgba(252,194,0,.12);color:var(--accent);font-weight:700;cursor:pointer;border:1px solid rgba(252,194,0,.2)}
     .action-btn:hover{background:rgba(252,194,0,.2)}
-    .progress-row{display:flex;justify-content:space-between;align-items:center;margin:.5rem 0}.progress-track{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:.25rem}.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#ffdc6b)}
+    .progress-row{display:flex;justify-content:space-between;align-items:center;margin:.5rem 0}.progress-track{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#ffdc6b)}
     .dock-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.7rem}
     .dock{padding:.95rem .4rem;border-radius:10px;text-align:center;font-weight:800;font-size:.95rem}.dock.active{background:rgba(46,160,67,.95);color:#fff}.dock.inactive{background:#f5f7fb;color:#111}
     .table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:.75rem;border-bottom:1px solid var(--border);text-align:left;font-size:.9rem}.table th{color:var(--muted);text-transform:uppercase;font-size:.7rem;letter-spacing:.1em}
     .badge{display:inline-block;padding:.3rem .6rem;border-radius:999px;font-size:.7rem;font-weight:700}.badge.success{background:rgba(46,160,67,.16);color:var(--success)}.badge.warn{background:rgba(252,194,0,.16);color:var(--accent)}.badge.danger{background:rgba(248,81,73,.16);color:var(--danger)}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1200}.modal.show{display:flex}
-    .modal-card{width:min(520px,100%);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:1rem;z-index:1200}.modal.show{display:flex}
+    .modal-card{width:min(560px,100%);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
     .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}.small{font-size:.82rem;color:var(--muted)}
-    @media (max-width:960px){.metrics{grid-template-columns:repeat(2,1fr)}.dock-grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:1fr}.sidebar{width:220px}}@media (max-width:680px){.main{padding:1rem}.sidebar{display:none}.metrics{grid-template-columns:1fr}.dock-grid{grid-template-columns:repeat(3,1fr)}}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .toast{position:fixed;right:1rem;bottom:1rem;background:#10151f;border:1px solid var(--border);color:var(--text);padding:.8rem 1rem;border-radius:10px;display:none;z-index:1300}
+    .suggestions{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:.3rem;background:#0f1320;display:none}
+    .suggestions div{padding:.7rem;cursor:pointer}.suggestions div:hover{background:rgba(255,255,255,.06)}
+    .chart-box{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .donut{width:170px;height:170px;border-radius:50%;margin:0 auto;background:conic-gradient(var(--accent) 0 80deg, #2ea043 80deg 180deg, #79c0ff 180deg 300deg, #f85149 300deg 360deg)}
+    @media (max-width:960px){.metrics{grid-template-columns:repeat(2,1fr)}.stat-grid{grid-template-columns:repeat(2,1fr)}.dock-grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:1fr}.sidebar{width:220px}.quick-actions{grid-template-columns:1fr}.chart-box{grid-template-columns:1fr}}@media (max-width:680px){.main{padding:1rem}.sidebar{display:none}.metrics{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr}.dock-grid{grid-template-columns:repeat(3,1fr)}.hero{flex-direction:column;align-items:flex-start}}
   </style>
 </head>
 <body>
@@ -85,25 +92,25 @@
   </section>
 
   <div class="shell hidden" id="appShell">
-    <aside class="sidebar" id="appSidebar">
+    <aside class="sidebar">
       <div class="brand">
         <h2>DockFlow</h2>
         <p>Security Platform</p>
       </div>
-      <div class="nav-item active" data-view="dashboard">📊 Dashboard</div>
-      <div class="nav-item" data-view="checkin">🚚 Check-in Truck</div>
-      <div class="nav-item" data-view="active-trucks">🛻 Active Trucks</div>
-      <div class="nav-item" data-view="history">🧾 History Log</div>
-      <div class="nav-item" data-view="drivers">👤 Drivers</div>
-      <div class="nav-item" data-view="security">🛡️ Security</div>
-      <div class="nav-item" data-view="analytics">📈 Analytics</div>
+      <div class="nav-item active" data-view="dashboard" data-role="guard ops admin">📊 Dashboard</div>
+      <div class="nav-item" data-view="checkin" data-role="guard ops admin">🚚 Check-in Truck</div>
+      <div class="nav-item" data-view="active-trucks" data-role="guard ops admin">🛻 Active Trucks</div>
+      <div class="nav-item" data-view="history" data-role="guard ops admin">🧾 History Log</div>
+      <div class="nav-item" data-view="drivers" data-role="admin ops">👤 Drivers</div>
+      <div class="nav-item" data-view="security" data-role="admin">🛡️ Security</div>
+      <div class="nav-item" data-view="analytics" data-role="ops admin">📈 Analytics</div>
       <div class="footer">
         <div class="chip" id="authBadge">Guest</div>
         <button class="btn secondary" id="logoutBtn" style="margin-top:.7rem;width:100%">Log out</button>
       </div>
     </aside>
 
-    <main class="main" id="mainContent">
+    <main class="main">
       <div class="topbar">
         <div class="title">
           <h1 id="pageTitle">Dashboard</h1>
@@ -111,7 +118,6 @@
         </div>
         <div class="chip" id="userChip">Guest User</div>
       </div>
-
       <section class="view" id="view-dashboard"></section>
       <section class="view hidden" id="view-checkin"></section>
       <section class="view hidden" id="view-active-trucks"></section>
@@ -122,326 +128,95 @@
     </main>
   </div>
 
-  <div class="modal" id="profileModal">
+  <div class="modal" id="driverModal">
     <div class="modal-card">
       <div class="modal-head">
-        <h3 id="profileTitle">Driver profile</h3>
-        <button class="btn secondary" onclick="closeProfileModal()">Close</button>
+        <h3 id="driverModalTitle">Driver profile</h3>
+        <button class="btn secondary" onclick="closeDriverModal()">Close</button>
       </div>
-      <div id="profileBody"></div>
+      <div id="driverModalBody"></div>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
     const defaultState = {
-      user: { name: 'Guest User', email: 'Not signed in', noonId: '', role: 'guard' },
-      trucks: [
-        { dock: 'D01', plate: 'ABC-123', driver: 'Ali Ahmed', direction: 'Receiving', status: 'Active', time: '08:10' },
-        { dock: 'D02', plate: 'XYZ-999', driver: 'Salem', direction: 'Dispatch', status: 'Queued', time: '08:25' },
-        { dock: 'D03', plate: 'MNO-555', driver: 'Nasser', direction: 'Receiving', status: 'Active', time: '08:42' }
+      user:{name:'Guest User',email:'Not signed in',noonId:'',role:'guard'},
+      trucks:[
+        {dock:'D01',plate:'ABC-123',driver:'Ali Ahmed',direction:'Receiving',status:'Active',time:'08:10'},
+        {dock:'D02',plate:'XYZ-999',driver:'Salem',direction:'Dispatch',status:'Queued',time:'08:25'},
+        {dock:'D03',plate:'MNO-555',driver:'Nasser',direction:'Receiving',status:'Active',time:'08:42'}
       ],
-      logs: [
-        { id: 'TRK-1001', dock: 'D01', driver: 'Ali Ahmed', direction: 'Receiving', status: 'In', time: '08:10' },
-        { id: 'TRK-1002', dock: 'D02', driver: 'Salem', direction: 'Dispatch', status: 'Out', time: '08:25' }
+      logs:[
+        {id:'TRK-1001',dock:'D01',driver:'Ali Ahmed',direction:'Receiving',status:'In',time:'08:10'},
+        {id:'TRK-1002',dock:'D02',driver:'Salem',direction:'Dispatch',status:'Out',time:'08:25'}
       ],
-      drivers: [
-        { name: 'Ali Ahmed', iqama: '1234567890', plate: 'ABC-123', phone: '0500000000', type: 'Driver' },
-        { name: 'Sara Khalid', iqama: '2234567890', plate: 'XYZ-999', phone: '0511111111', type: 'Driver' }
+      drivers:[
+        {name:'Ali Ahmed',iqama:'1234567890',plate:'ABC-123',phone:'0500000000',type:'Driver'},
+        {name:'Sara Khalid',iqama:'2234567890',plate:'XYZ-999',phone:'0511111111',type:'Driver'}
       ],
-      guards: [
-        { name: 'Mahmoud Abbas', id: 'RDS07221', role: 'Guard' },
-        { name: 'Inad Suleiman', id: 'RDS604', role: 'Guard' },
-        { name: 'Rais Khairan', id: 'RDS08328', role: 'Operations' }
+      guards:[
+        {name:'Mahmoud Abbas',id:'RDS07221',role:'Guard'},
+        {name:'Inad Suleiman',id:'RDS604',role:'Guard'},
+        {name:'Rais Khairan',id:'RDS08328',role:'Operations'}
       ],
-      accessRequests: [{ name: 'Nora', email: 'nora@noon.com', role: 'ops' }],
-      notifications: [{ title: 'Ops access request', text: 'Pending approval for Nora' }]
+      accessRequests:[{name:'Nora',email:'nora@noon.com',role:'ops'}],
+      notifications:[{title:'Ops access request',text:'Pending approval for Nora'}]
     };
 
-    const storageKey = 'dockflow_compact_state_v1';
-    let state = loadState();
-    let activeView = 'dashboard';
-    let currentMode = 'new';
+    const storageKey='dockflow_compact_state_v2';
+    let state=loadState();
+    let activeView='dashboard';
+    let currentMode='new';
+    let historyFilter='all';
+    let driverModalIndex=null;
+    let driverSearch='';
 
-    function loadState() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(storageKey));
-        return saved ? { ...defaultState, ...saved, user: { ...defaultState.user, ...(saved.user || {}) }, trucks: saved.trucks || defaultState.trucks, logs: saved.logs || defaultState.logs, drivers: saved.drivers || defaultState.drivers, guards: saved.guards || defaultState.guards, accessRequests: saved.accessRequests || defaultState.accessRequests, notifications: saved.notifications || defaultState.notifications } : defaultState;
-      } catch { return defaultState; }
-    }
+    function esc(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+    function loadState(){ try { const saved=JSON.parse(localStorage.getItem(storageKey)); return saved ? {...defaultState,...saved,user:{...defaultState.user,...(saved.user||{})},trucks:saved.trucks||defaultState.trucks,logs:saved.logs||defaultState.logs,drivers:saved.drivers||defaultState.drivers,guards:saved.guards||defaultState.guards,accessRequests:saved.accessRequests||defaultState.accessRequests,notifications:saved.notifications||defaultState.notifications} : defaultState; } catch { return defaultState; } }
+    function saveState(){ localStorage.setItem(storageKey, JSON.stringify(state)); }
+    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>t.style.display='none',1800); }
 
-    function saveState() { localStorage.setItem(storageKey, JSON.stringify(state)); }
+    function renderAll(){ renderNav(); renderDashboard(); renderCheckin(); renderActiveTrucks(); renderHistory(); renderDrivers(); renderSecurity(); renderAnalytics(); updateHeader(); }
+    function renderNav(){ document.querySelectorAll('.nav-item').forEach(item=>{ const roles=item.dataset.role.split(' '); item.classList.toggle('hidden', !roles.includes(state.user.role)); }); if (!document.querySelector('.nav-item:not(.hidden)')) return; const activeItem=document.querySelector(`.nav-item[data-view="${activeView}"]`); if (activeItem && activeItem.classList.contains('hidden')) { const firstVisible=document.querySelector('.nav-item:not(.hidden)'); if(firstVisible) switchView(firstVisible.dataset.view); } document.querySelectorAll('.nav-item').forEach(item=>item.classList.toggle('active', item.dataset.view===activeView && !item.classList.contains('hidden'))); }
+    function switchView(view){ activeView=view; renderNav(); document.querySelectorAll('.view').forEach(section=>section.classList.add('hidden')); document.getElementById('view-'+view).classList.remove('hidden'); const titles={dashboard:['Dashboard','Real-time dock operations and access oversight'],checkin:['Check-in Truck','Capture incoming and outgoing movement requests'],'active-trucks':['Active Trucks','Current dock occupancy and status'],history:['History Log','Filtered movement logs and exceptions'],drivers:['Drivers Database','Driver profile search and maintenance'],security:['Security Guard Database','Centralized registry of security personnel'],analytics:['Analytics','Operational growth, movement, and performance charts']}; const [title,subtitle]=titles[view]||titles.dashboard; document.getElementById('pageTitle').textContent=title; document.getElementById('pageSubtitle').textContent=subtitle; }
+    function updateHeader(){ document.getElementById('authBadge').textContent=state.user.role.toUpperCase(); document.getElementById('authBadge').style.color=state.user.role==='admin'?'var(--accent)':state.user.role==='ops'?'#79c0ff':'#3fb950'; document.getElementById('userChip').textContent=`${state.user.name} · ${state.user.role}`; }
 
-    function renderAll() {
-      renderDashboard();
-      renderCheckin();
-      renderActiveTrucks();
-      renderHistory();
-      renderDrivers();
-      renderSecurity();
-      renderAnalytics();
-      updateAuthBadge();
-      updateUserChip();
-    }
+    function renderDashboard(){ const view=document.getElementById('view-dashboard'); const activeCount=state.trucks.filter(t=>t.status==='Active').length; const queuedCount=state.trucks.filter(t=>t.status==='Queued').length; view.innerHTML=`<div class="hero"><div><div class="hero-badges"><span class="pill">Live operations</span><span class="pill">Noon SLP</span></div><h2 style="font-size:1.35rem;margin-bottom:.35rem">DockFlow control center</h2><p class="small">Secure, fast visibility for guards, operations, and stakeholders.</p></div><div class="card" style="min-width:220px;padding:.9rem"><div class="small">System health</div><div style="font-size:1.2rem;font-weight:800;margin:.25rem 0">Operational</div><div class="progress-row"><span class="small">Compliance</span><strong>96%</strong></div><div class="progress-track"><div class="progress-fill" style="width:96%"></div></div></div></div><div class="stat-grid"><div class="stat-card"><div class="label">Active trucks</div><div class="value">${activeCount}</div></div><div class="stat-card"><div class="label">Queued</div><div class="value">${queuedCount}</div></div><div class="stat-card"><div class="label">Drivers</div><div class="value">${state.drivers.length}</div></div><div class="stat-card"><div class="label">Security</div><div class="value">${state.guards.length}</div></div></div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3>Dock Status</h3><span class="chip">Live overview</span></div><div class="dock-grid">${state.trucks.map(t=>`<div class="dock ${t.status==='Active'?'active':'inactive'}">${esc(t.dock)}<br><span style="font-size:.72rem">${esc(t.status)}</span></div>`).join('')}</div></div><div class="grid" style="grid-template-columns:1fr 1fr;margin-top:1rem"><div class="card"><h3 style="margin-bottom:.8rem">Quick actions</h3><div class="quick-actions"><button class="action-btn" onclick="switchView('checkin')">New movement</button><button class="action-btn" onclick="switchView('history')">View log</button><button class="action-btn" onclick="switchView('analytics')">Analytics</button></div><div style="margin-top:.9rem"><h4 style="margin-bottom:.6rem">Access Requests</h4>${state.accessRequests.map((r,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border)"><div><strong>${esc(r.name)}</strong><div class="small">${esc(r.email)}</div></div><div><button class="badge success" onclick="approveRequest(${i})">Approve</button><button class="badge danger" style="margin-left:.35rem" onclick="rejectRequest(${i})">Reject</button></div></div>`).join('')}</div></div><div class="card"><h3 style="margin-bottom:.8rem">Operational pulse</h3><div class="progress-row"><span>Receiving</span><strong>${state.logs.filter(l=>l.direction==='Receiving').length}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,state.logs.filter(l=>l.direction==='Receiving').length*18)}%"></div></div><div class="progress-row" style="margin-top:.7rem"><span>Dispatch</span><strong>${state.logs.filter(l=>l.direction==='Dispatch').length}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,state.logs.filter(l=>l.direction==='Dispatch').length*18)}%"></div></div><div class="progress-row" style="margin-top:.7rem"><span>Inspection</span><strong>${state.logs.filter(l=>l.direction==='Inspection').length}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,state.logs.filter(l=>l.direction==='Inspection').length*18)}%"></div></div><div style="margin-top:.9rem"><h4 style="margin-bottom:.6rem">Notifications</h4>${state.notifications.map(n=>`<div style="padding:.55rem 0;border-bottom:1px solid var(--border)"><strong>${esc(n.title)}</strong><div class="small">${esc(n.text)}</div></div>`).join('')}</div></div></div>`; }
 
-    function switchView(view) {
-      activeView = view;
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.view === view));
-      document.querySelectorAll('.view').forEach(section => section.classList.add('hidden'));
-      document.getElementById('view-' + view).classList.remove('hidden');
-      const titles = { dashboard: ['Dashboard', 'Real-time dock operations and access oversight'], checkin: ['Check-in Truck', 'Capture incoming and outgoing movement requests'], 'active-trucks': ['Active Trucks', 'Current dock occupancy and status'], history: ['History Log', 'Filtered movement logs and exceptions'], drivers: ['Drivers Database', 'Driver profile search and maintenance'], security: ['Security Guard Database', 'Centralized registry of security personnel'], analytics: ['Analytics', 'Operational growth, movement, and performance charts'] };
-      const [title, subtitle] = titles[view];
-      document.getElementById('pageTitle').textContent = title;
-      document.getElementById('pageSubtitle').textContent = subtitle;
-    }
+    function renderCheckin(){ const view=document.getElementById('view-checkin'); view.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3>Check-in / Check-out</h3><div><button class="btn secondary" onclick="setMode('new')">New Driver</button><button class="btn secondary" onclick="setMode('existing')" style="margin-left:.4rem">Existing Driver</button></div></div><form id="checkinForm" onsubmit="submitCheckin(event)"><div class="row"><div class="field"><label>Driver Name</label><input id="driverName" required></div><div class="field"><label>Plate Number</label><input id="plateNumber" required></div></div><div class="row"><div class="field"><label>Dock Number</label><input id="dockNumber" value="D01" required></div><div class="field"><label>Direction</label><select id="directionSelect"><option>Receiving</option><option>Dispatch</option><option>Inspection</option></select></div></div><div class="row"><div class="field"><label>Truck Status</label><select id="statusSelect"><option>Active</option><option>Queued</option><option>Completed</option></select></div><div class="field"><label>Phone</label><input id="phoneNumber" value="0500000000"></div></div><div class="field"><label>Search existing driver</label><input id="driverSearchBox" placeholder="Type name or plate"></div><div id="driverSuggestions" class="suggestions"></div><div class="field"><label>Notes</label><textarea id="notes" rows="3"></textarea></div><div class="field"><label>Upload photo</label><input type="file" id="truckPhoto" /></div><button class="btn primary" style="width:100%">Submit movement</button></form></div>`; document.getElementById('driverSearchBox').addEventListener('input', renderDriverSuggestions); if (currentMode==='existing'){ const first=state.drivers[0]; if(first){ document.getElementById('driverName').value=first.name; document.getElementById('plateNumber').value=first.plate; document.getElementById('phoneNumber').value=first.phone||''; } } }
+    function renderDriverSuggestions(){ const box=document.getElementById('driverSearchBox'); const list=document.getElementById('driverSuggestions'); const value=box.value.trim().toLowerCase(); if(!value){ list.style.display='none'; list.innerHTML=''; return; } const matches=state.drivers.filter(d=>[d.name,d.plate,d.iqama].some(v=>String(v).toLowerCase().includes(value))).slice(0,5); if(!matches.length){ list.style.display='none'; return; } list.innerHTML=matches.map(d=>`<div onclick="fillDriver('${esc(d.name)}','${esc(d.plate)}','${esc(d.phone||'')}')">${esc(d.name)} · ${esc(d.plate)}</div>`).join(''); list.style.display='block'; }
+    function fillDriver(name,plate,phone){ document.getElementById('driverName').value=name; document.getElementById('plateNumber').value=plate; document.getElementById('phoneNumber').value=phone; document.getElementById('driverSearchBox').value=''; document.getElementById('driverSuggestions').style.display='none'; }
+    function setMode(mode){ currentMode=mode; renderCheckin(); }
+    function submitCheckin(event){ event.preventDefault(); const form=event.target; const truck={dock:form.dockNumber.value.trim()||'D01',plate:form.plateNumber.value.trim(),driver:form.driverName.value.trim(),direction:form.directionSelect.value,status:form.statusSelect.value,time:new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}; state.trucks=state.trucks.filter(t=>t.dock!==truck.dock).concat(truck); state.logs.unshift({id:`TRK-${Date.now().toString().slice(-4)}`,dock:truck.dock,driver:truck.driver,direction:truck.direction,status:truck.status==='Completed'?'Out':'In',time:truck.time}); if(!state.drivers.some(d=>d.name===truck.driver)) state.drivers.unshift({name:truck.driver,iqama:'N/A',plate:truck.plate,phone:form.phoneNumber.value.trim()||'N/A',type:'Driver'}); saveState(); renderAll(); switchView('active-trucks'); showToast('Movement saved successfully'); }
 
-    function updateAuthBadge() {
-      const badge = document.getElementById('authBadge');
-      badge.textContent = state.user.role.toUpperCase();
-      badge.style.color = state.user.role === 'admin' ? 'var(--accent)' : state.user.role === 'ops' ? '#79c0ff' : '#3fb950';
-    }
+    function renderActiveTrucks(){ const view=document.getElementById('view-active-trucks'); view.innerHTML=`<div class="card"><h3 style="margin-bottom:.8rem">Current Active Trucks</h3><div class="table-wrap"><table class="table"><thead><tr><th>Dock</th><th>Driver</th><th>Plate</th><th>Direction</th><th>Status</th><th>Time</th></tr></thead><tbody>${state.trucks.map(t=>`<tr><td>${esc(t.dock)}</td><td>${esc(t.driver)}</td><td>${esc(t.plate)}</td><td>${esc(t.direction)}</td><td><span class="badge ${t.status==='Active'?'success':t.status==='Queued'?'warn':'danger'}">${esc(t.status)}</span></td><td>${esc(t.time)}</td></tr>`).join('')}</tbody></table></div></div>`; }
 
-    function updateUserChip() {
-      document.getElementById('userChip').textContent = `${state.user.name} · ${state.user.role}`;
-    }
+    function setHistoryFilter(filter){ historyFilter=filter; renderHistory(); }
+    function renderHistory(){ const view=document.getElementById('view-history'); const filtered=historyFilter==='all'?state.logs:state.logs.filter(l=>l.direction===historyFilter); view.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem"><h3>History Log</h3><div><button class="btn secondary ${historyFilter==='all'?'':'hidden'}" onclick="setHistoryFilter('all')">All</button><button class="btn secondary" onclick="setHistoryFilter('Receiving')" style="margin-left:.3rem">Receiving</button><button class="btn secondary" onclick="setHistoryFilter('Dispatch')" style="margin-left:.3rem">Dispatch</button></div></div><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Dock</th><th>Driver</th><th>Direction</th><th>Status</th><th>Time</th></tr></thead><tbody>${filtered.map(l=>`<tr><td>${esc(l.id)}</td><td>${esc(l.dock)}</td><td>${esc(l.driver)}</td><td>${esc(l.direction)}</td><td><span class="badge ${l.status==='In'?'success':'danger'}">${esc(l.status)}</span></td><td>${esc(l.time)}</td></tr>`).join('')}</tbody></table></div></div>`; }
 
-    function renderDashboard() {
-      const view = document.getElementById('view-dashboard');
-      const activeCount = state.trucks.filter(t=>t.status==='Active').length;
-      const queuedCount = state.trucks.filter(t=>t.status==='Queued').length;
-      view.innerHTML = `
-        <div class="hero">
-          <div>
-            <div class="hero-badges">
-              <span class="pill">Live operations</span>
-              <span class="pill">Noon SLP</span>
-            </div>
-            <h2 style="font-size:1.35rem;margin-bottom:.35rem">DockFlow control center</h2>
-            <p class="small">Secure, fast visibility for guards, operations, and stakeholders.</p>
-          </div>
-          <div class="card" style="min-width:220px;padding:.9rem">
-            <div class="small">System health</div>
-            <div style="font-size:1.2rem;font-weight:800;margin:.25rem 0">Operational</div>
-            <div class="progress-row"><span class="small">Compliance</span><strong>96%</strong></div>
-            <div class="progress-track"><div class="progress-fill" style="width:96%"></div></div>
-          </div>
-        </div>
-        <div class="stat-grid">
-          <div class="stat-card"><div class="label">Active trucks</div><div class="value">${activeCount}</div></div>
-          <div class="stat-card"><div class="label">Queued</div><div class="value">${queuedCount}</div></div>
-          <div class="stat-card"><div class="label">Drivers</div><div class="value">${state.drivers.length}</div></div>
-          <div class="stat-card"><div class="label">Security</div><div class="value">${state.guards.length}</div></div>
-        </div>
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <h3>Dock Status</h3>
-            <span class="chip">Live overview</span>
-          </div>
-          <div class="dock-grid">
-            ${state.trucks.map(t=>`<div class="dock ${t.status==='Active'?'active':'inactive'}">${t.dock}<br><span style="font-size:.72rem">${t.status}</span></div>`).join('')}
-          </div>
-        </div>
-        <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:1rem">
-          <div class="card">
-            <h3 style="margin-bottom:.8rem">Quick actions</h3>
-            <div class="quick-actions">
-              <button class="action-btn" onclick="switchView('checkin')">New movement</button>
-              <button class="action-btn" onclick="switchView('history')">View log</button>
-              <button class="action-btn" onclick="switchView('analytics')">Analytics</button>
-            </div>
-            <div style="margin-top:.9rem">
-              <h4 style="margin-bottom:.6rem">Access Requests</h4>
-              ${state.accessRequests.map((r,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border)"><div><strong>${r.name}</strong><div class="small">${r.email}</div></div><div><button class="badge success" onclick="approveRequest(${i})">Approve</button><button class="badge danger" style="margin-left:.35rem" onclick="rejectRequest(${i})">Reject</button></div></div>`).join('')}
-            </div>
-          </div>
-          <div class="card">
-            <h3 style="margin-bottom:.8rem">Operational pulse</h3>
-            <div class="progress-row"><span>Receiving</span><strong>${state.logs.filter(l=>l.direction==='Receiving').length}</strong></div>
-            <div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, state.logs.filter(l=>l.direction==='Receiving').length * 18)}%"></div></div>
-            <div class="progress-row" style="margin-top:.7rem"><span>Dispatch</span><strong>${state.logs.filter(l=>l.direction==='Dispatch').length}</strong></div>
-            <div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, state.logs.filter(l=>l.direction==='Dispatch').length * 18)}%"></div></div>
-            <div class="progress-row" style="margin-top:.7rem"><span>Inspection</span><strong>${state.logs.filter(l=>l.direction==='Inspection').length}</strong></div>
-            <div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, state.logs.filter(l=>l.direction==='Inspection').length * 18)}%"></div></div>
-            <div style="margin-top:.9rem">
-              <h4 style="margin-bottom:.6rem">Notifications</h4>
-              ${state.notifications.map(n=>`<div style="padding:.55rem 0;border-bottom:1px solid var(--border)"><strong>${n.title}</strong><div class="small">${n.text}</div></div>`).join('')}
-            </div>
-          </div>
-        </div>`;
-    }
+    function renderDrivers(){ const view=document.getElementById('view-drivers'); view.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem"><h3>Drivers Database</h3><div class="chip">${state.drivers.length} records</div></div><div class="field"><input id="driverSearchInput" placeholder="Search drivers..." oninput="filterDrivers(this.value)"></div><div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>IQAMA</th><th>Plate</th><th>Phone</th><th>Action</th></tr></thead><tbody>${state.drivers.map((d,i)=>`<tr><td>${esc(d.name)}</td><td>${esc(d.iqama)}</td><td>${esc(d.plate)}</td><td>${esc(d.phone)}</td><td><button class="badge success" onclick="openDriverModal(${i})">Profile</button><button class="badge danger" style="margin-left:.3rem" onclick="deleteDriver(${i})">Delete</button></td></tr>`).join('')}</tbody></table></div></div>`; }
+    function filterDrivers(value){ const rows=document.querySelectorAll('#view-drivers tbody tr'); const term=value.toLowerCase(); rows.forEach(row=>{ const text=row.textContent.toLowerCase(); row.style.display=text.includes(term)?'':'none'; }); }
 
-    function renderCheckin() {
-      const view = document.getElementById('view-checkin');
-      view.innerHTML = `
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <h3>Check-in / Check-out</h3>
-            <div>
-              <button class="btn secondary" onclick="setMode('new')">New Driver</button>
-              <button class="btn secondary" onclick="setMode('existing')" style="margin-left:.4rem">Existing Driver</button>
-            </div>
-          </div>
-          <form id="checkinForm" onsubmit="submitCheckin(event)">
-            <div class="row">
-              <div class="field"><label>Driver Name</label><input id="driverName" required></div>
-              <div class="field"><label>Plate Number</label><input id="plateNumber" required></div>
-            </div>
-            <div class="row">
-              <div class="field"><label>Dock Number</label><input id="dockNumber" value="D01" required></div>
-              <div class="field"><label>Direction</label><select id="directionSelect"><option>Receiving</option><option>Dispatch</option><option>Inspection</option></select></div>
-            </div>
-            <div class="row">
-              <div class="field"><label>Truck Status</label><select id="statusSelect"><option>Active</option><option>Queued</option><option>Completed</option></select></div>
-              <div class="field"><label>Phone</label><input id="phoneNumber" value="0500000000"></div>
-            </div>
-            <div class="field"><label>Notes</label><textarea id="notes" rows="3"></textarea></div>
-            <button class="btn primary" style="width:100%">Submit movement</button>
-          </form>
-        </div>`;
-      if (currentMode === 'existing') {
-        document.getElementById('driverName').value = state.drivers[0].name;
-        document.getElementById('plateNumber').value = state.drivers[0].plate;
-      }
-    }
+    function renderSecurity(){ const view=document.getElementById('view-security'); view.innerHTML=`<div class="card"><h3 style="margin-bottom:.8rem">Security Guard Database</h3><div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Noon ID</th><th>Role</th><th>Status</th></tr></thead><tbody>${state.guards.map(g=>`<tr><td>${esc(g.name)}</td><td>${esc(g.id)}</td><td>${esc(g.role)}</td><td><span class="badge success">Active</span></td></tr>`).join('')}</tbody></table></div></div>`; }
 
-    function setMode(mode) { currentMode = mode; renderCheckin(); }
+    function renderAnalytics(){ const view=document.getElementById('view-analytics'); const receiving=state.logs.filter(l=>l.direction==='Receiving').length; const dispatch=state.logs.filter(l=>l.direction==='Dispatch').length; const inspection=state.logs.filter(l=>l.direction==='Inspection').length; view.innerHTML=`<div class="grid"><div class="card"><h3 style="margin-bottom:1rem">Vehicle Processing Growth</h3><div class="chart-box"><div><div class="donut"></div></div><div><div class="progress-row"><span>Receiving</span><strong>${receiving}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,receiving*18)}%"></div></div><div class="progress-row" style="margin-top:.7rem"><span>Dispatch</span><strong>${dispatch}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,dispatch*18)}%"></div></div><div class="progress-row" style="margin-top:.7rem"><span>Inspection</span><strong>${inspection}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,inspection*18)}%"></div></div></div></div></div><div class="card"><h3 style="margin-bottom:1rem">Recent activity</h3>${state.logs.slice(0,5).map(l=>`<div style="display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--border)"><div><strong>${esc(l.driver)}</strong><div class="small">${esc(l.dock)} · ${esc(l.direction)}</div></div><span class="badge ${l.status==='In'?'success':'danger'}">${esc(l.status)}</span></div>`).join('')}</div></div>`; }
 
-    function submitCheckin(event) {
-      event.preventDefault();
-      const form = event.target;
-      const truck = {
-        dock: form.dockNumber.value.trim() || 'D01',
-        plate: form.plateNumber.value.trim(),
-        driver: form.driverName.value.trim(),
-        direction: form.directionSelect.value,
-        status: form.statusSelect.value,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      state.trucks = state.trucks.filter(t => t.dock !== truck.dock).concat(truck);
-      state.logs.unshift({ id: `TRK-${Date.now().toString().slice(-4)}`, dock: truck.dock, driver: truck.driver, direction: truck.direction, status: truck.status === 'Completed' ? 'Out' : 'In', time: truck.time });
-      if (!state.drivers.some(d => d.name === truck.driver)) state.drivers.unshift({ name: truck.driver, iqama: 'N/A', plate: truck.plate, phone: form.phoneNumber.value.trim() || 'N/A', type: 'Driver' });
-      saveState();
-      renderAll();
-      switchView('active-trucks');
-      alert('Movement saved successfully');
-    }
-
-    function renderActiveTrucks() {
-      const view = document.getElementById('view-active-trucks');
-      view.innerHTML = `
-        <div class="card">
-          <h3 style="margin-bottom:.8rem">Current Active Trucks</h3>
-          <div class="table-wrap">
-            <table class="table"><thead><tr><th>Dock</th><th>Driver</th><th>Plate</th><th>Direction</th><th>Status</th><th>Time</th></tr></thead><tbody>
-              ${state.trucks.map(t=>`<tr><td>${t.dock}</td><td>${t.driver}</td><td>${t.plate}</td><td>${t.direction}</td><td><span class="badge ${t.status==='Active'?'success':t.status==='Queued'?'warn':'danger'}">${t.status}</span></td><td>${t.time}</td></tr>`).join('')}
-            </tbody></table>
-          </div>
-        </div>`;
-    }
-
-    function renderHistory() {
-      const view = document.getElementById('view-history');
-      view.innerHTML = `
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
-            <h3>History Log</h3>
-            <div><button class="btn secondary">All</button><button class="btn secondary" style="margin-left:.3rem">Receiving</button></div>
-          </div>
-          <div class="table-wrap">
-            <table class="table"><thead><tr><th>ID</th><th>Dock</th><th>Driver</th><th>Direction</th><th>Status</th><th>Time</th></tr></thead><tbody>
-              ${state.logs.map(l=>`<tr><td>${l.id}</td><td>${l.dock}</td><td>${l.driver}</td><td>${l.direction}</td><td><span class="badge ${l.status==='In'?'success':'danger'}">${l.status}</span></td><td>${l.time}</td></tr>`).join('')}
-            </tbody></table>
-          </div>
-        </div>`;
-    }
-
-    function renderDrivers() {
-      const view = document.getElementById('view-drivers');
-      view.innerHTML = `
-        <div class="card">
-          <h3 style="margin-bottom:.8rem">Drivers Database</h3>
-          <div class="table-wrap">
-            <table class="table"><thead><tr><th>Name</th><th>IQAMA</th><th>Plate</th><th>Phone</th><th>Action</th></tr></thead><tbody>
-              ${state.drivers.map((d,i)=>`<tr><td>${d.name}</td><td>${d.iqama}</td><td>${d.plate}</td><td>${d.phone}</td><td><button class="badge success" onclick="openProfile('${i}')">Profile</button><button class="badge danger" style="margin-left:.3rem" onclick="deleteDriver(${i})">Delete</button></td></tr>`).join('')}
-            </tbody></table>
-          </div>
-        </div>`;
-    }
-
-    function renderSecurity() {
-      const view = document.getElementById('view-security');
-      view.innerHTML = `
-        <div class="card">
-          <h3 style="margin-bottom:.8rem">Security Guard Database</h3>
-          <div class="table-wrap">
-            <table class="table"><thead><tr><th>Name</th><th>Noon ID</th><th>Role</th><th>Status</th></tr></thead><tbody>
-              ${state.guards.map(g=>`<tr><td>${g.name}</td><td>${g.id}</td><td>${g.role}</td><td><span class="badge success">Active</span></td></tr>`).join('')}
-            </tbody></table>
-          </div>
-        </div>`;
-    }
-
-    function renderAnalytics() {
-      const view = document.getElementById('view-analytics');
-      const perDay = [4, 7, 5, 9, 8, 10, 12];
-      view.innerHTML = `
-        <div class="grid" style="grid-template-columns:1fr 1fr">
-          <div class="card">
-            <h3 style="margin-bottom:1rem">Vehicle Processing Growth</h3>
-            ${perDay.map((value,index)=>`<div style="display:grid;grid-template-columns:80px 1fr 40px;gap:.7rem;align-items:center;margin:.5rem 0"><div class="small">W${index+1}</div><div style="height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden"><div style="height:100%;width:${value*8}%;background:var(--accent)"></div></div><div class="small">${value}</div></div>`).join('')}
-          </div>
-          <div class="card">
-            <h3 style="margin-bottom:1rem">Movement Summary</h3>
-            <div style="display:grid;gap:.8rem">
-              <div style="display:flex;justify-content:space-between"><span>Receiving</span><strong>${state.logs.filter(l=>l.direction==='Receiving').length}</strong></div>
-              <div style="display:flex;justify-content:space-between"><span>Dispatch</span><strong>${state.logs.filter(l=>l.direction==='Dispatch').length}</strong></div>
-              <div style="display:flex;justify-content:space-between"><span>Inspection</span><strong>${state.logs.filter(l=>l.direction==='Inspection').length}</strong></div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function openProfile(index) {
-      const driver = state.drivers[index];
-      document.getElementById('profileTitle').textContent = driver.name;
-      document.getElementById('profileBody').innerHTML = `
-        <div class="field"><label>Name</label><input value="${driver.name}"></div>
-        <div class="row"><div class="field"><label>IQAMA</label><input value="${driver.iqama}"></div><div class="field"><label>Plate</label><input value="${driver.plate}"></div></div>
-        <div class="field"><label>Phone</label><input value="${driver.phone}"></div>
-        <button class="btn primary" style="width:100%" onclick="closeProfileModal()">Save</button>`;
-      document.getElementById('profileModal').classList.add('show');
-    }
-
-    function closeProfileModal() { document.getElementById('profileModal').classList.remove('show'); }
-
-    function deleteDriver(index) { state.drivers.splice(index, 1); saveState(); renderDrivers(); }
-
-    function approveRequest(index) { state.accessRequests.splice(index, 1); state.notifications.unshift({ title: 'Request approved', text: 'Operations access granted' }); saveState(); renderDashboard(); }
-    function rejectRequest(index) { state.accessRequests.splice(index, 1); state.notifications.unshift({ title: 'Request rejected', text: 'Operations access denied' }); saveState(); renderDashboard(); }
+    function openDriverModal(index){ driverModalIndex=index; const d=state.drivers[index]; document.getElementById('driverModalTitle').textContent=d.name; document.getElementById('driverModalBody').innerHTML=`<div class="field"><label>Name</label><input id="editName" value="${esc(d.name)}"></div><div class="row"><div class="field"><label>IQAMA</label><input id="editIqama" value="${esc(d.iqama)}"></div><div class="field"><label>Plate</label><input id="editPlate" value="${esc(d.plate)}"></div></div><div class="field"><label>Phone</label><input id="editPhone" value="${esc(d.phone)}"></div><div class="field"><label>Type</label><select id="editType"><option ${d.type==='Driver'?'selected':''}>Driver</option><option ${d.type==='Guard'?'selected':''}>Guard</option></select></div><button class="btn primary" style="width:100%" onclick="saveDriverModal()">Save changes</button>`; document.getElementById('driverModal').classList.add('show'); }
+    function closeDriverModal(){ document.getElementById('driverModal').classList.remove('show'); }
+    function saveDriverModal(){ if(driverModalIndex===null) return; const d=state.drivers[driverModalIndex]; d.name=document.getElementById('editName').value.trim()||d.name; d.iqama=document.getElementById('editIqama').value.trim()||d.iqama; d.plate=document.getElementById('editPlate').value.trim()||d.plate; d.phone=document.getElementById('editPhone').value.trim()||d.phone; d.type=document.getElementById('editType').value; saveState(); closeDriverModal(); renderDrivers(); showToast('Driver updated'); }
+    function deleteDriver(index){ state.drivers.splice(index,1); saveState(); renderDrivers(); showToast('Driver removed'); }
+    function approveRequest(index){ state.accessRequests.splice(index,1); state.notifications.unshift({title:'Request approved',text:'Operations access granted'}); saveState(); renderDashboard(); showToast('Request approved'); }
+    function rejectRequest(index){ state.accessRequests.splice(index,1); state.notifications.unshift({title:'Request rejected',text:'Operations access denied'}); saveState(); renderDashboard(); showToast('Request rejected'); }
 
     document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => switchView(item.dataset.view)));
-      document.querySelectorAll('.auth-tab').forEach(tab => tab.addEventListener('click', () => {
-        document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
-        tab.classList.add('active');
-      }));
-      document.getElementById('loginBtn').addEventListener('click', () => {
-        const role = document.querySelector('.auth-tab.active').dataset.role;
-        state.user = { name: document.getElementById('loginName').value || 'Guest User', email: document.getElementById('loginEmail').value || 'Not signed in', noonId: document.getElementById('loginNoonId').value || '', role };
-        saveState();
-        document.getElementById('authScreen').classList.add('hidden');
-        document.getElementById('appShell').classList.remove('hidden');
-        renderAll();
-        switchView('dashboard');
-      });
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        state.user = { name: 'Guest User', email: 'Not signed in', noonId: '', role: 'guard' };
-        saveState();
-        document.getElementById('authScreen').classList.remove('hidden');
-        document.getElementById('appShell').classList.add('hidden');
-      });
-      setTimeout(() => document.getElementById('introOverlay').classList.add('hide'), 800);
-      renderAll();
-      switchView('dashboard');
+      document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click', ()=>switchView(item.dataset.view)));
+      document.querySelectorAll('.auth-tab').forEach(tab=>tab.addEventListener('click', ()=>{ document.querySelectorAll('.auth-tab').forEach(btn=>btn.classList.remove('active')); tab.classList.add('active'); }));
+      document.getElementById('loginBtn').addEventListener('click', ()=>{ const role=document.querySelector('.auth-tab.active').dataset.role; state.user={name:document.getElementById('loginName').value||'Guest User',email:document.getElementById('loginEmail').value||'Not signed in',noonId:document.getElementById('loginNoonId').value||'',role}; saveState(); document.getElementById('authScreen').classList.add('hidden'); document.getElementById('appShell').classList.remove('hidden'); renderAll(); switchView('dashboard'); showToast('Signed in successfully'); });
+      document.getElementById('logoutBtn').addEventListener('click', ()=>{ state.user={name:'Guest User',email:'Not signed in',noonId:'',role:'guard'}; saveState(); document.getElementById('authScreen').classList.remove('hidden'); document.getElementById('appShell').classList.add('hidden'); });
+      setTimeout(()=>document.getElementById('introOverlay').classList.add('hide'),800);
+      renderAll(); switchView('dashboard');
     });
   </script>
 </body>
