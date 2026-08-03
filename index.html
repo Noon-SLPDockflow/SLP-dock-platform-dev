@@ -476,9 +476,9 @@
             </button>
         </div>
                     <div class="login-tabs">
-                        <button class="login-tab active" onclick="switchLoginMode('guard')">🛡️ <span data-i18n="Guard">Guard</span></button>
-                        <button class="login-tab" onclick="switchLoginMode('ops')">📊 <span data-i18n="Operations">Operations</span></button>
-                        <button class="login-tab" onclick="switchLoginMode('admin')">⚙️ <span data-i18n="Admin">Admin</span></button>
+                        <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ <span data-i18n="Guard">Guard</span></button>
+                        <button class="login-tab" onclick="switchLoginMode('ops', this)">📊 <span data-i18n="Operations">Operations</span></button>
+                        <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
                     </div>
 
                     <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
@@ -1600,10 +1600,12 @@
             "ruh01dock.security13@noon.com", "ruh01dock.security14@noon.com", "fsbutt@noon.com"
         ];
 
-        function switchLoginMode(mode) {
+        function switchLoginMode(mode, targetButton) {
             currentLoginMode = mode;
             document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if (targetButton && targetButton.classList) {
+                targetButton.classList.add('active');
+            }
 
             const scanBox = document.getElementById('loginScanBox');
             const noonId = document.getElementById('loginNoonId');
