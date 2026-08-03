@@ -1927,7 +1927,7 @@ window.logoutUser = function() {
                 const ctx = canvas.getContext('2d');
                 let width, height, particles;
                 let animationFrameId;
-                let introActive = true;
+                var introActive = true;
 
                 function initParticles() {
                     width = canvas.width = window.innerWidth;
@@ -1982,7 +1982,7 @@ window.logoutUser = function() {
                 setInterval(updateHeroDateTime, 1000);
                 updateHeroDateTime();
 
-                function switchView(viewId, element) {
+ window.switchView = function(viewId, element) {
                     document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
                     document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
                 }
