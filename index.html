@@ -3422,6 +3422,7 @@ list.forEach(driver => {
                     </div>`;
             });
         }
+                
                 function filterRegistryCards() {
                     let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
                     document.querySelectorAll('.driver-registry-card:not(.security-card)').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
