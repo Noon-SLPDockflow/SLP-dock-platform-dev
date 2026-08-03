@@ -1373,39 +1373,7 @@
 
                     checkSessionOnLoad();
                 });                
-                accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
-                const userRequest = accessRequests.find(r => r.email.toLowerCase() === emailInput.toLowerCase());
-                
-                if (userRequest && userRequest.status === 'pending') {
-                    loginEmailField.setCustomValidity("Your access request is currently pending Admin approval.");
-                    loginEmailField.reportValidity();
-                    return;
-                }
-                
-                if (userRequest && userRequest.status === 'rejected') {
-                    loginEmailField.setCustomValidity("Your access request has been rejected by Admin.");
-                    loginEmailField.reportValidity();
-                    return;
-                }
-                
-                requestOpsAccess(nameInput, emailInput);
-                loginEmailField.setCustomValidity("Access request sent to Admin. Please wait for approval.");
-                loginEmailField.reportValidity();
 
-            } else { 
-                if(!nameInput || !emailInput || !noonIdInput) {
-                    loginEmailField.setCustomValidity("Please fill all fields to authorize access.");
-                    loginEmailField.reportValidity();
-                    return;
-                }
-                if (!allowedEmails.includes(emailInput.toLowerCase())) {
-                    loginEmailField.setCustomValidity("Access Denied. Unauthorized Security Email.");
-                    loginEmailField.reportValidity();
-                    return;
-                }
-                executeLogin(nameInput, emailInput, noonIdInput, 'guard', false);
-            }
-        });
                 function checkSessionOnLoad() {
                     const sessionStr = localStorage.getItem('noonSlpUserSession');
                     if (sessionStr) {
