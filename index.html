@@ -1388,12 +1388,12 @@
                             executeLogin(sessionData.name, sessionData.email, sessionData.noonId || "", sessionData.role, true);
                         }
                     } else {
-                        initParticles();
-                        animateParticles();
+// initParticles(); //
+// animateParticles(); //
                     }
                 }
-
-            // --- FIXED CASTING ENGINE: ROBUST LOOKUP SUPPORTS NUMBERS AND STRINGS ---
+// initParticles();
+            // animateParticles();
         function runInstantConflictCheck(e) {
             const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
             if (!isNewDriverMode || !driversRegistryList || driversRegistryList.length === 0) return;
