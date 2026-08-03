@@ -696,6 +696,19 @@
                             <div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div>
                         </header>
 
+                        <div class="scanners-double-row" id="checkinScannersRow">
+                            <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
+                                <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
+                                <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
+                                <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                            </div>
+                            <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
+                                <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
+                                <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
+                                <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                            </div>
+                        </div>
+
                         <div class="card" style="padding: 2.5rem 2rem; background: #12161f; border-color: rgba(255,255,255,0.03);">
                             <div class="toggle-container">
                                 <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">
@@ -777,14 +790,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="form-group" id="driverPhotoWrapper" style="display:none; grid-column: 1 / -1;">
-                                        <label class="badge-style" data-i18n="Truck Picture">Truck Picture *</label>
-                                        <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()" style="margin-top:0.75rem; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 1.5rem 1rem;">
-                                            <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
-                                            <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
-                                            <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
-                                        </div>
-                                    </div>
+                                    <div class="form-group" id="driverPhotoWrapper" style="display:none; grid-column: 1 / -1;"></div>
 
                                     <div class="form-group" id="itemPhotoWrapper" style="display:none; grid-column: 1 / -1;">
                                         <label class="badge-style" data-i18n="Item Picture">Item Picture *</label>
@@ -1498,14 +1504,13 @@
                     if (selectEl.value === 'Receiving') {
                         if (sealContainer) sealContainer.style.display = 'block';
                         if (sealInput) sealInput.required = true;
-                        if (driverWrapper) driverWrapper.style.display = 'grid';
+                        if (driverWrapper) driverWrapper.style.display = 'block';
                         if (itemWrapper) itemWrapper.style.display = 'grid';
 
-                        if (scannersRow) { 
-                            scannersRow.style.display = 'grid'; 
-                            scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; 
+                        if (driverWrapper && driverBox) {
+                            driverWrapper.appendChild(driverBox);
                         }
-                        if (driverBox) driverBox.style.display = 'block';
+
                         if (itemBox) itemBox.style.display = 'block';
                         if (iqamaBox) iqamaBox.style.display = 'none';
 
@@ -1514,8 +1519,14 @@
                         temporaryCapturedItemImage = null;
                         if (sealContainer) sealContainer.style.display = 'none';
                         if (sealInput) { sealInput.required = false; sealInput.value = ''; }
-                        if (driverWrapper) driverWrapper.style.display = 'grid';
                         if (itemWrapper) itemWrapper.style.display = 'none';
+                        if (driverWrapper) driverWrapper.style.display = 'none';
+
+                        if (scannersRow && driverBox) {
+                            const iqamaBoxEl = document.getElementById('scanBoxIqama');
+                            if (iqamaBoxEl) scannersRow.insertBefore(driverBox, iqamaBoxEl);
+                            else scannersRow.appendChild(driverBox);
+                        }
 
                         const toggleNew = document.getElementById('toggleNewDriverBtn');
                         const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
