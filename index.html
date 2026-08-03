@@ -1739,14 +1739,12 @@
                                 switchView('checkin', document.getElementById('nav-checkin'));
                                 if (role === 'admin') checkAdminNotifications();
                             }
-                        }, 1000);
-                    }, 1200);
-                }, 1200); 
-            }
-         // <--- THIS BRACE CLOSES EXECUTELOGIN CORRECTLY                introOverlay.classList.add('hidden');
-                    
+}, 1000);
+        }, 1200);
+    }, 1200); 
+}
 
-                window.logoutUser = function() {
+window.logoutUser = function() {     
                     localStorage.removeItem('noonSlpUserSession');
                     localStorage.removeItem('SLP_OVERRIDES');
                     localStorage.removeItem('SLP_DELETES');
