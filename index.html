@@ -1289,54 +1289,90 @@
                     document.getElementById('dockNumber').addEventListener('change', checkDockOccupation);
                     document.getElementById('dockNumber').addEventListener('blur', checkDockOccupation);
 
+                    const customSignInBtn = document.getElementById('customSignInBtn');
+                    if (customSignInBtn) {
+                        customSignInBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+
+                            const nameInput = document.getElementById('loginName').value.trim();
+                            const emailInput = document.getElementById('loginEmail').value.trim();
+                            const noonIdInput = document.getElementById('loginNoonId').value.trim();
+                            const pass = document.getElementById('adminPassword').value;
+                            const loginEmailField = document.getElementById('loginEmail');
+                            const adminPassField = document.getElementById('adminPassword');
+
+                            loginEmailField.setCustomValidity('');
+                            adminPassField.setCustomValidity('');
+
+                            if (currentLoginMode === 'admin') {
+                                if(!nameInput || !emailInput || !pass) {
+                                    adminPassField.setCustomValidity("Please fill all fields to authorize access.");
+                                    adminPassField.reportValidity();
+                                    return;
+                                }
+                                if (pass !== 'NoonCCTVSLP#2026') {
+                                    adminPassField.setCustomValidity("Incorrect Administrator Password.");
+                                    adminPassField.reportValidity();
+                                    return;
+                                }
+                                executeLogin(nameInput, emailInput, '', 'admin', false);
+
+                            } else if (currentLoginMode === 'ops') {
+                                if(!nameInput || !emailInput) {
+                                    loginEmailField.setCustomValidity("Please fill all fields to authorize access.");
+                                    loginEmailField.reportValidity();
+                                    return;
+                                }
+                                if(!emailInput.toLowerCase().endsWith('noon.com')) {
+                                    loginEmailField.setCustomValidity("Access Denied. Only valid noon.com accounts are permitted.");
+                                    loginEmailField.reportValidity();
+                                    return;
+                                }
+                                
+                                approvedOpsEmails = JSON.parse(localStorage.getItem('SLP_APPROVED_OPS_EMAILS')) || [];
+                                
+                                if (approvedOpsEmails.includes(emailInput.toLowerCase())) {
+                                    executeLogin(nameInput, emailInput, '', 'ops', false);
+                                    return;
+                                }
+                                
+                                accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
+                                const userRequest = accessRequests.find(r => r.email.toLowerCase() === emailInput.toLowerCase());
+                                
+                                if (userRequest && userRequest.status === 'pending') {
+                                    loginEmailField.setCustomValidity("Your access request is currently pending Admin approval.");
+                                    loginEmailField.reportValidity();
+                                    return;
+                                }
+                                
+                                if (userRequest && userRequest.status === 'rejected') {
+                                    loginEmailField.setCustomValidity("Your access request has been rejected by Admin.");
+                                    loginEmailField.reportValidity();
+                                    return;
+                                }
+                                
+                                requestOpsAccess(nameInput, emailInput);
+                                loginEmailField.setCustomValidity("Access request sent to Admin. Please wait for approval.");
+                                loginEmailField.reportValidity();
+
+                            } else { 
+                                if(!nameInput || !emailInput || !noonIdInput) {
+                                    loginEmailField.setCustomValidity("Please fill all fields to authorize access.");
+                                    loginEmailField.reportValidity();
+                                    return;
+                                }
+                                if (!allowedEmails.includes(emailInput.toLowerCase())) {
+                                    loginEmailField.setCustomValidity("Access Denied. Unauthorized Security Email.");
+                                    loginEmailField.reportValidity();
+                                    return;
+                                }
+                                executeLogin(nameInput, emailInput, noonIdInput, 'guard', false);
+                            }
+                        });
+                    }
+
                     checkSessionOnLoad();
-                });
-
-                document.getElementById('customSignInBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const nameInput = document.getElementById('loginName').value.trim();
-            const emailInput = document.getElementById('loginEmail').value.trim();
-            const noonIdInput = document.getElementById('loginNoonId').value.trim();
-            const pass = document.getElementById('adminPassword').value;
-            const loginEmailField = document.getElementById('loginEmail');
-            const adminPassField = document.getElementById('adminPassword');
-
-            loginEmailField.setCustomValidity('');
-            adminPassField.setCustomValidity('');
-
-            if (currentLoginMode === 'admin') {
-                if(!nameInput || !emailInput || !pass) {
-                    adminPassField.setCustomValidity("Please fill all fields to authorize access.");
-                    adminPassField.reportValidity();
-                    return;
-                }
-                if (pass !== 'NoonCCTVSLP#2026') {
-                    adminPassField.setCustomValidity("Incorrect Administrator Password.");
-                    adminPassField.reportValidity();
-                    return;
-                }
-                executeLogin(nameInput, emailInput, '', 'admin', false);
-
-            } else if (currentLoginMode === 'ops') {
-                if(!nameInput || !emailInput) {
-                    loginEmailField.setCustomValidity("Please fill all fields to authorize access.");
-                    loginEmailField.reportValidity();
-                    return;
-                }
-                if(!emailInput.toLowerCase().endsWith('noon.com')) {
-                    loginEmailField.setCustomValidity("Access Denied. Only valid noon.com accounts are permitted.");
-                    loginEmailField.reportValidity();
-                    return;
-                }
-                
-                approvedOpsEmails = JSON.parse(localStorage.getItem('SLP_APPROVED_OPS_EMAILS')) || [];
-                
-                if (approvedOpsEmails.includes(emailInput.toLowerCase())) {
-                    executeLogin(nameInput, emailInput, '', 'ops', false);
-                    return;
-                }
-                
+                });                
                 accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
                 const userRequest = accessRequests.find(r => r.email.toLowerCase() === emailInput.toLowerCase());
                 
