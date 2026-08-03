@@ -3390,7 +3390,7 @@ window.logoutUser = function() {
                 return; 
             }
 
-            list.forEach(driver => {
+list.forEach(driver => {
                 let dateFormatted = fmtDate(driver.registered);
                 const searchName = String(driver.name || "").toLowerCase();
                 const searchPlate = String(driver.plate || "").toLowerCase();
@@ -3399,10 +3399,19 @@ window.logoutUser = function() {
                 const safePhoto = String(driver.lastActivePhoto || "");
                 const safePhotoEscaped = safePhoto.replace(/(['"\\])/g, "\\$1");
                 const avatarHtml = safePhoto ? `<div class="driver-avatar-img" style="background-image:url('${safePhotoEscaped}'); background-size:cover; background-position:center; background-repeat:no-repeat;"> </div>` : `<div class="driver-avatar-img">👤</div>`;
+                
+                container.innerHTML += `
+                    <div class="driver-registry-card security-card" data-search-blob="${searchName} ${searchPlate} ${searchDock} ${searchType}">
+                        <div class="driver-card-header">
+                            ${avatarHtml}
+                            <div class="driver-meta">
+                                <h3>${driver.name}</h3>
+                            </div>
+                        </div>
                         <div class="driver-card-info-grid">
                             <div><p class="info-block">${tr('Plate')}</p><p>${driver.plate}</p></div>
                             <div><p class="info-block">${tr('Dock')}</p><p>${driver.lastActiveDock}</p></div>
-                            <div><p class="info-block">${tr('Type')}</p><p>${tr(driver.lastActiveDispatchType.toUpperCase())}</p></div>
+                            <div><p class="info-block">${tr('Type')}</p><p>${tr(String(driver.lastActiveDispatchType).toUpperCase())}</p></div>
                             <div><p class="info-block">${tr('Seal Number')}</p><p>${driver.lastActiveSeal}</p></div>
                             <div><p class="info-block">${tr('Check-In Time')}</p><p>${fmtDate(driver.lastActiveCheckIn)}</p></div>
                             <div><p class="info-block">${tr('Status')}</p><p>${driver.isActive ? tr('Inside') : tr('Checked-Out')}</p></div>
