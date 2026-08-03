@@ -2070,8 +2070,7 @@ window.switchView = switchView;
                             if (res && res.image && res.image !== "") {
                                 viewport.style.backgroundImage = `url("${res.image}")`;
                             } else {
-                                viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
-                            }
+viewport.style.backgroundImage = 'none';                            }
                         };
 
                         const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
@@ -2087,6 +2086,7 @@ window.switchView = switchView;
 window.openDriverProfileModal = openDriverProfileModal;
                 function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
 
+                window.closeDriverProfileModal = closeDriverProfileModal;
                 function openEditDriverModal(name, iqama, plate, phone, isGuard = false) {
                     document.getElementById('editOriginalName').value = name;
                     document.getElementById('editName').value = name;
