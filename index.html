@@ -3438,9 +3438,18 @@ list.forEach(driver => {
         }
                 
                 function filterRegistryCards() {
-                    let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
-                    document.querySelectorAll('.driver-registry-card:not(.security-card)').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
-                }
+    const driverInput = document.getElementById('driverRegistrySearch');
+    const securityInput = document.getElementById('securityRegistrySearch');
+    
+    // Grab text from whichever search input is being used
+    const query = (driverInput?.value || securityInput?.value || '').toLowerCase().trim();
+
+    // Filter ALL cards (Drivers AND Security Guards)
+    document.querySelectorAll('.driver-registry-card, .security-card').forEach(card => {
+        const searchBlob = (card.getAttribute('data-search-blob') || card.innerText || '').toLowerCase();
+        card.style.display = searchBlob.includes(query) ? 'flex' : 'none';
+    });
+}
 
                 function compileSecurityRegistryCards(data) {
                     let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
