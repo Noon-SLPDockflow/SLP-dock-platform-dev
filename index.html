@@ -1502,59 +1502,58 @@
 
         document.addEventListener('DOMContentLoaded', initDockDropdown);
         function handleDispatchChange(selectEl) {
-                    if (!selectEl) return;
-                    const scannersRow = document.getElementById('checkinScannersRow');
-                    const itemBox = document.getElementById('scanBoxItem');
-                    const itemWrapper = document.getElementById('itemPhotoWrapper');
-                    const driverBox = document.getElementById('scanBoxDriver');
-                    const driverWrapper = document.getElementById('driverPhotoWrapper');
-                    const driverBoxLabel = document.getElementById('driverPhotoStatus');
-                    const iqamaBox = document.getElementById('scanBoxIqama');
-                    const sealContainer = document.getElementById('sealNumberContainer');
-                    const sealInput = document.getElementById('sealNumber');
+    if (!selectEl) return;
+    const scannersRow = document.getElementById('checkInScannersRow');
+    const itemBox = document.getElementById('scanBoxItem');
+    const itemWrapper = document.getElementById('itemPhotoWrapper');
+    const driverBox = document.getElementById('scanBoxDriver');
+    const driverWrapper = document.getElementById('driverPhotoWrapper');
+    const driverBoxLabel = document.getElementById('driverPhotoStatus');
+    const iqamaBox = document.getElementById('scanBoxIqama');
+    const sealContainer = document.getElementById('sealNumberContainer');
+    const sealInput = document.getElementById('sealNumber');
 
-                    if (selectEl.value === 'Receiving') {
-            // Receiving doesn't need a departure seal
-            if (sealContainer) sealContainer.style.display = 'none';
-            if (sealInput) sealInput.required = false;
+    if (selectEl.value === 'Receiving') {
+        // Receiving doesn't need a departure seal
+        if (sealContainer) sealContainer.style.display = 'none';
+        if (sealInput) sealInput.required = false;
 
-            // Make sure both photo wrappers are visible
-            if (driverWrapper) driverWrapper.style.display = 'block';
-            if (itemWrapper) itemWrapper.style.display = 'block';
+        // Make sure both photo wrappers are visible
+        if (driverWrapper) driverWrapper.style.display = 'block';
+        if (itemWrapper) itemWrapper.style.display = 'block';
 
-            // Attach and show Truck Picture with proper vertical centering
-            if (driverWrapper && driverBox) {
-                driverWrapper.appendChild(driverBox);
-                driverBox.style.display = 'flex';
-                driverBox.style.flexDirection = 'column';
-                driverBox.style.alignItems = 'center';
-                driverBox.style.justifyContent = 'center';
-                driverBox.style.padding = '1.5rem';
-            }
-            }
-            
-            // Attach and show Item Picture
-            if (itemWrapper && itemBox) {
-                itemWrapper.appendChild(itemBox);
-                itemBox.style.display = 'flex';
-            }
-
-            if (iqamaBox) iqamaBox.style.display = 'none';
-            if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
-        } else {
-            temporaryCapturedItemImage = null;
-            if (sealContainer) sealContainer.style.display = 'none';
-            if (sealInput) { sealInput.required = false; sealInput.value = ''; }
-            if (itemWrapper) itemWrapper.style.display = 'none';
-            if (driverWrapper) driverWrapper.style.display = 'none';
+        // Attach and show Truck Picture with proper vertical centering
+        if (driverWrapper && driverBox) {
+            driverWrapper.appendChild(driverBox);
+            driverBox.style.display = 'flex';
+            driverBox.style.flexDirection = 'column';
+            driverBox.style.alignItems = 'center';
+            driverBox.style.justifyContent = 'center';
+            driverBox.style.padding = '1.5rem';
         }
 
-                        if (scannersRow && driverBox) {
-                            const iqamaBoxEl = document.getElementById('scanBoxIqama');
-                            if (iqamaBoxEl) scannersRow.insertBefore(driverBox, iqamaBoxEl);
-                            else scannersRow.appendChild(driverBox);
-                        }
+        // Attach and show Item Picture
+        if (itemWrapper && itemBox) {
+            itemWrapper.appendChild(itemBox);
+            itemBox.style.display = 'flex';
+        }
 
+        if (iqamaBox) iqamaBox.style.display = 'none';
+        if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
+    } else {
+        temporaryCapturedItemImage = null;
+        if (sealContainer) sealContainer.style.display = 'none';
+        if (sealInput) { sealInput.required = false; sealInput.value = ''; }
+        if (itemWrapper) itemWrapper.style.display = 'none';
+        if (driverWrapper) driverWrapper.style.display = 'none';
+    }
+
+    if (scannersRow && driverBox) {
+        const iqamaBoxEl = document.getElementById('scanBoxIqama');
+        if (iqamaBoxEl) scannersRow.insertBefore(driverBox, iqamaBoxEl);
+        else scannersRow.appendChild(driverBox);
+    }
+}
                         const toggleNew = document.getElementById('toggleNewDriverBtn');
                         const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
 
