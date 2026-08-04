@@ -2207,7 +2207,9 @@ window.openDriverProfileModal = openDriverProfileModal;
                     }
                 }
                 window.setDriverMode = setDriverMode;
-
+window.filterActiveTrucks = filterActiveTrucks;
+window.applyHistoryFilters = applyHistoryFilters;
+window.filterRegistryCards = filterRegistryCards;
                 const driverSearchBoxEl = document.getElementById('driverSearchBox');
                 const driverSuggestionsListEl = document.getElementById('driverSuggestionsList');
 
@@ -3541,10 +3543,10 @@ list.forEach(driver => {
 
                     if (query) {
                         filtered = filtered.filter(r => 
-                            (r.driverName || '').toLowerCase().includes(query) ||
-                            (r.plateNumber || '').toLowerCase().includes(query) ||
-                            (r.securityName || '').toLowerCase().includes(query) ||
-                            (r.iqamaNumber || '').toLowerCase().includes(query)
+                            String(r.driverName || '').toLowerCase().includes(query) ||
+                    String(r.plateNumber || '').toLowerCase().includes(query) ||
+                    String(r.securityName || '').toLowerCase().includes(query) ||
+                    String(r.iqamaNumber || '').toLowerCase().includes(query)
                         );
                     }
                     renderHistoryTable(filtered);
