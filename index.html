@@ -1501,7 +1501,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', initDockDropdown);
-        function handleDispatchChange(selectEl) {
+    function handleDispatchChange(selectEl) {
     if (!selectEl) return;
     const scannersRow = document.getElementById('checkInScannersRow');
     const itemBox = document.getElementById('scanBoxItem');
@@ -1546,59 +1546,59 @@
         if (sealInput) { sealInput.required = false; sealInput.value = ''; }
         if (itemWrapper) itemWrapper.style.display = 'none';
         if (driverWrapper) driverWrapper.style.display = 'none';
-    }
 
-    if (scannersRow && driverBox) {
-        const iqamaBoxEl = document.getElementById('scanBoxIqama');
-        if (iqamaBoxEl) scannersRow.insertBefore(driverBox, iqamaBoxEl);
-        else scannersRow.appendChild(driverBox);
+        if (scannersRow && driverBox) {
+            const iqamaBoxEl = document.getElementById('scanBoxIqama');
+            if (iqamaBoxEl) scannersRow.insertBefore(driverBox, iqamaBoxEl);
+            else scannersRow.appendChild(driverBox);
+        }
+
+        const toggleNew = document.getElementById('toggleNewDriverBtn');
+        const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
+
+        if (isExistingMode) {
+            if (scannersRow) scannersRow.style.display = 'none';
+        } else {
+            if (scannersRow) {
+                scannersRow.style.display = 'grid';
+                scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            }
+            if (itemBox) itemBox.style.display = 'none';
+            if (driverBox) driverBox.style.display = 'block';
+            if (iqamaBox) iqamaBox.style.display = 'block';
+            if (driverBoxLabel) driverBoxLabel.innerText = typeof tr !== 'undefined' ? tr("Driver Photo / Truck Photo") : "Driver Photo / Truck Photo";
+        }
     }
 }
-                        const toggleNew = document.getElementById('toggleNewDriverBtn');
-                        const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
 
-                        if (isExistingMode) {
-                            if (scannersRow) scannersRow.style.display = 'none';
-                        } else {
-                            if (scannersRow) { 
-                                scannersRow.style.display = 'grid'; 
-                                scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; 
-                            }
-                            if (itemBox) itemBox.style.display = 'none';
-                            if (driverBox) driverBox.style.display = 'block';
-                            if (iqamaBox) iqamaBox.style.display = 'block';
-                            if (driverBoxLabel) driverBoxLabel.innerText = typeof tr !== 'undefined' ? tr("Driver Photo / Truck Photo") : "Driver Photo / Truck Photo";
-                        }
-                    }
-                }
+function toggleAccordion(el) {
+    const content = el.nextElementSibling;
+    const wrapper = el.parentElement;
+    if (content && content.classList.contains('open')) {
+        content.classList.remove('open');
+        if (wrapper) wrapper.classList.remove('open');
+    } else {
+        if (content) content.classList.add('open');
+        if (wrapper) wrapper.classList.add('open');
+    }
+}
 
-        function toggleAccordion(el) {
-                    const content = el.nextElementSibling;
-                    const wrapper = el.parentElement;
-                    if (content && content.classList.contains('open')) {
-                        content.classList.remove('open');
-                        if (wrapper) wrapper.classList.remove('open');
-                    } else {
-                        if (content) content.classList.add('open');
-                        if (wrapper) wrapper.classList.add('open');
-                    }
-                }
-                function checkSessionExpiry() {
-            const sessionStr = localStorage.getItem('noonSlpUserSession');
-            if (sessionStr) {
-                const sessionData = JSON.parse(sessionStr);
-                if (!sessionData.loginTime || (Date.now() - sessionData.loginTime > 43200000)) {
-                    window.logoutUser();
-                }
-            }
+function checkSessionExpiry() {
+    const sessionStr = localStorage.getItem('noonSlpUserSession');
+    if (sessionStr) {
+        const sessionData = JSON.parse(sessionStr);
+        if (!sessionData.loginTime || (Date.now() - sessionData.loginTime > 43200000)) {
+            window.logoutUser();
         }
+    }
+}
 
-        function logoutUser() {
-            localStorage.removeItem('noonSlpUserSession');
-            localStorage.removeItem('SLP_OVERRIDES');
-            localStorage.removeItem('SLP_DELETES');
-            location.reload();
-        }
+function logoutUser() {
+    localStorage.removeItem('noonSlpUserSession');
+    localStorage.removeItem('SLP_OVERRIDES');
+    localStorage.removeItem('SLP_DELETES');
+    location.reload();
+}
 
         function toggleSidebar() {
     isSidebarHidden = !isSidebarHidden;
