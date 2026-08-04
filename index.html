@@ -2840,27 +2840,29 @@ window.captureCameraFrame = captureCameraFrame;
                 forceBtn = document.createElement('button');
                 forceBtn.id = 'forceCheckoutBtn';
                 forceBtn.innerHTML = '⚠️ FORCE CHECK-OUT';
-                forceBtn.style.cssText = 'background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 8px 12px; margin: 15px auto 5px; width: 80%; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: block; text-align: center; transition: 0.2s;';
+                forceBtn.style.cssText = 'background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 10px; margin: 15px auto 5px; width: 100%; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; display: block; text-align: center; box-sizing: border-box;';
                 
                 forceBtn.onclick = function() {
                     if (confirm("⚠️ WARNING: You are forcing checkout without required photos.\n\nDo you want to proceed?")) {
-                        const dummyBlob = new Blob([''], { type: 'image/jpeg' });
+                        // Create 1-byte dummy images so the system thinks photos were taken
+                        const dummyBlob = new Blob([' '], { type: 'image/jpeg' });
                         tempCheckoutTruckPhoto = dummyBlob;
                         tempCheckoutItemPhoto = dummyBlob;
                         
-                        const submitBtn = modal.querySelector('.btn-primary') || modal.querySelector('button[onclick*="SignOut"]');
-                        if (submitBtn) {
-                            submitBtn.click();
+                        // Find the exact yellow Confirm button by its ID and click it
+                        const confirmBtn = document.getElementById('btnConfirmSignOut');
+                        if (confirmBtn) {
+                            confirmBtn.click();
+                        } else {
+                            alert("System error: Confirm button not found.");
                         }
                     }
                 };
                 
-                const submitBtn = modal.querySelector('.btn-primary') || modal.querySelector('button[onclick*="SignOut"]');
-                if (submitBtn && submitBtn.parentNode) {
-                    submitBtn.parentNode.insertBefore(forceBtn, submitBtn.nextSibling);
-                } else {
-                    const modalContent = modal.querySelector('.modal-content') || modal.querySelector('.modal-body') || modal;
-                    modalContent.appendChild(forceBtn);
+                // Place the force button directly under the yellow Confirm button
+                const confirmBtn = document.getElementById('btnConfirmSignOut');
+                if (confirmBtn && confirmBtn.parentNode) {
+                    confirmBtn.parentNode.insertBefore(forceBtn, confirmBtn.nextSibling);
                 }
             }
             // -------------------------------------
