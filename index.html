@@ -802,8 +802,16 @@
                                     </div>
 
                                     <div class="form-group"><label class="badge-style" data-i18n="Noon Employee ID">Noon Employee ID</label><input type="text" id="noonEmployeeId" class="input-box-styled" placeholder="Enter Noon employee ID" autocomplete="off"></div>
-                                    <div class="form-group"><label class="badge-style" data-i18n="How many Boxes">How many Boxes</label><input type="number" id="boxCount" class="input-box-styled" placeholder="Enter number of boxes" min="0" autocomplete="off"></div>
-                                    <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
+<div class="form-group">
+    <label class="badge-style" data-i18n="How many Boxes/Pallets">Quantity (Boxes/Pallets)</label>
+    <div style="display: flex; gap: 8px;">
+        <select id="boxType" class="input-box-styled" style="width: 35%; padding: 0.5rem;">
+            <option value="Boxes" data-i18n="Boxes">Boxes</option>
+            <option value="Pallets" data-i18n="Pallets">Pallets</option>
+        </select>
+        <input type="number" id="boxCount" class="input-box-styled" placeholder="Enter quantity" min="0" autocomplete="off" style="width: 65%;">
+    </div>
+</div>                                    <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
                                         <label class="badge-style" style="color:var(--accent-color);" data-i18n="Seal or transction number">Seal or transction number</label>
                                         <input type="text" id="sealNumber" class="input-box-styled" data-i18n="Seal or transction number" placeholder="Enter seal or transaction number" style="border-color: rgba(252, 194, 0, 0.4);" autocomplete="off">
                                     </div>
@@ -1506,19 +1514,28 @@
                     const sealInput = document.getElementById('sealNumber');
 
                     if (selectEl.value === 'Receiving') {
-                        if (sealContainer) sealContainer.style.display = 'block';
-                        if (sealInput) sealInput.required = true;
-                        if (driverWrapper) driverWrapper.style.display = 'block';
-                        if (itemWrapper) itemWrapper.style.display = 'grid';
+            // Receiving doesn't need a departure seal
+            if (sealContainer) sealContainer.style.display = 'none';
+            if (sealInput) sealInput.required = false;
 
-                        if (driverWrapper && driverBox) {
-                            driverWrapper.appendChild(driverBox);
-                        }
+            // Make sure both photo wrappers are visible
+            if (driverWrapper) driverWrapper.style.display = 'block';
+            if (itemWrapper) itemWrapper.style.display = 'block';
 
-                        if (itemBox) itemBox.style.display = 'block';
-                        if (iqamaBox) iqamaBox.style.display = 'none';
+            // Attach and show Truck Picture
+            if (driverWrapper && driverBox) {
+                driverWrapper.appendChild(driverBox);
+                driverBox.style.display = 'flex';
+            }
+            
+            // Attach and show Item Picture (This is what was missing!)
+            if (itemWrapper && itemBox) {
+                itemWrapper.appendChild(itemBox);
+                itemBox.style.display = 'flex';
+            }
 
-                        if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
+            if (iqamaBox) iqamaBox.style.display = 'none';
+            if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
                     } else {
                         temporaryCapturedItemImage = null;
                         if (sealContainer) sealContainer.style.display = 'none';
@@ -2917,12 +2934,20 @@ window.captureCameraFrame = captureCameraFrame;
                     const sealVal = sealInput ? sealInput.value.trim() : "";
 
                     // Photo/Seal checks only applied if Outbound/Dispatch
-                    if (!isReceiving) {
-                        if (!sealVal) { alert('Please attach a departure seal number.'); return; }
-                        if (!tempCheckoutTruckPhoto) { alert('Please attach a Truck Picture.'); return; }
-                        if (!tempCheckoutItemPhoto) { alert('Please attach an Item Picture.'); return; }
-                    }
-
+                    // Check if the photo is a 1-byte dummy blob from a Force Check-Out
+        const isForceCheckout = (tempCheckoutTruckPhoto && tempCheckoutTruckPhoto.size <= 2);
+        
+        if (!isReceiving && !isForceCheckout) {
+            let missingItems = [];
+            if (!sealVal) missingItems.push('a departure seal number');
+            if (!tempCheckoutTruckPhoto) missingItems.push('a Truck Picture');
+            if (!tempCheckoutItemPhoto) missingItems.push('an Item Picture');
+            
+            if (missingItems.length > 0) {
+                alert('Please provide the following to check out:\n- ' + missingItems.join('\n- '));
+                return; 
+            }
+        }
                     const { driverName, plateNumber } = currentSignOutContext;
                     if (btn) { btn.innerText = typeof tr !== 'undefined' ? tr("Processing...") : "Processing..."; btn.disabled = true; }
 
