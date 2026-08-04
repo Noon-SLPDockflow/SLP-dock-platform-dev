@@ -1533,7 +1533,7 @@
             }
             }
             
-            // Attach and show Item Picture (This is what was missing!)
+            // Attach and show Item Picture
             if (itemWrapper && itemBox) {
                 itemWrapper.appendChild(itemBox);
                 itemBox.style.display = 'flex';
@@ -1541,12 +1541,13 @@
 
             if (iqamaBox) iqamaBox.style.display = 'none';
             if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
-                    } else {
-                        temporaryCapturedItemImage = null;
-                        if (sealContainer) sealContainer.style.display = 'none';
-                        if (sealInput) { sealInput.required = false; sealInput.value = ''; }
-                        if (itemWrapper) itemWrapper.style.display = 'none';
-                        if (driverWrapper) driverWrapper.style.display = 'none';
+        } else {
+            temporaryCapturedItemImage = null;
+            if (sealContainer) sealContainer.style.display = 'none';
+            if (sealInput) { sealInput.required = false; sealInput.value = ''; }
+            if (itemWrapper) itemWrapper.style.display = 'none';
+            if (driverWrapper) driverWrapper.style.display = 'none';
+        }
 
                         if (scannersRow && driverBox) {
                             const iqamaBoxEl = document.getElementById('scanBoxIqama');
