@@ -2237,6 +2237,7 @@ window.openDriverProfileModal = openDriverProfileModal;
                     });
                     driverSuggestionsListEl.classList.add('open');
                 }
+                window.renderDriverSuggestions = renderDriverSuggestions;
 
                 driverSearchBoxEl.addEventListener('focus', function() {
                     renderDriverSuggestions(this.value.toUpperCase().trim());
@@ -3901,7 +3902,6 @@ list.forEach(driver => {
                     }
                     fetch(API_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(payload)
                     })
                     .then(async response => {
