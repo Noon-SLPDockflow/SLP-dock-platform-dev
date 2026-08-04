@@ -2076,6 +2076,10 @@ viewport.style.backgroundImage = 'none';                            }
                         const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
                         const s = document.createElement('script');
                         s.id = 'jsonp-photo-fetcher';
+                            s.onerror = function() {
+        const loader = document.getElementById('photoLoader');
+        if (loader) loader.style.display = 'none';
+    };
                         s.src = API_URL + "?action=getPhoto&driverName=" + encodeURIComponent(name) + "&callback=handlePhotoResponse&prefix=handlePhotoResponse&_" + new Date().getTime();
                         document.body.appendChild(s);
                     }
@@ -2413,7 +2417,7 @@ window.openDriverProfileModal = openDriverProfileModal;
                         closeCamera(); 
                     }
                 }
-                
+                window.openCamera = openCamera;
                 async function openCheckoutCamera(statusLabelId, scanType) {
                     cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
                     const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
@@ -2441,6 +2445,7 @@ window.openDriverProfileModal = openDriverProfileModal;
                     if(video && video.paused) video.play();
                     updateUIStrings();
                 }
+                window.closeCamera = closeCamera;
 
                 function handleCameraCancel() {
                     if (isConfirmingState) {
