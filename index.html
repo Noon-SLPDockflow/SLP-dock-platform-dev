@@ -2206,6 +2206,7 @@ window.openDriverProfileModal = openDriverProfileModal;
                         document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "block"; f.querySelector('input').required = true; });
                     }
                 }
+                window.setDriverMode = setDriverMode;
 
                 const driverSearchBoxEl = document.getElementById('driverSearchBox');
                 const driverSuggestionsListEl = document.getElementById('driverSuggestionsList');
@@ -2606,7 +2607,9 @@ window.openDriverProfileModal = openDriverProfileModal;
                             }
                         }
                     }, 300);
-                }        async function runLocalOcrEngine(file, statusLabelId, scanType) {
+                }  
+                window.handleFileSelected = handleFileSelected;
+                async function runLocalOcrEngine(file, statusLabelId, scanType) {
                     const status = document.getElementById(statusLabelId);
                     status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
                     try {
