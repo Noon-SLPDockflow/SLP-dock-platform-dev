@@ -1522,10 +1522,15 @@
             if (driverWrapper) driverWrapper.style.display = 'block';
             if (itemWrapper) itemWrapper.style.display = 'block';
 
-            // Attach and show Truck Picture
+            // Attach and show Truck Picture with proper vertical centering
             if (driverWrapper && driverBox) {
                 driverWrapper.appendChild(driverBox);
                 driverBox.style.display = 'flex';
+                driverBox.style.flexDirection = 'column';
+                driverBox.style.alignItems = 'center';
+                driverBox.style.justifyContent = 'center';
+                driverBox.style.padding = '1.5rem';
+            }
             }
             
             // Attach and show Item Picture (This is what was missing!)
@@ -1596,21 +1601,31 @@
         }
 
         function toggleSidebar() {
-            isSidebarHidden = !isSidebarHidden;
-            const sidebar = document.getElementById('appSidebar');
-            const mainContent = document.getElementById('mainContentArea');
-            const floatingBtn = document.getElementById('floatingOpenBtn');
+    isSidebarHidden = !isSidebarHidden;
+    const sidebar = document.getElementById('appSidebar');
+    const mainContent = document.getElementById('mainContentArea');
+    const floatingBtn = document.getElementById('floatingOpenBtn');
 
-            if (isSidebarHidden) {
-                sidebar.classList.add('hidden');
-                mainContent.classList.add('expanded');
-                floatingBtn.style.display = 'flex';
-            } else {
-                sidebar.classList.remove('hidden');
-                mainContent.classList.remove('expanded');
-                floatingBtn.style.display = 'none';
-            }
+    if (isSidebarHidden) {
+        sidebar.classList.add('hidden');
+        if (mainContent) {
+            mainContent.classList.add('expanded');
+            mainContent.style.marginLeft = '0px';
+            mainContent.style.width = '100%';
+            mainContent.style.maxWidth = '100%';
         }
+        if (floatingBtn) floatingBtn.style.display = 'flex';
+    } else {
+        sidebar.classList.remove('hidden');
+        if (mainContent) {
+            mainContent.classList.remove('expanded');
+            mainContent.style.marginLeft = ''; // Reverts back to CSS default margin
+            mainContent.style.width = '';
+            mainContent.style.maxWidth = '';
+        }
+        if (floatingBtn) floatingBtn.style.display = 'none';
+    }
+}
 
         let currentLoginMode = 'guard';
         const allowedEmails = [
