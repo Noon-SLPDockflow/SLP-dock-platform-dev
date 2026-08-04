@@ -3862,32 +3862,37 @@ list.forEach(driver => {
                         });
                     }
 
-                    if(activeBody) {
-                        if(activeList.length === 0) {
-                            activeBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.')}</td></tr>`;
-                        } else {
-                            activeList.reverse().forEach(r => {
-                                let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
-                                let cssClass = getBadgeClass(displayDir, false);
-                                let activeDispType = r.dispatchType || 'DISPATCHING';
-                                let activeSeal = r.sealNumber || '--';
+                    if (activeBody) {
+        if (activeList.length === 0) {
+            activeBody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">${tr('NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.')}</td></tr>`;
+        } else {
+            activeList.reverse().forEach(r => {
+                let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
+                let cssClass = getBadgeClass(displayDir, false);
+                let activeDispType = r.dispatchType || 'DISPATCHING';
+                let activeEmpId = r.noonEmpId || r.employeeId || '--';
+                let activeBoxes = r.boxesCount || r.boxes || '--';
+                let activeSeal = r.sealNumber || '--';
 
-                                activeBody.innerHTML += `<tr>
-                                    <td><strong>${r.driverName}</strong></td>
-                                    <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                                    <td><span class="${cssClass}">${tr(displayDir)}</span></td>
-                                    <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${tr(activeDispType.toUpperCase())}</td>
-                                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
-                                    <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
-                                    <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td>
-                                    <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, null)}</td>
-                                    <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
-                                    <td style="text-align:right; padding-right:1rem;">
-        <button class="btn-checkout-action" onclick="promptSignOut('${r.driverName.replace(/'/g, "\\'")}', '${String(r.plateNumber || '').replace(/'/g, "\\'")}', '${(r.securityName || tr('Guard')).replace(/'/g, "\\'")}', '${r.dockNumber}', '${activeDispType}')">${tr('CHECK OUT')}</button>                            </td>
-                                </tr>`;
-                            });
-                        }
-                    }
+                activeBody.innerHTML += `<tr>
+                    <td><strong>${r.driverName}</strong></td>
+                    <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                    <td><span class="${cssClass}">${tr(displayDir)}</span></td>
+                    <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${tr(activeDispType.toUpperCase())}</td>
+                    <td style="color:var(--text-muted); font-family:monospace; font-size:0.8rem;">${activeEmpId}</td>
+                    <td>${activeBoxes}</td>
+                    <td style="color:var(--text-muted); font-family:monospace; font-size:0.8rem;">${activeSeal}</td>
+                    <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td>
+                    <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, null)}</td>
+                    <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
+                    <td style="text-align:right; padding-right:1rem;">
+                        <button class="btn-checkout-action" onclick="promptSignOut('${(r.driverName||'').replace(/'/g, "\\'")}', '${(String(r.plateNumber || '').replace(/'/g, "\\'"))}', '${(r.securityName || tr('Guard')).replace(/'/g, "\\'")}', '${r.dockNumber}', '${activeDispType}')">${tr('CHECK OUT')}</button>
+                    </td>
+                </tr>`;
+            });
+        }
+    }
 
                     if (typeof applyHistoryFilters === 'function') applyHistoryFilters();
                     if (typeof applyAnalyticsFilters === 'function') applyAnalyticsFilters();
