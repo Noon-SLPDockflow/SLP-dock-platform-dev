@@ -2065,26 +2065,33 @@ window.switchView = switchView;
         viewport.innerHTML = `<div id="photoloader" style="color:var(--accent-color); text-align:center; padding-top:80px; font-weight:bold;">Loading Photo...</div>`;
 
         window.handlePhotoResponse = function(res) {
-            const loader = document.getElementById('photoloader');
-            
             let imgUrl = (res && res.image) ? res.image.trim() : '';
 
-            // If missing or error text from sheet, display clean placeholder text
+            // If missing or error text from sheet
             if (!imgUrl || imgUrl.toLowerCase().includes('error')) {
                 viewport.innerHTML = `<div style="color:#888; text-align:center; padding-top:80px; font-weight:500;">No Photo Available</div>`;
-                viewport.style.backgroundImage = 'none';
                 return;
             }
 
-            // Convert Google Drive links into direct viewable image streams
+            // Extract Google Drive File ID
             const driveMatch = imgUrl.match(/(?:id=|\/d\/)([a-zA-Z0-9_-]+)/);
+            
             if (driveMatch && driveMatch[1]) {
-                imgUrl = `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
-            }
+                const fileId = driveMatch[1];
+                const primaryUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                const fallbackUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
 
-            if (loader) loader.style.display = 'none';
-            viewport.style.backgroundImage = `url("${imgUrl}")`;
-        };                        const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
+                viewport.innerHTML = `
+                    <img src="${primaryUrl}" 
+                         style="width:100%; height:100%; object-fit:contain; border-radius:8px;" 
+                         onerror="if(this.src !== '${fallbackUrl}') { this.src='${fallbackUrl}'; } else { this.parentElement.innerHTML='<div style=\"color:#888; text-align:center; padding-top:80px; font-weight:500;\">No Photo Available</div>'; }" />
+                `;
+            } else {
+                viewport.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;" />`;
+            }
+        };
+            
+                     const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
                         const s = document.createElement('script');
                         s.id = 'jsonp-photo-fetcher';
                             s.onerror = function() {
