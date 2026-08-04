@@ -2042,38 +2042,49 @@ window.switchView = switchView;
                     const viewport = document.getElementById('modalMediaViewport');
 
                     viewport.style.backgroundSize = "contain";
-                    viewport.style.backgroundPosition = "center";
-                    viewport.style.backgroundRepeat = "no-repeat";
+    viewport.style.backgroundPosition = "center";
+    viewport.style.backgroundRepeat = "no-repeat";
 
-                    if (isGuard) {
-                        titleEl.innerText = tr("Security Guard Details");
-                        iqamaLabel.innerText = tr("Noon ID");
-                        plateCell.style.display = 'none';
-                        mobileCell.style.display = 'none';
-                        viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
-                    } else {
-                        titleEl.innerText = tr("Driver Details");
-                        iqamaLabel.innerText = tr("Iqama/National ID");
-                        plateCell.style.display = 'block';
-                        mobileCell.style.display = 'block';
+    if (isGuard) {
+        titleEl.innerText = tr("Security Guard Details");
+        iqamaLabel.innerText = tr("Noon ID");
+        plateCell.style.display = "none";
+        mobileCell.style.display = "none";
+        viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
+    } else {
+        titleEl.innerText = tr("Driver Details");
+        iqamaLabel.innerText = tr("Iqama/National ID");
+        plateCell.style.display = "block";
+        mobileCell.style.display = "block";
 
-                        let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
-                        let segments = plate ? plate.split(' ') : ['--'];
-                        segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
-                        
-                        viewport.style.backgroundImage = `none`;
-                        viewport.innerHTML = `<div id="photoLoader" style="color:var(--accent-color); text-align:center; padding-top:80px; font-weight:bold;">Loading Photo...</div>`;
+        let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
+        let segments = plate ? plate.split(' ') : ['--'];
+        segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
 
-                        window.handlePhotoResponse = function(res) {
-                            const loader = document.getElementById('photoLoader');
-                            if(loader) loader.style.display = 'none';
-                            if (res && res.image && res.image !== "") {
-                                viewport.style.backgroundImage = `url("${res.image}")`;
-                            } else {
-viewport.style.backgroundImage = 'none';                            }
-                        };
+        viewport.style.backgroundImage = 'none';
+        viewport.innerHTML = `<div id="photoloader" style="color:var(--accent-color); text-align:center; padding-top:80px; font-weight:bold;">Loading Photo...</div>`;
 
-                        const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
+        window.handlePhotoResponse = function(res) {
+            const loader = document.getElementById('photoloader');
+            
+            let imgUrl = (res && res.image) ? res.image.trim() : '';
+
+            // If missing or error text from sheet, display clean placeholder text
+            if (!imgUrl || imgUrl.toLowerCase().includes('error')) {
+                viewport.innerHTML = `<div style="color:#888; text-align:center; padding-top:80px; font-weight:500;">No Photo Available</div>`;
+                viewport.style.backgroundImage = 'none';
+                return;
+            }
+
+            // Convert Google Drive links into direct viewable image streams
+            const driveMatch = imgUrl.match(/(?:id=|\/d\/)([a-zA-Z0-9_-]+)/);
+            if (driveMatch && driveMatch[1]) {
+                imgUrl = `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+            }
+
+            if (loader) loader.style.display = 'none';
+            viewport.style.backgroundImage = `url("${imgUrl}")`;
+        };                        const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
                         const s = document.createElement('script');
                         s.id = 'jsonp-photo-fetcher';
                             s.onerror = function() {
