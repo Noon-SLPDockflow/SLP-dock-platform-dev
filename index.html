@@ -2461,18 +2461,32 @@ window.filterRegistryCards = filterRegistryCards;
                 }
 
                 function closeCamera() {
-                    document.getElementById('cameraOverlay').classList.remove('open');
-                    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-                    isConfirmingState = false;
-                    
-                    document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
-                    document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
-                    document.querySelector('.btn-cancel-cam').removeAttribute('style');
-                    
-                    const video = document.getElementById('cameraVideo');
-                    if(video && video.paused) video.play();
-                    updateUIStrings();
-                }
+            document.getElementById('cameraOverlay').classList.remove('open');
+            
+            // Free up hardware memory for low-spec tablets
+            const video = document.getElementById('cameraVideo');
+            if (video) {
+                video.pause();
+                video.srcObject = null; 
+            }
+            if (cameraStream) { 
+                cameraStream.getTracks().forEach(t => t.stop()); 
+                cameraStream = null; 
+            }
+            
+            isConfirmingState = false;
+
+            const capBtn = document.querySelector('.btn-capture');
+            if (capBtn) capBtn.innerHTML = `<span data-i18n="Capture">Capture</span>`;
+            
+            const canBtn = document.querySelector('.btn-cancel-cam');
+            if (canBtn) {
+                canBtn.innerHTML = tr('Cancel');
+                canBtn.removeAttribute('style');
+            }
+            
+            updateUIStrings();
+        }
                 window.closeCamera = closeCamera;
 window.handleCameraCancel = handleCameraCancel;
 window.captureCameraFrame = captureCameraFrame;
@@ -2774,7 +2788,8 @@ window.captureCameraFrame = captureCameraFrame;
 
                 let currentSignOutContext = null;
 
-        function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
+       window.promptSignOut = promptSignOut;
+                function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
             try {
                 currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
                 
@@ -2818,13 +2833,44 @@ window.captureCameraFrame = captureCameraFrame;
                 }
 
                 const modal = document.getElementById('signOutModal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    modal.style.opacity = '1';
-                    modal.style.pointerEvents = 'auto';
-                    modal.style.zIndex = '999999';
-                    modal.classList.add('modal-active', 'active', 'show');
-                }
+        if (modal) {
+            // --- INJECT FORCE CHECK-OUT BUTTON ---
+            let forceBtn = document.getElementById('forceCheckoutBtn');
+            if (!forceBtn) {
+                forceBtn = document.createElement('button');
+                forceBtn.id = 'forceCheckoutBtn';
+                forceBtn.innerHTML = '⚠️ FORCE CHECK-OUT (NO PHOTOS)';
+                forceBtn.style.cssText = 'background: #d32f2f; color: white; padding: 12px; margin-top: 20px; width: 100%; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; letter-spacing: 1px;';
+                
+                forceBtn.onclick = function() {
+                    if (confirm("⚠️ WARNING: You are forcing checkout without required photos.\n\nDo you want to proceed?")) {
+                        // Create invisible dummy blobs to bypass the photo locks
+                        const dummyBlob = new Blob([''], { type: 'image/jpeg' });
+                        tempCheckoutTruckPhoto = dummyBlob;
+                        tempCheckoutItemPhoto = dummyBlob;
+                        
+                        // Find the normal confirm button and click it programmatically
+                        const submitBtn = modal.querySelector('.btn-primary') || modal.querySelector('button[onclick*="SignOut"]');
+                        if (submitBtn) {
+                            submitBtn.click();
+                        } else {
+                            alert("Error: Could not find the Confirm button to force checkout.");
+                        }
+                    }
+                };
+                
+                // Append it to the modal content area
+                const modalContent = modal.querySelector('.modal-content') || modal.querySelector('.modal-body') || modal;
+                modalContent.appendChild(forceBtn);
+            }
+            // -------------------------------------
+
+            modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'auto';
+            modal.style.zIndex = '999999';
+            modal.classList.add('modal-active', 'active', 'show');
+        }
             } catch (err) {
                 console.error("Error opening sign-out modal:", err);
                 const modal = document.getElementById('signOutModal');
