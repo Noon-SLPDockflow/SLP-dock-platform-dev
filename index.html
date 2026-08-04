@@ -2474,6 +2474,8 @@ window.filterRegistryCards = filterRegistryCards;
                     updateUIStrings();
                 }
                 window.closeCamera = closeCamera;
+window.handleCameraCancel = handleCameraCancel;
+window.captureCameraFrame = captureCameraFrame;
 
                 function handleCameraCancel() {
                     if (isConfirmingState) {
@@ -2565,8 +2567,10 @@ window.filterRegistryCards = filterRegistryCards;
                     }
 
                     if (typeof video !== 'undefined' && video) {
-                        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        // Crop the right 25% of the video to remove the Saudi header for cleaner OCR
+        canvas.width = video.videoWidth * 0.75; 
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
 
                         const currentStatusId = cameraTargetStatusId;
                         const currentScanType = cameraTargetScanType;
