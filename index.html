@@ -63,7 +63,6 @@
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1rem; }
         
-        /* Compact Footer to Fit All Screen Heights */
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
@@ -79,7 +78,6 @@
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         
-        /* Tablet/Mobile Adjustments */
         @media (max-width: 1200px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); width: 240px; }
@@ -877,6 +875,13 @@
                 }
             });
         }
+        
+        const dispatchSel = document.getElementById('dispatchSelect');
+        if (dispatchSel) {
+            dispatchSel.addEventListener('change', function() {
+                updateScannerVisibility();
+            });
+        }
 
         const iqNum = document.getElementById('iqamaNumber');
         if (iqNum) { iqNum.addEventListener('input', runInstantConflictCheck); iqNum.addEventListener('change', runInstantConflictCheck); }
@@ -1414,7 +1419,7 @@
             if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
         }
 
-        // Build Accordion Grouped Tables (Matching screenshot format)
+        // Build Accordion Grouped Tables
         const aTables = document.getElementById('analyticsGroupedTables');
         if (aTables) {
             let groups = {};
@@ -1657,22 +1662,26 @@
         });
     }
 
-    async function preprocessImageForOcr(file, scanType) {
+    async function preprocessImageForOcr(file, scanType, forceFullFrame = false) {
         const img = await loadImageRobust(file);
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { alpha: false });
 
-        if (scanType === 'PLATE') {
-            // Smart Bumper Zoom: Crop lower 55% of the vehicle center
-            const cropX = img.width * 0.15;
-            const cropY = img.height * 0.40;
-            const cropW = img.width * 0.70;
-            const cropH = img.height * 0.55;
+        // Adaptive Check: If scan is a PLATE and image is wide/landscape or NOT forced full-frame
+        const isAlreadyCropped = (img.width / img.height) > 1.8;
+
+        if (scanType === 'PLATE' && !forceFullFrame && !isAlreadyCropped) {
+            // Smart Bumper Crop: Focus on lower 55% center of whole car shots
+            const cropX = img.width * 0.10;
+            const cropY = img.height * 0.35;
+            const cropW = img.width * 0.80;
+            const cropH = img.height * 0.60;
 
             canvas.width = Math.min(1000, Math.round(cropW));
             canvas.height = Math.round((cropH / cropW) * canvas.width);
             ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
         } else {
+            // Full Frame processing
             const targetWidth = 1000;
             const scale = img.width > targetWidth ? targetWidth / img.width : 1;
             canvas.width = Math.round(img.width * scale);
@@ -1745,25 +1754,33 @@
     function handleCameraCancel() { closeCamera(); }
     window.handleCameraCancel = handleCameraCancel;
 
+    async function processOcrRequest(file, scanType, forceFull = false) {
+        const processedBlob = await preprocessImageForOcr(file, scanType, forceFull);
+        const base64Data = await blobToBase64(processedBlob);
+        
+        const response = await fetch(OCR_API_URL, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) 
+        });
+        
+        return await response.json();
+    }
+
     async function runLocalOcrEngine(file, statusLabelId, scanType) {
         const status = document.getElementById(statusLabelId); 
         if (status) status.innerHTML = "🌀 Processing OCR...";
         
         try {
-            const processedBlob = await preprocessImageForOcr(file, scanType);
-            const base64Data = await blobToBase64(processedBlob);
-            
-            const response = await fetch(OCR_API_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) 
-            });
-            
-            const result = await response.json();
-            if (!result.success || !result.text) throw new Error(result.error || "OCR Extraction Failed");
-
-            let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
+            let result = await processOcrRequest(file, scanType, false);
+            let cleanText = convertArabicNumeralsToDigits((result && result.text) || "").toUpperCase();
             let matched = false;
+
+            // Fallback: If Plate scan yielded no digits, retry with Full Frame!
+            if (scanType === "PLATE" && !cleanText.match(/\b\d{3,4}\b/)) {
+                result = await processOcrRequest(file, scanType, true);
+                cleanText = convertArabicNumeralsToDigits((result && result.text) || "").toUpperCase();
+            }
 
             if (scanType === "IQAMA") {
                 let idMatch = cleanText.match(/\b[12]\d{9}\b/);
@@ -1882,7 +1899,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "2.5";
+    const CURRENT_APP_VERSION = "2.6";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
