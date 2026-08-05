@@ -448,11 +448,12 @@
                             
                             <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled" required onchange="handleDispatchChange(this)"><option value="" data-i18n="Select...">Select...</option><option value="Dispatching" data-i18n="Dispatching">Dispatching</option><option value="Receiving" data-i18n="Receiving">Receiving</option></select></div>
                             
-                            <!-- Bottom Scanners Row (Shown for Existing Driver OR New Driver + Receiving) -->
+                            <!-- Bottom Scanners Row -->
                             <div class="scanners-double-row" id="bottomScannersRow" style="display:none; grid-column: 1 / -1; margin-bottom: 0;">
-                                <div class="scan-box-dashed" id="bottomScanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()" style="display:none;">
+                                <div class="scan-box-dashed" id="bottomScanBoxDriver" onclick="document.getElementById('driverPhotoInputBottom').click()" style="display:none;">
                                     <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusBottom" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
-                                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusBottom', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                                    <input type="file" id="driverPhotoInputBottom" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatusBottom', 'TRUCK_PHOTO_ONLY')">
+                                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusBottom', 'TRUCK_PHOTO_ONLY')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                                 </div>
                                 <div class="scan-box-dashed" id="bottomScanBoxItem" onclick="document.getElementById('itemPhotoInput').click()" style="display:none;">
                                     <div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus" data-i18n="Item Picture">Item Picture *</span></div>
@@ -939,7 +940,7 @@
         const toggleBtn = document.getElementById('toggleNewDriverBtn');
         const isNew = toggleBtn && toggleBtn.classList.contains('active');
         const dispSel = document.getElementById('dispatchSelect');
-        const hasDispatchChoice = dispSel && dispSel.value !== ''; 
+        const isReceiving = dispSel && dispSel.value === 'Receiving';
 
         const topScanners = document.getElementById('topScannersRow');
         const bottomScanners = document.getElementById('bottomScannersRow');
@@ -949,19 +950,19 @@
         if (isNew) {
             if (topScanners) topScanners.style.display = 'grid';
             if (bottomScanners) {
-                bottomScanners.style.display = hasDispatchChoice ? 'grid' : 'none';
+                bottomScanners.style.display = isReceiving ? 'grid' : 'none';
                 bottomScanners.style.gridTemplateColumns = '1fr';
             }
             if (bottomDriver) bottomDriver.style.display = 'none';
-            if (bottomItem) bottomItem.style.display = hasDispatchChoice ? 'block' : 'none';
+            if (bottomItem) bottomItem.style.display = isReceiving ? 'block' : 'none';
         } else {
             if (topScanners) topScanners.style.display = 'none';
             if (bottomScanners) {
-                bottomScanners.style.display = hasDispatchChoice ? 'grid' : 'none';
-                bottomScanners.style.gridTemplateColumns = hasDispatchChoice ? 'repeat(2, 1fr)' : 'none';
+                bottomScanners.style.display = 'grid';
+                bottomScanners.style.gridTemplateColumns = isReceiving ? 'repeat(2, 1fr)' : '1fr';
             }
             if (bottomDriver) bottomDriver.style.display = 'block';
-            if (bottomItem) bottomItem.style.display = 'block';
+            if (bottomItem) bottomItem.style.display = isReceiving ? 'block' : 'none';
         }
     }
 
@@ -1741,9 +1742,12 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck' || currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
-                        if (currentScanType === 'truck') tempCheckoutTruckPhoto = blob;
-                        if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result;
+                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
+                        temporaryCapturedImage = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
+                        temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
                     } else {
@@ -1800,7 +1804,6 @@
         try {
             return await processOcrRequestJSONP(base64Data, scanType);
         } catch (err) {
-            // CORS/JSONP Fallback using standard fetch
             const response = await fetch(OCR_API_URL, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1910,7 +1913,24 @@
     }
 
     function handleFileSelected(inputEl, statusContainerId, scanType) { 
-        if (inputEl.files && inputEl.files[0]) runLocalOcrEngine(inputEl.files[0], statusContainerId, scanType); 
+        if (!inputEl.files || !inputEl.files[0]) return;
+        const file = inputEl.files[0];
+        
+        if (scanType === 'ITEM_PHOTO') {
+            const reader = new FileReader();
+            reader.onloadend = () => { temporaryCapturedItemImage = reader.result; };
+            reader.readAsDataURL(file);
+            const status = document.getElementById(statusContainerId);
+            if (status) { status.innerHTML = "✅ Attached"; status.style.color = "var(--success-color)"; }
+        } else if (scanType === 'TRUCK_PHOTO_ONLY') {
+            const reader = new FileReader();
+            reader.onloadend = () => { temporaryCapturedImage = reader.result; };
+            reader.readAsDataURL(file);
+            const status = document.getElementById(statusContainerId);
+            if (status) { status.innerHTML = "✅ Attached"; status.style.color = "var(--success-color)"; }
+        } else {
+            runLocalOcrEngine(file, statusContainerId, scanType);
+        }
         inputEl.value = ''; 
     }
     window.handleFileSelected = handleFileSelected;
@@ -1941,7 +1961,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "3.1";
+    const CURRENT_APP_VERSION = "3.2";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
