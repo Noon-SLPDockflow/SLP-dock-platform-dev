@@ -1656,7 +1656,7 @@
     function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
     window.closeDriverProfileModal = closeDriverProfileModal;
 
-    // --- CAMERA & ULTRA FAST OPTIMIZED OCR ---
+    // --- CAMERA & JSONP ULTRA FAST OCR ---
     function convertArabicNumeralsToDigits(str) {
         const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
         return str.replace(/[٠-٩]/g, m => map[m]);
@@ -1684,11 +1684,11 @@
             const cropW = img.width * 0.80;
             const cropH = img.height * 0.60;
 
-            canvas.width = Math.min(850, Math.round(cropW));
+            canvas.width = Math.min(800, Math.round(cropW));
             canvas.height = Math.round((cropH / cropW) * canvas.width);
             ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
         } else {
-            const targetWidth = 850;
+            const targetWidth = 800;
             const scale = img.width > targetWidth ? targetWidth / img.width : 1;
             canvas.width = Math.round(img.width * scale);
             canvas.height = Math.round(img.height * scale);
@@ -1696,7 +1696,7 @@
         }
 
         return new Promise((resolve, reject) => {
-            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.55);
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.50);
         });
     }
 
@@ -1760,17 +1760,54 @@
     function handleCameraCancel() { closeCamera(); }
     window.handleCameraCancel = handleCameraCancel;
 
+    // Fast JSONP Bridge for Google Apps Script OCR
+    let ocrCallbackId = 0;
+    function processOcrRequestJSONP(base64Data, scanType) {
+        return new Promise((resolve, reject) => {
+            const cbName = 'ocr_callback_' + (++ocrCallbackId) + '_' + Date.now();
+            const timeout = setTimeout(() => {
+                delete window[cbName];
+                const script = document.getElementById(cbName);
+                if (script) script.remove();
+                reject(new Error("OCR Request Timeout"));
+            }, 15000);
+
+            window[cbName] = function(response) {
+                clearTimeout(timeout);
+                delete window[cbName];
+                const script = document.getElementById(cbName);
+                if (script) script.remove();
+                resolve(response);
+            };
+
+            const script = document.createElement('script');
+            script.id = cbName;
+            const targetType = scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType;
+            script.src = `${OCR_API_URL}?callback=${cbName}&scanType=${targetType}&imageObj=${encodeURIComponent(base64Data)}`;
+            script.onerror = function() {
+                clearTimeout(timeout);
+                delete window[cbName];
+                script.remove();
+                reject(new Error("JSONP Script Error"));
+            };
+            document.body.appendChild(script);
+        });
+    }
+
     async function processOcrRequest(file, scanType, forceFull = false) {
         const processedBlob = await preprocessImageForOcr(file, scanType, forceFull);
         const base64Data = await blobToBase64(processedBlob);
-        
-        const response = await fetch(OCR_API_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) 
-        });
-        
-        return await response.json();
+        try {
+            return await processOcrRequestJSONP(base64Data, scanType);
+        } catch (err) {
+            // CORS/JSONP Fallback using standard fetch
+            const response = await fetch(OCR_API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) 
+            });
+            return await response.json();
+        }
     }
 
     async function runLocalOcrEngine(file, statusLabelId, scanType) {
@@ -1904,7 +1941,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "2.9";
+    const CURRENT_APP_VERSION = "3.0";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
