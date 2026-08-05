@@ -1046,7 +1046,7 @@
 
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
             
-            payload.checkInTime = new Date().toISOString();
+            payload.checkInTime = new Date().toLocaleString();
             globalLogsCache.unshift(payload);
             window.handleLogsResponse({logs: globalLogsCache});
             
@@ -1088,15 +1088,22 @@
         btnConfirmSignOut.addEventListener('click', () => {
             btnConfirmSignOut.innerText = "⏳..."; btnConfirmSignOut.disabled = true;
             const sealInput = document.getElementById('signOutSeal');
-            const seal = sealInput ? sealInput.value : '';
+            const seal = sealInput ? sealInput.value.trim() : '';
             const payload = {
-                action: "checkout", driverName: currentSignOutContext.driverName, plateNumber: currentSignOutContext.plateNumber,
-                sealNumber: seal, truckPhoto: tempCheckoutTruckPhoto || "", itemPhoto: tempCheckoutItemPhoto || ""
+                action: "checkout", 
+                driverName: currentSignOutContext.driverName, 
+                plateNumber: currentSignOutContext.plateNumber,
+                sealNumber: seal, 
+                truckPhoto: tempCheckoutTruckPhoto || "", 
+                itemPhoto: tempCheckoutItemPhoto || ""
             };
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             
             let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
-            if (match) { match.checkOutTime = new Date().toISOString(); match.sealNumber = seal || match.sealNumber; }
+            if (match) { 
+                match.checkOutTime = new Date().toLocaleString(); 
+                if (seal) match.sealNumber = seal; 
+            }
             
             window.handleLogsResponse({logs: globalLogsCache});
             closeSignOutModal(); btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
@@ -1303,7 +1310,7 @@
                 <td><strong>${r.dockNumber}</strong></td>
                 <td><span style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</span></td>
                 <td>${r.boxCount||'--'}</td>
-                <td style="font-family:monospace;">${r.sealNumber||'--'}</td>
+                <td style="font-family:monospace;">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
                 <td>${new Date(r.checkInTime).toLocaleString()}</td>
                 <td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : '<span style="color:var(--accent-color); font-weight:700;">Inside</span>'}</td>
                 <td style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
@@ -1445,7 +1452,7 @@
                     <td><strong>${r.driverName}</strong></td>
                     <td>${generatePlateBumperUI(r.plateNumber)}</td>
                     <td><strong>${r.dockNumber}</strong></td>
-                    <td style="font-family:monospace; color:var(--text-muted);">${r.sealNumber||'--'}</td>
+                    <td style="font-family:monospace; color:var(--text-muted);">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
                     <td>${new Date(r.checkInTime).toLocaleString()}</td>
                     <td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : 'Inside'}</td>
                     <td style="color:var(--accent-color); font-weight:bold;">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
@@ -1961,7 +1968,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "3.2";
+    const CURRENT_APP_VERSION = "3.4";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
