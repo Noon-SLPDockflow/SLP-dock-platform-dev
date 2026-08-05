@@ -11,8 +11,8 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
         
-        /* Intro & Login */
-        .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        /* Intro Overlay */
+        .intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .intro-overlay.hidden { opacity: 0; pointer-events: none; }
         .login-container { position: relative; z-index: 2; background: var(--sidebar-bg); border: 2px solid var(--accent-color); border-radius: 12px; padding: 3rem 4rem; text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 450px; width: 90%; }
         .login-logo { height: 140px; margin-bottom: 2rem; }
@@ -20,69 +20,89 @@
         .auth-status p { font-size: 0.75rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
         .auth-status p.pulsing { animation: authPulse 1.5s infinite; }
         @keyframes authPulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-        .login-tabs { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color); }
+        
+        /* Login Tabs */
+        .login-tabs { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         .login-tab { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.6rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; }
         .login-tab.active { background: var(--accent-color); color: #000; }
 
-        /* Navigation Buttons */
+        /* Left/Right Nav Buttons */
         .desktop-nav-btn { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(18, 22, 31, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); width: 40px; height: 80px; font-size: 1.5rem; cursor: pointer; z-index: 900; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: 0.2s; }
-        .desktop-nav-btn:hover { background: var(--accent-color); color: #000; opacity: 1; }
+        .desktop-nav-btn:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); opacity: 1; }
         .nav-prev-btn { left: calc(260px + 10px); }
         .nav-next-btn { right: 10px; }
         .main-content.expanded .nav-prev-btn { left: 10px; }
 
         /* Sidebar aligned and fixed */
-        .sidebar { width: 260px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; left: 0; z-index: 1000; transition: transform 0.3s ease; overflow-y: auto; }
+        .sidebar { width: 260px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; left: 0; z-index: 100; transition: transform 0.3s ease; overflow-y: auto; }
         .sidebar.hidden { transform: translateX(-100%); }
         .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
         .brand-text h2 { font-size: 1.35rem; font-weight: 800; color: #fff; }
         .brand-text p { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 2px;}
-        .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.85rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.85rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+        .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
         .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; margin-left: auto; display: none; }
         #floatingOpenBtn { position: fixed; top: 1.5rem; left: 1.5rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.6rem 0.85rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.8rem; }
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
-        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; border-left: 3px solid transparent; }
-        .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); border-left: 3px solid var(--accent-color); }
+        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.2s; }
+        .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
+        .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1.15rem; }
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.5rem; }
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; }
-
-        /* Main Content */
-        .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); position: relative; transition: margin 0.3s, width 0.3s; }
-        .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
         
-        /* Mobile / Landscape Adjustments */
+        .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); position: relative; }
+        .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
+
+        /* Arabic / RTL */
+        html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
+        html[dir="rtl"] .main-content { margin-left: 0; margin-right: 260px; }
+        html[dir="rtl"] .nav-item { border-left: none; border-right: 3px solid transparent; }
+        html[dir="rtl"] .nav-item.active { border-left: none; border-right: 3px solid var(--accent-color); }
+        html[dir="rtl"] .nav-prev-btn { left: auto; right: calc(260px + 10px); transform: translateY(-50%) rotate(180deg); }
+        html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
+        html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
+
+        /* Responsive Mobile & Tablet Landscape */
         @media (max-width: 900px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); width: 260px; }
             .sidebar-close-btn { display: block; }
             #floatingOpenBtn { display: flex; }
             .main-content { margin-left: 0; width: 100%; padding: 1.5rem 1rem; margin-top: 3rem; }
-            .nav-prev-btn, .nav-next-btn { display: none !important; }
-            .metrics-bar-four { grid-template-columns: 1fr 1fr; }
+            .desktop-nav-btn { display: none !important; }
         }
 
-        /* Views */
+        /* General App Styles */
         .app-view { display: none; } .app-view.active-view { display: block; }
         .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 4rem 1.5rem 3rem 1.5rem; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; position: relative; }
         .hero-badges-wrapper { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; gap: 1rem; }
-        .hero-badge { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 800; color: var(--accent-color); font-family: monospace; }
+        .hero-badge { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 800; color: var(--accent-color); font-family: monospace; }
         .hero-title-box { margin-top: 1rem; text-align: center; }
         .hero-title-box h1 { font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 0.25rem; }
+        
         .metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+        @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
         .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative; }
         .metric-card-slate .num { font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1.1; }
         .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 8px; font-weight: 600; }
-        .docks-grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 1rem; padding: 1.5rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px; flex-grow: 1; }
-        .dock-badge-active { background: #2ea043; color: #fff; padding: 1rem 0; border-radius: 8px; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; }
-        .dock-badge-inactive { background: #f0f2f5; color: #24292f; padding: 1rem 0; border-radius: 8px; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; }
+        .docks-grid-container { display: grid; grid-template-columns: repeat(10, 1fr); gap: 1rem; padding: 1.5rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px; flex-grow: 1; align-content: start; }
+        @media (max-width: 1100px) { .docks-grid-container { grid-template-columns: repeat(6, 1fr); } }
+        @media (max-width: 800px) { .docks-grid-container { grid-template-columns: repeat(5, 1fr); } }
+        .dock-badge-active { background: #2ea043; border: 2px solid #238636; color: #fff; padding: 1rem 0; border-radius: 8px; font-weight: 900; font-size: 1.25rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; }
+        .dock-badge-inactive { background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; padding: 1rem 0; border-radius: 8px; font-weight: 800; font-size: 1.1rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; }
         
-        /* General Elements */
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; }
         .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
         .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; }
-        .header-search-input { background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.85rem; width: 280px; }
+        
+        .header-search-box-container { position: relative; width: 280px; }
+        .header-search-box-container span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
+        .header-search-input { width: 100%; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 6px; font-size: 0.85rem; outline: none; }
+        
+        /* Table Alignments */
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding: 1rem 0.85rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
@@ -97,101 +117,150 @@
         /* Scanners & Form */
         .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; max-width: 850px; margin-left: auto; margin-right: auto; }
         @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr; } }
-        .scan-box-dashed { background: transparent; border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 2rem 1rem; text-align: center; cursor: pointer; }
-        .scan-box-dashed .icon { font-size: 3rem; margin-bottom: 0.5rem; display: block; opacity: 0.8; }
-        .camera-btn-inline { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.65rem; padding: 0.35rem 0.75rem; border-radius: 4px; margin-top: 0.5rem; display: inline-block; cursor: pointer; }
+        .scan-box-dashed { background: transparent; border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 2.5rem 1rem; text-align: center; cursor: pointer; position: relative; overflow: hidden; }
+        .scan-box-dashed .icon { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; opacity: 0.8; }
+        .scan-box-dashed span.label-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.5rem; }
+        .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.65rem; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; }
         
         .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 2rem; }
         @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
+        .form-section-divider { grid-column: 1 / -1; background: #1a365d; color: #fff; padding: 0.5rem 1rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; max-width: fit-content; }
         .badge-style { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem; font-weight: 700; }
-        .input-box-styled { width: 100%; background-color: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; }
+        .input-box-styled { width: 100%; background-color: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: var(--text-main); padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; }
+        
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2.5rem; }
         
-        /* Drivers & Analytics */
-        .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-        @media (max-width: 900px) { .drivers-grid { grid-template-columns: 1fr; } }
-        .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-        .driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 6px; }
-        .info-block p { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
-        .info-block data { font-size: 0.9rem; color: #fff; font-weight: 700; }
+        .toggle-container { display: flex; justify-content: center; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 4px; margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.6rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .toggle-btn.active { background: var(--accent-color); color: #000; }
 
+        /* Analytics Charts */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
-        @media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
-        .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; }
+        @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr; } }
+        .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; }
+        .chart-card h3 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2rem; }
+        .bar-chart-container { display: flex; flex-direction: column; gap: 0.85rem; flex-grow: 1; justify-content: center; margin-top: 1rem; }
+        .bar-row { display: grid; grid-template-columns: 85px 1fr 60px; gap: 12px; align-items: center; }
+        .bar-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bar-track-wrapper { position: relative; width: 100%; height: 28px; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 2px; }
+        .bar-track { width: 100%; height: 100%; background: rgba(255,255,255,0.03); border-radius: 0 4px 4px 0; overflow: hidden; }
+        .bar-fill { height: 100%; }
+        .bar-value { font-size: 0.75rem; font-weight: 800; color: #fff; text-align: left; }
+        .donut-container { position: relative; width: 180px; height: 180px; margin: 0 auto 2rem auto; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; }
+        .donut-hole { position: absolute; top: 22%; left: 22%; width: 56%; height: 56%; background-color: var(--card-solid); border-radius: 50%; }
+        .chart-legend { list-style: none; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .chart-legend li { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .chart-legend li span { color: #fff; font-weight: 700; }
+        .accordion-wrapper { margin-bottom: 1rem; }
+        .accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); cursor: pointer; border-radius: 8px; }
+        .accordion-title { font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .accordion-badge { background: var(--card-solid); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: var(--accent-color); border: 1px solid var(--border-color); }
+        .accordion-content { display: none; padding: 0; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; background: rgba(0,0,0,0.15); overflow-x: auto; }
+        .accordion-content.open { display: block; }
+        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
+        .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        .tab-filter-item.active { background: var(--accent-color); color: #000; }
+
+        /* Drivers Database */
+        .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem; }
+        @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
+        .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; }
+        .driver-card-header { display: flex; align-items: center; gap: 1rem; }
+        .driver-avatar-img { width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; overflow: hidden;}
+        .driver-meta h3 { font-size: 1.05rem; color: #fff; font-weight: 700; text-transform: uppercase; }
+        .driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color); }
+        .info-block p { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+        .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; width: 100%; }
         
-        /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        /* Modals & Popups */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal-overlay.modal-active { display: flex; }
-        .modal-window { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 500px; padding: 1.5rem; }
-        
-        .camera-overlay { position: fixed; inset: 0; background: #000; z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
-        .camera-overlay.open { display: flex; }
-        .camera-overlay video { max-width: 100%; max-height: 70vh; border-radius: 8px; border: 2px solid var(--accent-color); }
-        .camera-controls { display: flex; gap: 1rem; }
-        .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        
-        .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; }
+        .modal-window { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 580px; display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
+        .modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .modal-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
+        .btn-modal-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem 1.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+        .modal-slate-cell { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem 1rem; border-radius: 6px; }
+        .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-media-viewport { width: 100%; height: 210px; border-radius: 6px; border: 1px solid var(--border-color); display:flex; align-items:center; justify-content:center; background-color: #0b0e14; background-size: contain; background-position: center; background-repeat: no-repeat; }
+
+        .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; display: none; }
         .suggestions-dropdown.open { display: block; }
         .suggestion-item { padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid var(--border-color); color: #fff; font-size: 0.85rem; }
+        .suggestion-item:hover { background: rgba(252, 194, 0, 0.1); }
+        
+        .camera-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 1rem; }
+        .camera-overlay.open { display: flex; }
+        .camera-overlay video { max-width: 100%; max-height: 65vh; border-radius: 8px; border: 2px solid var(--accent-color); }
+        .camera-controls { display: flex; gap: 1rem; z-index: 100010; }
+        .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; min-width: 130px; }
     </style>
 </head>
 <body>
-    <button id="floatingOpenBtn" onclick="toggleSidebar()">
-        <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> Menu
+    <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu">
+        <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
     </button>
 
+    <!-- Login Screen (Operations Removed completely) -->
     <div id="introOverlay" class="intro-overlay">
         <div class="login-container" id="loginContainer">
-            <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo" style="height: 120px;">
+            <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
+            <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;">
+                <button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
+            </div>
             <div class="login-tabs">
-                <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ Guard</button>
-                <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ Admin</button>
+                <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ <span data-i18n="Guard">Guard</span></button>
+                <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
             </div>
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()">
-                    <div><span class="icon">🪪</span><span class="label-text" id="loginOfficerStatus">Scan Security ID</span></div>
+                <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
+                    <div><span class="icon">🪪</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
-                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 Use Camera</div>
+                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                 </div>
-                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center;">
-                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center;">
-                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center;">
+                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name">
+                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID">
+                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Authorized Noon Email">
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
-                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center;">
+                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);">
                 </div>
-                <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem;">AUTHORIZE ACCESS</button>
+                <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem;" data-i18n="AUTHORIZE ACCESS">AUTHORIZE ACCESS</button>
             </div>
             <div id="authStatus" class="auth-status"><p id="authText" class="pulsing">AUTHENTICATING...</p></div>
         </div>
     </div>
 
+    <!-- Sidebar -->
     <div class="sidebar" id="appSidebar">
         <div class="brand-section">
             <div class="brand-text">
-                <h2>Noon <span style="color:var(--accent-color);">SLP</span></h2>
-                <p>Dock Security Platform</p>
+                <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
+                <p data-i18n="Dock Security Platform">Dock Security Platform</p>
             </div>
             <button class="sidebar-close-btn" onclick="toggleSidebar()">✕</button>
         </div>
-        <button type="button" class="sidebar-refresh-btn" onclick="location.reload();">🔄 Refresh</button>
+        <button type="button" class="sidebar-refresh-btn" onclick="location.reload();">🔄 <span data-i18n="Refresh">Refresh</span></button>
         <ul class="nav-links">
-            <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></li>
-            <li class="nav-item" id="nav-analytics" onclick="switchView('analytics', this)"><span class="nav-icon">📈</span><span class="nav-text">Analytics</span></li>
-            <li class="nav-item" id="nav-checkin" onclick="switchView('checkin', this)"><span class="nav-icon">🚛</span><span class="nav-text">Check-in Truck</span></li>
-            <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)"><span class="nav-icon">⏱️</span><span class="nav-text">Active Trucks</span></li>
-            <li class="nav-item" id="nav-history" onclick="switchView('history', this)"><span class="nav-icon">📜</span><span class="nav-text">History Log</span></li>
-            <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)"><span class="nav-icon">🪪</span><span class="nav-text">Drivers Database</span></li>
-            <li class="nav-item" id="nav-security" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text">Security Guard Database</span></li>
+            <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)"><span class="nav-icon">📊</span><span class="nav-text" data-i18n="Dashboard">Dashboard</span></li>
+            <li class="nav-item" id="nav-analytics" onclick="switchView('analytics', this)"><span class="nav-icon">📈</span><span class="nav-text" data-i18n="Analytics">Analytics</span></li>
+            <li class="nav-item" id="nav-checkin" onclick="switchView('checkin', this)"><span class="nav-icon">🚛</span><span class="nav-text" data-i18n="Check-in Truck">Check-in Truck</span></li>
+            <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)"><span class="nav-icon">⏱️</span><span class="nav-text" data-i18n="Active Trucks">Active Trucks</span></li>
+            <li class="nav-item" id="nav-history" onclick="switchView('history', this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
+            <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)"><span class="nav-icon">🪪</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
+            <li class="nav-item" id="nav-security" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
         </ul>
         <div class="sidebar-footer">
             <div class="system-health">
-                <div><span>System Health</span><div style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div>
+                <div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div>
                 <div class="health-dot"></div>
             </div>
-            <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); font-weight: 700; cursor: pointer;"><span class="nav-icon">🚪</span><span class="nav-text">SIGN OUT</span></div>
+            <div class="nav-item" onclick="toggleLang()"><span class="nav-icon">🌐</span><span class="nav-text" data-i18n="Language: EN / AR">Language: EN / AR</span></div>
+            <div class="nav-item" onclick="toggleFullscreen()"><span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-i18n="Fullscreen">Fullscreen</span></div>
+            <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); font-weight: 700; cursor: pointer;"><span class="nav-icon">🚪</span><span class="nav-text" data-i18n="SIGN OUT">SIGN OUT</span></div>
         </div>
     </div>
 
+    <!-- Main Views -->
     <div class="main-content" id="mainContentArea">
         <button class="desktop-nav-btn nav-prev-btn" onclick="swipePrev()">❮</button>
         <button class="desktop-nav-btn nav-next-btn" onclick="swipeNext()">❯</button>
@@ -199,87 +268,111 @@
         <div id="view-dashboard" class="app-view active-view">
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
-                    <span class="hero-badge" id="heroTimeBadge">--:--</span>
-                    <span class="hero-badge" id="heroDateBadge">--</span>
+                    <span class="hero-badge" id="heroTimeBadge" style="color: var(--accent-color);">--:--</span>
+                    <span class="hero-badge" id="heroDateBadge" style="color: var(--accent-color);">--</span>
                 </div>
                 <div class="hero-title-box">
-                    <h2>Noon <span style="color:var(--accent-color);">SLP</span></h2>
-                    <p>Dock Security Platform</p>
+                    <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
+                    <p data-i18n="Dock Security Platform">Dock Security Platform</p>
                 </div>
             </div>
             <div class="metrics-bar-four">
-                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label">Active Now</div></div>
-                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label">Completed Today</div></div>
-                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div></div>
-                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div></div>
+                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div></div>
+                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label" data-i18n="Completed Today">Completed Today</div></div>
+                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-i18n="Total Check-Ins">Total Check-Ins</div></div>
+                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div></div>
             </div>
             <div class="card">
-                <div class="card-header-flex"><h2>Currently Occupied Docks</h2></div>
-                <div id="occupiedDocksContainer" class="docks-grid-container"><div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted);">All docks are currently clear.</div></div>
+                <div class="card-header-flex">
+                    <h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2>
+                    <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span>
+                </div>
+                <div id="occupiedDocksContainer" class="docks-grid-container"><div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div></div>
             </div>
         </div>
 
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Analytics</h1><p>DEEP-DIVE ANALYTICS HUB</p></div>
+                <div class="view-header-title"><h1 data-i18n="Analytics">Analytics</h1><p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="debouncedApplyAnalyticsFilters()"></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()">
+                    <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
+                    <option value="in" data-i18n="Check In Only">Check In Only</option>
+                    <option value="out" data-i18n="Check Out Only">Check Out Only</option>
+                </select>
+                <div class="filter-tabs-container">
+                    <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button>
+                    <button class="tab-filter-item active" data-range="weekly" onclick="setAnalyticsDateFilter('weekly', this)" data-i18n="Weekly">Weekly</button>
+                    <button class="tab-filter-item" data-range="monthly" onclick="setAnalyticsDateFilter('monthly', this)" data-i18n="Monthly">Monthly</button>
+                    <button class="tab-filter-item" data-range="6months" onclick="setAnalyticsDateFilter('6months', this)" data-i18n="6 Months">6 Months</button>
+                    <button class="tab-filter-item" data-range="1year" onclick="setAnalyticsDateFilter('1year', this)" data-i18n="1 Year">1 Year</button>
+                    <button class="tab-filter-item" data-range="custom" onclick="setAnalyticsDateFilter('custom', this)" data-i18n="Custom">Custom</button>
+                </div>
+            </div>
+            <div class="custom-date-row" id="analyticsCustomDateRow" style="justify-content: flex-end; margin-bottom: 1.5rem;">
+                <input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo">
+                <button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button>
             </div>
             <div class="analytics-grid">
-                <div class="chart-card"><h3>Vehicle Processing Growth</h3><div id="chartGrowthLine"></div></div>
-                <div class="chart-card"><h3>Movement Cohorts</h3><div class="bar-chart-container" id="chartCohortsBars"></div></div>
-                <div class="chart-card"><h3>Peak Operating Hours</h3><div id="chartHoursColumns"></div></div>
-                <div class="chart-card"><h3>Dock Utilization Ranking</h3>
-                    <div class="donut-container" id="chartDocksDonut" style="border-radius: 50%; width:180px; height:180px; margin: 0 auto; background: var(--card-solid);"></div>
+                <div class="chart-card"><h3 data-i18n="Vehicle Processing Growth">Vehicle Processing Growth</h3><div id="chartGrowthLine"></div></div>
+                <div class="chart-card"><h3 data-i18n="Movement Cohorts">Movement Cohorts</h3><div class="bar-chart-container" id="chartCohortsBars"></div></div>
+                <div class="chart-card"><h3 data-i18n="Peak Operating Hours">Peak Operating Hours</h3><div id="chartHoursColumns"></div></div>
+                <div class="chart-card"><h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3>
+                    <div class="donut-container"><div class="donut-chart" id="chartDocksDonut" style="background: var(--card-solid);"></div><div class="donut-hole"></div></div>
                     <ul class="chart-legend" id="chartDocksLegend"></ul>
                 </div>
             </div>
+            <div id="analyticsGroupedTables" style="margin-top: 2rem;"></div>
         </div>
 
         <div id="view-checkin" class="app-view">
             <div style="max-width: 850px; margin: 0 auto;">
-                <header class="view-header-row" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;">
-                    <div class="view-header-title"><h1>Truck Entry Form</h1></div>
-                </header>
+                <header class="view-header-row" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;"><div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div></header>
                 <div class="scanners-double-row" id="checkinScannersRow">
                     <div class="scan-box-dashed" onclick="document.getElementById('driverPhotoInput').click()">
-                        <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus">Driver Photo / Truck Photo</span></div>
+                        <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                     <div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()">
-                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
+                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                 </div>
                 <div class="card" style="padding: 2.5rem 2rem;">
-                    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:2rem;">
-                        <button type="button" class="btn-excel" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)" style="background:var(--accent-color); color:#000;">New Driver</button>
-                        <button type="button" class="btn-excel" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">Existing Driver</button>
+                    <div class="toggle-container">
+                        <button type="button" class="toggle-btn active" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">👤 <span data-i18n="New Driver">New Driver</span></button>
+                        <button type="button" class="toggle-btn" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">⏱️ <span data-i18n="Existing Driver">Existing Driver</span></button>
                     </div>
                     <form id="entryForm" autocomplete="off">
                         <div class="form-grid-columns">
                             <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
-                                <label class="badge-style">Search Existing Driver (Name, Plate, or Iqama)...</label>
-                                <input type="text" id="driverSearchBox" class="input-box-styled" placeholder="Type to search drivers..." autocomplete="off">
+                                <label class="badge-style" data-i18n="Search Driver By Name or Plate... *">Search Driver By Name, Plate or ID... *</label>
+                                <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
+                                <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" data-i18n="Search records..." placeholder="Type to search drivers..." autocomplete="off">
                                 <div id="driverSuggestionsList" class="suggestions-dropdown"></div>
                             </div>
-                            <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required></div>
-                            <div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" required></div>
-                            <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" required></div>
-                            <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled"></div>
+                            <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Driver Name *">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required></div>
+                            <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" required></div>
+                            <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" required></div>
+                            <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled"></div>
                             
-                            <div class="form-section-divider">Security & Facility Details</div>
+                            <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
                             <div class="form-group" style="position: relative;">
-                                <label class="badge-style">Security Name *</label>
+                                <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
                                 <input type="text" id="securityNameField" class="input-box-styled" required autocomplete="off">
+                                <div id="securitySuggestionsList" class="suggestions-dropdown"></div>
                             </div>
-                            <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required></div>
-                            <div class="form-group"><label class="badge-style">Dock Number *</label><select id="dockNumber" class="input-box-styled" required></select></div>
-                            <div class="form-group"><label class="badge-style">Purpose / Direction *</label><select id="direction" class="input-box-styled"><option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option><option value="Outbound">Outbound</option></select></div>
-                            <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled" required><option value="Dispatching">Dispatching</option><option value="Receiving">Receiving</option></select></div>
+                            <div class="form-group"><label class="badge-style" data-i18n="Security ID *">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required></div>
+                            <div class="form-group"><label class="badge-style" data-i18n="Dock Number *">Dock Number *</label><select id="dockNumber" class="input-box-styled" required><option value="" disabled selected>Select Dock...</option></select></div>
+                            <div class="form-group"><label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label><select id="direction" class="input-box-styled"><option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option><option value="Outbound">Outbound</option></select></div>
+                            <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled" required><option value="Dispatching">Dispatching</option><option value="Receiving">Receiving</option></select></div>
                             
                             <div class="form-group" id="itemPhotoWrapper" style="display:none; grid-column: 1 / -1;">
-                                <label class="badge-style">Item Picture *</label>
+                                <label class="badge-style" data-i18n="Item Picture">Item Picture *</label>
                                 <div class="scan-box-dashed" onclick="document.getElementById('itemPhotoInput').click()" style="margin-top:0.75rem;">
                                     <div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus">Item Picture *</span></div>
                                     <input type="file" id="itemPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'itemPhotoStatus', 'ITEM_PHOTO')">
@@ -287,7 +380,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="submit-btn-global">Check In Truck</button>
+                        <button type="submit" class="submit-btn-global" data-i18n="Check In Truck">Check In Truck</button>
                     </form>
                 </div>
             </div>
@@ -295,90 +388,154 @@
 
         <div id="view-active-trucks" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Active Trucks in Facility</h1><p>Currently Checked-In Vehicles</p></div>
-                <div class="header-search-box-container"><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterActiveTrucks()"></div>
+                <div class="view-header-title"><h1 data-i18n="Active Trucks in Facility">Active Trucks in Facility</h1><p data-i18n="Currently Checked-In Vehicles">Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ <span data-i18n="Total Inside">Total Inside</span>: <span id="activeYardCounter">0</span></div></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="debouncedFilterActiveTrucks()"></div>
             </div>
-            <div class="card table-responsive" style="padding: 0.5rem;">
+            <div class="card table-responsive" style="padding: 0.5rem; background: transparent; border: none;">
                 <table id="activeYardTable">
-                    <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Dock</th><th>Check-In Time</th><th style="text-align: right;">Action</th></tr></thead>
-                    <tbody id="activeYardTableBody"><tr><td colspan="6" style="text-align: center;">Loading...</td></tr></tbody>
+                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Check-In Time">Check-In Time</th><th style="text-align: right;" data-i18n="Action">Action</th></tr></thead>
+                    <tbody id="activeYardTableBody"><tr><td colspan="6" style="text-align: center;" data-i18n="NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.">Loading...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
         <div id="view-history" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div>
-                <button class="btn-excel" onclick="exportHistoryToExcel()">⤓ Export to Excel</button>
+                <div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div>
+                <button class="btn-excel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button>
             </div>
-            <div class="card table-responsive" style="padding: 0.5rem;">
-                <table id="historyLogTable">
-                    <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Dock</th><th>Check In</th><th>Check Out</th></tr></thead>
-                    <tbody id="historyLogTableBody"><tr><td colspan="6" style="text-align: center;">Loading...</td></tr></tbody>
-                </table>
+            <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="debouncedApplyHistoryFilters()"></div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
+                            <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
+                            <option value="in" data-i18n="Check In Only">Check In Only</option>
+                            <option value="out" data-i18n="Check Out Only">Check Out Only</option>
+                        </select>
+                        <div class="filter-tabs-container">
+                            <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
+                            <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
+                            <button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)" data-i18n="All Time">All Time</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="historyLogTable">
+                        <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th></tr></thead>
+                        <tbody id="historyLogTableBody"><tr><td colspan="7" style="text-align: center;">Loading...</td></tr></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="view-drivers" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Drivers Registry</h1><p>Centralized database of authorized personnel.</p></div>
-                <div class="header-search-box-container"><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search name, id, plate..." oninput="filterRegistryCards()"></div>
+                <div class="view-header-title"><h1 data-i18n="Drivers Registry">Drivers Registry</h1><p data-i18n="Centralized database of authorized personnel.">Centralized database of authorized personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" data-i18n="Search name, id, number..." placeholder="Search name, id, plate..." oninput="debouncedFilterRegistryCards()"></div>
             </div>
             <div class="drivers-grid" id="driversRegistryContainer"></div>
         </div>
 
         <div id="view-security" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Security Guard Database</h1><p>Centralized registry of security personnel.</p></div>
-                <div class="header-search-box-container"><input type="text" id="securityRegistrySearch" class="header-search-input" placeholder="Search guards..." oninput="filterSecurityCards()"></div>
+                <div class="view-header-title"><h1 data-i18n="Security Guard Database">Security Guard Database</h1><p data-i18n="Centralized registry of security personnel.">Centralized registry of security personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" data-i18n="Search guards..." placeholder="Search name or ID..." oninput="debouncedFilterSecurityCards()"></div>
             </div>
             <div class="drivers-grid" id="securityRegistryContainer"></div>
         </div>
     </div>
 
     <!-- Modals -->
-    <div class="modal-overlay" id="signOutModal">
+    <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
-            <div class="modal-header-container"><h2>CHECK OUT</h2><button class="btn-modal-close" onclick="closeSignOutModal()">✕</button></div>
+            <div class="modal-header-container"><h2 id="modalTitleName" data-i18n="Driver Details">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
             <div class="modal-body-content">
-                <p id="signOutModalSubtext" style="color: var(--text-muted); font-size: 0.8rem;"></p>
-                <div class="scanners-double-row" id="checkoutScanners">
-                    <div class="scan-box-dashed" onclick="document.getElementById('checkoutTruckPhotoInput').click()">
-                        <div><span class="icon">📷</span><span class="label-text" id="checkoutTruckStatus">Truck Picture *</span></div>
+                <div class="modal-media-viewport" id="modalMediaViewport"></div>
+                <div class="modal-data-blocks-grid">
+                    <div class="modal-slate-cell"><span data-i18n="Full Legal Name">Full Legal Name</span><p id="modalDataName">--</p></div>
+                    <div class="modal-slate-cell"><span id="modalLabelIqama" data-i18n="Iqama/National ID">Iqama/National ID</span><p id="modalDataIqama">--</p></div>
+                    <div class="modal-slate-cell" id="modalDataPlateCell"><span data-i18n="Primary Vehicle Plate">Primary Vehicle Plate</span><div class="modal-plate-capsules" id="modalDataPlate"><div class="modal-plate-tag">--</div></div></div>
+                    <div class="modal-slate-cell" id="modalDataMobileCell"><span data-i18n="Mobile Number">Mobile Number</span><p id="modalDataMobile">--</p></div>
+                    <div class="modal-slate-cell"><span data-i18n="Registered Date">Registered Date</span><p id="modalDataDate">--</p></div>
+                </div>
+            </div>
+            <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()" data-i18n="Close Window">Close Window</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editDriverModal">
+        <div class="modal-window" style="max-width: 500px;">
+            <div class="modal-header-container"><h2 id="editModalTitle" data-i18n="Edit Driver Record">Edit Driver Record</h2><button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button></div>
+            <div class="modal-body-content">
+                <input type="hidden" id="editOriginalName"><input type="hidden" id="editRecordType" value="driver">
+                <div class="form-group"><label id="editLabelName" class="badge-style" data-i18n="Driver Name *">Driver Name</label><input type="text" id="editName" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group"><label id="editLabelId" class="badge-style" data-i18n="Iqama Number *">Iqama Number</label><input type="text" id="editIqama" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group" id="editPlateGroup"><label class="badge-style" data-i18n="Truck Plate Number *">Plate Number</label><input type="text" id="editPlate" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group" id="editPhoneGroup"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled" autocomplete="off"></div>
+            </div>
+            <div class="modal-footer-container">
+                <button class="btn-modal-cancel" style="color: var(--danger-color); border-color: var(--danger-color); margin-right: auto;" onclick="deleteDriver()" data-i18n="Delete">Delete</button>
+                <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()" data-i18n="Cancel">Cancel</button>
+                <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()" data-i18n="Save Updates">Save Updates</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="signOutModal">
+        <div class="modal-window" style="max-width: 500px; border: 1px solid rgba(252, 194, 0, 0.4);">
+            <div class="modal-header-container"><h2 style="color: #fff; font-size: 1.25rem;" data-i18n="CHECK OUT">CHECK OUT</h2><button class="btn-modal-close" onclick="closeSignOutModal()">✕</button></div>
+            <div class="modal-body-content" style="padding: 1.5rem 2rem;">
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.5rem;" id="signOutModalSubtext" data-i18n="Completing SLP cycle...">Completing SLP cycle...</p>
+                <div class="scanners-double-row" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;" id="checkoutScanners">
+                    <div class="scan-box-dashed" onclick="document.getElementById('checkoutTruckPhotoInput').click()" style="padding: 1.5rem 1rem;">
+                        <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">📷</span><span class="label-text" id="checkoutTruckStatus">Truck Picture (with plate) *</span></div>
                         <input type="file" id="checkoutTruckPhotoInput" accept="image/*" style="display:none;" onchange="handleCheckoutPhoto(this, 'checkoutTruckStatus', 'truck')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('checkoutTruckStatus', 'truck')">📸 Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCheckoutCamera('checkoutTruckStatus', 'truck')">📸 Use Camera</div>
                     </div>
-                    <div class="scan-box-dashed" onclick="document.getElementById('checkoutItemPhotoInput').click()">
-                        <div><span class="icon">📦</span><span class="label-text" id="checkoutItemStatus">Item Picture *</span></div>
+                    <div class="scan-box-dashed" onclick="document.getElementById('checkoutItemPhotoInput').click()" style="padding: 1.5rem 1rem;">
+                        <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">📦</span><span class="label-text" id="checkoutItemStatus">Item Picture *</span></div>
                         <input type="file" id="checkoutItemPhotoInput" accept="image/*" style="display:none;" onchange="handleCheckoutPhoto(this, 'checkoutItemStatus', 'item')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('checkoutItemStatus', 'item')">📸 Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCheckoutCamera('checkoutItemStatus', 'item')">📸 Use Camera</div>
                     </div>
                 </div>
-                <input type="text" id="signOutSeal" class="input-box-styled" placeholder="ATTACH DEPARTURE SEAL *">
-                <button id="btnConfirmSignOut" class="submit-btn-global">CONFIRM CHECK OUT</button>
+                <div class="form-group" id="checkoutSealContainer" style="text-align: left; margin-bottom: 1.5rem;">
+                    <label class="badge-style" style="color: var(--accent-color);" data-i18n="ATTACH DEPARTURE SEAL *">ATTACH DEPARTURE SEAL *</label>
+                    <input type="text" id="signOutSeal" class="input-box-styled" data-i18n="ATTACH DEPARTURE SEAL *" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(252, 194, 0, 0.5); background:#0b0e14;" autocomplete="off">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button id="btnConfirmSignOut" class="submit-btn-global" style="margin-top: 0; border-radius: 6px;" data-i18n="CONFIRM CHECK OUT">CONFIRM CHECK OUT</button>
+                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; letter-spacing:0.5px; text-align:center;" onclick="closeSignOutModal()" data-i18n="DISCARD CHANGES">DISCARD CHANGES</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="camera-overlay" id="cameraOverlay">
         <div id="cameraFlash" class="camera-flash"></div>
-        <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px;"></h3>
+        <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px; z-index:100010; text-align:center;"></h3>
         <video id="cameraVideo" autoplay playsinline muted></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
         <div class="camera-controls">
-            <button class="btn-capture" onclick="captureCameraFrame()" style="background:var(--accent-color); color:#000;">📸 CAPTURE</button>
-            <button class="btn-cancel-cam" onclick="closeCamera()" style="background:var(--danger-color); color:#fff;">CANCEL</button>
+            <button class="btn-capture" onclick="captureCameraFrame()">📸 <span data-i18n="Capture">Capture</span></button>
+            <button class="btn-cancel-cam" onclick="handleCameraCancel()" data-i18n="Cancel">Cancel</button>
         </div>
     </div>
 
 <script>
-    // --- GLOBALS ---
+    // --- GLOBALS & UTILS ---
+    let currentLang = 'en';
     const API_URL = "https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
     const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
     
     let globalLogsCache = [];
     let driversRegistryList = [];
     let securityRegistryList = [];
+    window.globalSystemLogs = [];
+    window.hasFetchedLogs = false;
+    
+    let currentHistoryDateRange = 'all';
+    let currentAnalyticsDateRange = 'weekly';
     
     let temporaryCapturedImage = null;
     let temporaryCapturedItemImage = null;
@@ -388,14 +545,75 @@
     let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "👤" };
     let userRole = 'guard';
     let currentLoginMode = 'guard';
-    let isSidebarHidden = false;
+    let isConfirmingState = false;
     let currentSignOutContext = null;
     
     let cameraStream = null;
     let cameraTargetStatusId = null;
     let cameraTargetScanType = null;
 
-    // --- NAVIGATION & LOGIN ---
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    const translations = {
+        "Dashboard": "لوحة القيادة", "Analytics": "التحليلات", "Check-in Truck": "تسجيل دخول شاحنة", "Active Trucks": "الشاحنات النشطة",
+        "History Log": "سجل الحركة", "Drivers Database": "قاعدة بيانات السائقين", "Security Guard Database": "قاعدة بيانات حراس الأمن",
+        "Centralized registry of security personnel.": "سجل مركزي لموظفي الأمن.", "Search guards...": "البحث عن حراس...", "Noon ID": "هوية نون",
+        "Scan Security ID": "مسح هوية الأمن", "Name": "الاسم",
+        "Guard": "حارس", "Admin": "مسؤول", "Weekly": "أسبوعياً", "Monthly": "شهرياً", "6 Months": "6 أشهر", "1 Year": "سنة واحدة",
+        "Vehicle Processing Growth": "نمو معالجة المركبات", "Noon": "نون",
+        "Dock Security Platform": "منصة أمن الأرصفة", "Guest User": "مستخدم ضيف", "Not signed in": "غير مسجل الدخول", "System Health": "صحة النظام",
+        "Operational": "قيد التشغيل", "Fullscreen": "ملء الشاشة", "Exit Fullscreen": "إنهاء ملء الشاشة", "Menu": "القائمة",
+        "Language: EN / AR": "اللغة: عربي / EN", "Active Now": "نشط الآن", "Completed Today": "اكتمل اليوم",
+        "Total Check-Ins": "إجمالي التسجيلات", "Currently Occupied Docks": "الأرصفة المشغولة حالياً", "Docks In Use": "أرصفة مستخدمة",
+        "All docks are currently clear.": "جميع الأرصفة فارغة حالياً.", "DEEP-DIVE ANALYTICS HUB": "مركز التحليلات العميقة",
+        "Movement Cohorts": "فئات الحركة", "Peak Operating Hours": "ساعات الذروة", "Dock Utilization Ranking": "تصنيف استخدام الأرصفة",
+        "No Data": "لا توجد بيانات", "Truck Entry Form": "نموذج دخول الشاحنة", "Driver Photo / Truck Photo": "صورة السائق / صورة الشاحنة",
+        "Iqama (ID Card) Scanner": "ماسح الإقامة (بطاقة الهوية)", "Use Camera": "استخدام الكاميرا", "New Driver": "سائق جديد",
+        "Existing Driver": "سائق حالي", "Search Driver By Name or Plate... *": "ابحث عن السائق بالاسم أو اللوحة... *", "Driver Name *": "اسم السائق *",
+        "Iqama Number *": "رقم الإقامة *", "Truck Plate Number *": "رقم لوحة الشاحنة *", "Mobile Number": "رقم الجوال",
+        "Security & Facility Details": "تفاصيل الأمن والمنشأة", "Security Name *": "اسم رجل الأمن *", "Security ID *": "هوية الأمن *",
+        "Dock Number *": "رقم الرصيف *", "Purpose / Direction *": "الغرض / الاتجاه *", "Dispatching / Receiving *": "إرسال / استلام *",
+        "Dispatching": "إرسال", "Receiving": "استلام", "Seal or transction number": "رقم الختم أو رقم المعاملة",
+        "Noon Employee ID": "معرف موظف نون", "How many Boxes": "كم عدد الصناديق", "Check In Truck": "إدخال الشاحنة",
+        "Active Trucks in Facility": "الشاحنات النشطة في المنشأة", "Currently Checked-In Vehicles": "المركبات المسجلة حالياً",
+        "Total Inside": "الإجمالي بالداخل", "Search records...": "البحث في السجلات...", "Driver": "السائق", "Plate": "اللوحة",
+        "Direction": "الاتجاه", "Type": "النوع", "Seal Number": "رقم الختم", "Dock": "الرصيف", "Check-In Time": "وقت الدخول",
+        "Duration": "المدة", "Security": "الأمن", "Action": "الإجراء", "NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.": "لا توجد شاحنات نشطة في الجلسة الحالية.",
+        "Movement History": "سجل الحركة", "Site Movement Activity": "نشاط حركة الموقع", "Export to Excel": "تصدير إلى إكسل",
+        "Filter by driver, plate, or security ID...": "تصفية حسب السائق أو اللوحة...", "Today": "اليوم", "Last 7 Days": "آخر 7 أيام",
+        "Custom": "مخصص", "All Time": "كل الوقت", "TO": "إلى", "Apply": "تطبيق", "Check Out": "وقت الخروج",
+        "No historical logs parsed inside database.": "لا توجد سجلات تاريخية في قاعدة البيانات.", "Drivers Registry": "سجل السائقين",
+        "Centralized database of authorized personnel.": "قاعدة بيانات مركزية للموظفين المعتمدين.", "Search name, id, number...": "البحث بالاسم، الهوية، الرقم...",
+        "Driver Details": "تفاصيل السائق", "Security Guard Details": "تفاصيل حارس الأمن", "Full Legal Name": "الاسم القانوني الكامل",
+        "Iqama/National ID": "الإقامة / الهوية الوطنية", "Primary Vehicle Plate": "لوحة المركبة الأساسية", "Registered Date": "تاريخ التسجيل",
+        "Close Window": "إغلاق النافذة", "Edit Driver Record": "تعديل سجل السائق", "Edit Guard Record": "تعديل سجل الحارس", "Delete": "حذف",
+        "Cancel": "إلغاء", "Save Updates": "حفظ التحديثات", "Completing SLP cycle...": "إكمال دورة SLP...", "ATTACH DEPARTURE SEAL *": "إرفاق ختم المغادرة *",
+        "CONFIRM CHECK OUT": "تأكيد تسجيل الخروج", "CHECK OUT": "تسجيل الخروج", "DISCARD CHANGES": "تجاهل التغييرات", "Capture": "التقاط",
+        "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق"
+    };
+
+    function tr(key) { return currentLang === 'en' ? key : (translations[key] || key); }
+
+    window.toggleLang = function() {
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'date')) el.placeholder = tr(key);
+            else el.innerText = tr(key);
+        });
+        if (window.handleLogsResponse && globalLogsCache) window.handleLogsResponse({ logs: globalLogsCache });
+    };
+
+    function toggleLoginLanguage() { window.toggleLang(); }
+
     function switchView(viewId, element) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
         const targetView = document.getElementById('view-' + viewId);
@@ -411,6 +629,7 @@
             if (sidebar) sidebar.classList.remove('mobile-open');
         }
     }
+    window.switchView = switchView;
 
     function getAvailableViews() {
         let views = [];
@@ -423,7 +642,7 @@
         return views;
     }
 
-    function swipeNext() {
+    window.swipeNext = function() {
         let activeView = document.querySelector('.app-view.active-view'); if (!activeView) return;
         let currentId = activeView.id.replace('view-', '');
         let views = getAvailableViews();
@@ -433,9 +652,9 @@
             let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(nextView));
             switchView(nextView, navItem);
         }
-    }
+    };
 
-    function swipePrev() {
+    window.swipePrev = function() {
         let activeView = document.querySelector('.app-view.active-view'); if (!activeView) return;
         let currentId = activeView.id.replace('view-', '');
         let views = getAvailableViews();
@@ -445,43 +664,52 @@
             let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(prevView));
             switchView(prevView, navItem);
         }
-    }
+    };
 
     function toggleSidebar() {
         const sidebar = document.getElementById('appSidebar');
         if (!sidebar) return;
         if (window.innerWidth <= 900) {
             sidebar.classList.toggle('mobile-open');
+        } else {
+            sidebar.classList.toggle('hidden');
+            const main = document.getElementById('mainContentArea');
+            if (main) main.classList.toggle('expanded');
         }
     }
+    window.toggleSidebar = toggleSidebar;
+
+    window.toggleFullscreen = function() {
+        const fsBtnText = document.getElementById('fsBtnLabel'), fsIcon = document.getElementById('fsIcon');
+        if (!document.fullscreenElement) { document.documentElement.requestFullscreen().then(() => { if(fsBtnText) fsBtnText.innerText = tr("Exit Fullscreen"); if(fsIcon) fsIcon.innerText = "📉"; }).catch(() => alert("Fullscreen error.")); }
+        else { document.exitFullscreen().then(() => { if(fsBtnText) fsBtnText.innerText = tr("Fullscreen"); if(fsIcon) fsIcon.innerText = "🖥️"; }); }
+    };
 
     function switchLoginMode(mode, btn) {
         currentLoginMode = mode;
         document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
         if (btn) btn.classList.add('active');
         
-        const scanBox = document.getElementById('loginScanBox');
-        const noonId = document.getElementById('loginNoonId');
-        const pass = document.getElementById('adminPasswordContainer');
-
-        if (scanBox) scanBox.style.display = (mode === 'admin') ? 'none' : 'block';
-        if (noonId) noonId.style.display = (mode === 'admin') ? 'none' : 'block';
-        if (pass) pass.style.display = (mode === 'admin') ? 'block' : 'none';
+        const setDisp = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
+        
+        setDisp('loginScanBox', (mode === 'admin') ? 'none' : 'block');
+        setDisp('loginNoonId', (mode === 'admin') ? 'none' : 'block');
+        setDisp('adminPasswordContainer', (mode === 'admin') ? 'block' : 'none');
     }
+    window.switchLoginMode = switchLoginMode;
 
     function executeLogin(name, email, noonId, role, isInitialLoad = false) {
-        loggedInUser = { name, email, noonId }; 
-        userRole = role;
+        loggedInUser = { name, email, noonId }; userRole = role;
         
-        if (!isInitialLoad) {
-            localStorage.setItem('noonSlpUserSession', JSON.stringify({ name, email, noonId, role, loginTime: Date.now() }));
-        }
+        if (!isInitialLoad) localStorage.setItem('noonSlpUserSession', JSON.stringify({ name, email, noonId, role, loginTime: Date.now() }));
 
         const setDisp = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
 
-        // Configure layout based on role
         setDisp('nav-dashboard', (role === 'admin') ? 'flex' : 'none');
         setDisp('nav-analytics', (role === 'admin') ? 'flex' : 'none');
+        setDisp('nav-checkin', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
+        setDisp('nav-active-trucks', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
+        setDisp('nav-history', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
         setDisp('nav-drivers', (role === 'admin') ? 'flex' : 'none');
         setDisp('nav-security', (role === 'admin') ? 'flex' : 'none');
         setDisp('btnExportExcel', (role === 'admin') ? 'block' : 'none');
@@ -499,7 +727,7 @@
         const defaultNavId = navItems.find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(defaultViewId));
 
         if (isInitialLoad) {
-            if (overlay) overlay.style.display = 'none';
+            if (overlay) { overlay.style.display = 'none'; overlay.classList.add('hidden'); }
             switchView(defaultViewId, defaultNavId);
         } else {
             setDisp('customLoginBox', 'none');
@@ -508,32 +736,37 @@
 
             setTimeout(() => {
                 const authText = document.getElementById('authText');
-                if (authText) { authText.innerText = "SYSTEM AUTHENTICATION COMPLETE"; authText.style.color = "var(--success-color)"; }
+                if (authText) { authText.innerText = "SYSTEM AUTHENTICATION COMPLETE"; authText.style.color = "var(--success-color)"; authText.classList.remove('pulsing'); }
+                
                 setTimeout(() => {
-                    if (overlay) overlay.style.opacity = '0';
+                    if (overlay) overlay.classList.add('hidden');
                     setTimeout(() => {
                         if (overlay) overlay.style.display = 'none';
                         switchView(defaultViewId, defaultNavId);
-                    }, 500);
-                }, 800);
-            }, 800);
+                    }, 1000);
+                }, 1200);
+            }, 1200);
         }
     }
 
-    function logoutUser() {
+    window.logoutUser = function() {
         localStorage.removeItem('noonSlpUserSession');
+        localStorage.removeItem('SLP_OVERRIDES');
+        localStorage.removeItem('SLP_DELETES');
         location.reload();
-    }
+    };
 
-    // --- INITIALIZATION ---
+    // --- DOMContentLoaded Initialization ---
     document.addEventListener("DOMContentLoaded", () => {
-        // Docks Dropdown
+        document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'date')) el.placeholder = tr(key); else el.innerText = tr(key); });
+        
         const dockSelect = document.getElementById('dockNumber');
         if (dockSelect) {
+            dockSelect.innerHTML = `<option value="" disabled selected>Select Dock (15 - 90)...</option>`;
             for (let i = 15; i <= 90; i++) dockSelect.innerHTML += `<option value="${i}">${i}</option>`;
+            dockSelect.innerHTML += `<option value="Others">Others / آخر</option>`;
         }
         
-        // Session
         const sessionStr = localStorage.getItem('noonSlpUserSession');
         if (sessionStr) {
             const sd = JSON.parse(sessionStr);
@@ -541,7 +774,6 @@
             else localStorage.removeItem('noonSlpUserSession');
         }
 
-        // Login Logic
         const btnSignIn = document.getElementById('customSignInBtn');
         if (btnSignIn) {
             btnSignIn.addEventListener('click', (e) => {
@@ -560,27 +792,44 @@
             });
         }
         
-        // Dispatch Mode Switcher
         const dispatchSel = document.getElementById('dispatchSelect');
         if (dispatchSel) {
             dispatchSel.addEventListener('change', function() {
                 const isReceiving = this.value === 'Receiving';
-                const wrapper = document.getElementById('itemPhotoWrapper');
-                const iqamaBox = document.getElementById('scanBoxIqama');
+                const wrapper = document.getElementById('itemPhotoWrapper'), iqamaBox = document.getElementById('scanBoxIqama');
                 if (wrapper) wrapper.style.display = isReceiving ? 'block' : 'none';
                 if (iqamaBox) iqamaBox.style.display = isReceiving ? 'none' : 'block';
             });
         }
 
-        // Live Validation for Duplicates
-        const iqamaField = document.getElementById('iqamaNumber');
-        const plateField = document.getElementById('plateNumber');
-        if(iqamaField) iqamaField.addEventListener('input', runInstantConflictCheck);
-        if(plateField) plateField.addEventListener('input', runInstantConflictCheck);
+        const iqNum = document.getElementById('iqamaNumber');
+        if (iqNum) { iqNum.addEventListener('input', runInstantConflictCheck); iqNum.addEventListener('change', runInstantConflictCheck); }
+        const plNum = document.getElementById('plateNumber');
+        if (plNum) { plNum.addEventListener('input', runInstantConflictCheck); plNum.addEventListener('change', runInstantConflictCheck); }
 
-        // Fetch Data
+        const drvSearch = document.getElementById('driverSearchBox');
+        if (drvSearch) drvSearch.addEventListener('input', function() { renderDriverSuggestions(this.value); });
+        const secField = document.getElementById('securityNameField');
+        if (secField) secField.addEventListener('input', function() { renderSecuritySuggestions(this.value); });
+        
+        document.addEventListener('click', function(e) {
+            const driverList = document.getElementById('driverSuggestionsList'), secList = document.getElementById('securitySuggestionsList');
+            if (driverList && !e.target.closest('.search-input-wrapper')) driverList.classList.remove('open');
+            if (secList && !e.target.closest('#securityDropdownWrapper')) secList.classList.remove('open');
+        });
+
+        setInterval(() => {
+            const d = new Date(), monthsEn = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const dateStr = String(d.getDate()).padStart(2, '0') + " " + monthsEn[d.getMonth()] + " " + d.getFullYear();
+            const badgeD = document.getElementById('heroDateBadge'); if (badgeD) badgeD.innerText = dateStr;
+            const ampm = d.getHours() >= 12 ? 'PM' : 'AM', hr = d.getHours() % 12 || 12, min = String(d.getMinutes()).padStart(2, '0'), sec = String(d.getSeconds()).padStart(2, '0');
+            const badgeT = document.getElementById('heroTimeBadge'); if (badgeT) badgeT.innerText = `${hr}:${min}:${sec} ${ampm}`;
+        }, 1000);
+
         fetchLogs();
-        setInterval(fetchLogs, 20000);
+        setInterval(fetchLogs, 15000);
+        setTimeout(checkForNewCode, 5000);
+        setInterval(checkForNewCode, 120000);
     });
 
     // --- FORM SUBMISSION (Check In) ---
@@ -588,38 +837,39 @@
     if (entryForm) {
         entryForm.addEventListener('submit', (e) => {
             e.preventDefault(); 
-            const isNew = document.getElementById('toggleNewDriverBtn').classList.contains('active');
-            
-            if (isNew && driversRegistryList.length > 0) {
-                const iqVal = document.getElementById('iqamaNumber').value.trim().toLowerCase();
-                const plVal = document.getElementById('plateNumber').value.trim().replace(/\s+/g,'').toLowerCase();
-                let iqamaConflicted = driversRegistryList.some(d => String(d.iqamaNumber||'').toLowerCase() === iqVal && iqVal !== 'n/a');
-                let plateConflicted = driversRegistryList.some(d => String(d.plateNumber||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a');
-                
+            const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
+            if (isNewDriverMode && driversRegistryList) {
+                const checkIqama = document.getElementById('iqamaNumber').value.trim().toLowerCase();
+                const checkPlate = document.getElementById('plateNumber').value.trim().replace(/\s+/g, '').toLowerCase();
+                let iqamaConflicted = driversRegistryList.some(d => d.id && String(d.id).trim().toLowerCase() === checkIqama && String(d.id) !== 'N/A' && String(d.id) !== '--');
+                let plateConflicted = driversRegistryList.some(d => d.plate && String(d.plate).trim().replace(/\s+/g, '').toLowerCase() === checkPlate && String(d.plate) !== 'N/A' && String(d.plate) !== '--');
                 if (iqamaConflicted || plateConflicted) {
                     alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");
                     return;
                 }
             }
 
+            let dockVal = document.getElementById('dockNumber').value;
+            if (dockVal === 'Others') dockVal = document.getElementById('dockNumberCustom').value;
+            dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
+            if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return; }
+            
+            let directionVal = document.getElementById('direction').value;
+            if (directionVal === 'Others') directionVal = document.getElementById('directionCustom').value.trim();
+            
+            if (window.isCheckInLocked) return;
+            window.isCheckInLocked = true; setTimeout(() => { window.isCheckInLocked = false; }, 5000);
+
             const btn = document.querySelector('.submit-btn-global');
             if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
             
             const payload = {
-                action: 'checkin',
-                driverName: document.getElementById('driverName').value,
-                iqamaNumber: document.getElementById('iqamaNumber').value,
-                plateNumber: document.getElementById('plateNumber').value,
-                mobileNumber: document.getElementById('mobileNumber').value || "N/A",
-                securityName: document.getElementById('securityNameField').value,
-                dockNumber: document.getElementById('dockNumber').value,
-                direction: document.getElementById('direction').value,
-                dispatchType: document.getElementById('dispatchSelect').value,
-                noonEmployeeId: document.getElementById('noonEmployeeId').value || "N/A",
-                boxCount: document.getElementById('boxCount').value || "0",
-                securityId: document.getElementById('securityNameId').value,
-                driverPhoto: temporaryCapturedImage || "",
-                checkInItemPhoto: temporaryCapturedItemImage || ""
+                action: 'checkin', driverName: document.getElementById('driverName').value, iqamaNumber: document.getElementById('iqamaNumber').value,
+                plateNumber: document.getElementById('plateNumber').value, mobileNumber: document.getElementById('mobileNumber').value || "N/A",
+                securityName: document.getElementById('securityNameField').value, dockNumber: dockVal, direction: directionVal,
+                dispatchType: document.getElementById('dispatchSelect').value, noonEmployeeId: document.getElementById('noonEmployeeId').value || "N/A",
+                boxCount: document.getElementById('boxCount').value || "0", securityId: document.getElementById('securityNameId').value,
+                driverPhoto: temporaryCapturedImage || "", checkInItemPhoto: temporaryCapturedItemImage || ""
             };
 
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
@@ -645,18 +895,18 @@
         currentSignOutContext = { driverName, plateNumber, dockNumber, dispatchType };
         const subtext = document.getElementById('signOutModalSubtext');
         if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
-        
         const sc = document.getElementById('checkoutScanners');
         if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
-        
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.add('modal-active');
     }
+    window.promptSignOut = promptSignOut;
 
     function closeSignOutModal() {
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.remove('modal-active');
     }
+    window.closeSignOutModal = closeSignOutModal;
 
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
@@ -678,7 +928,7 @@
         });
     }
 
-    // --- DATA HANDLING ---
+    // --- DATA HANDLING (Full Features) ---
     let isFetchingLogs = false;
     function fetchLogs() {
         if (isFetchingLogs) return; isFetchingLogs = true;
@@ -702,18 +952,49 @@
         const activeList = globalLogsCache.filter(r => !r.checkOutTime);
         const mTotal = document.getElementById('metric-total-checkins');
         const mActive = document.getElementById('metric-active-now');
+        const mCompleted = document.getElementById('metric-completed-today');
+        const yardCounter = document.getElementById('activeYardCounter');
         
         if (mTotal) mTotal.innerText = globalLogsCache.length;
         if (mActive) mActive.innerText = activeList.length;
+        if (yardCounter) yardCounter.innerText = activeList.length;
+        
+        const todayStr = new Date().toDateString();
+        if (mCompleted) mCompleted.innerText = globalLogsCache.filter(r => r.checkOutTime && new Date(r.checkOutTime).toDateString() === todayStr).length;
+
+        // Docks Container
+        const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
+        const occupiedDocksCount = document.getElementById('occupiedDocksCount');
+        if (occupiedDocksContainer) {
+            occupiedDocksContainer.innerHTML = '';
+            let activeDocksRaw = activeList.map(r => String(r.dockNumber).trim()).filter(Boolean);
+            let activeDocksSet = new Set(activeDocksRaw);
+            if (occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} Docks In Use`;
+            
+            let allDocksToRender = new Set();
+            for (let i = 15; i <= 90; i++) allDocksToRender.add(String(i));
+            activeDocksRaw.forEach(d => allDocksToRender.add(d));
+            let sortedDocks = [...allDocksToRender].sort((a, b) => {
+                let numA = parseInt(a.replace(/\D/g, '')) || 0, numB = parseInt(b.replace(/\D/g, '')) || 0;
+                if (numA === numB) return a.localeCompare(b); return numA - numB;
+            });
+            
+            sortedDocks.forEach(dockStr => {
+                let badge = document.createElement('div');
+                if (activeDocksSet.has(dockStr)) { badge.className = 'dock-badge-active'; badge.innerText = dockStr; }
+                else { badge.className = 'dock-badge-inactive'; badge.innerText = dockStr; }
+                occupiedDocksContainer.appendChild(badge);
+            });
+        }
         
         // Active Yard Table
         let activeHtml = '';
         activeList.forEach(r => {
             const dir = String(r.direction || '').split('-')[0].trim();
-            activeHtml += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td><span class="badge ${dir.includes('In')?'in':'out'}">${dir}</span></td><td><span style="color:var(--accent-color); font-weight:700;">${r.dispatchType}</span></td><td>${r.noonEmployeeId||'--'}</td><td>${r.boxCount||'--'}</td><td style="font-family:monospace;">${r.sealNumber||'--'}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td>--</td><td>🛡️ ${r.securityName}</td><td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')">CHECK OUT</button></td></tr>`;
+            activeHtml += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td><span class="badge ${dir.includes('In')?'in':'out'}">${dir}</span></td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')">OUT</button></td></tr>`;
         });
         const yardTable = document.getElementById('activeYardTableBody');
-        if (yardTable) yardTable.innerHTML = activeHtml || `<tr><td colspan="12" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
+        if (yardTable) yardTable.innerHTML = activeHtml || `<tr><td colspan="6" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
         
         applyHistoryFilters();
         applyAnalyticsFilters();
@@ -721,23 +1002,85 @@
         compileSecurityRegistryCards(globalLogsCache);
     };
 
-    // --- FILTERS & CHARTS ---
+    // --- FILTERS & CHARTS (Full Features) ---
+    const debouncedApplyAnalyticsFilters = debounce(applyAnalyticsFilters, 300);
+    const debouncedFilterActiveTrucks = debounce(filterActiveTrucks, 300);
+    const debouncedApplyHistoryFilters = debounce(applyHistoryFilters, 300);
+    const debouncedFilterRegistryCards = debounce(filterRegistryCards, 300);
+    const debouncedFilterSecurityCards = debounce(filterSecurityCards, 300);
+
+    window.debouncedApplyAnalyticsFilters = debouncedApplyAnalyticsFilters;
+    window.debouncedFilterActiveTrucks = debouncedFilterActiveTrucks;
+    window.debouncedApplyHistoryFilters = debouncedApplyHistoryFilters;
+    window.debouncedFilterRegistryCards = debouncedFilterRegistryCards;
+    window.debouncedFilterSecurityCards = debouncedFilterSecurityCards;
+
+    function isDateInRange(dateValue, range, now, fromStr, toStr) {
+        if (!dateValue) return false; const refDate = new Date(dateValue); if (isNaN(refDate.getTime())) return false;
+        if (range === 'all') return true;
+        if (range === 'today') { return refDate.toDateString() === now.toDateString(); }
+        if (range === '7days' || range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); d.setHours(0, 0, 0, 0); return refDate >= d; }
+        if (range === 'monthly') { const d = new Date(now); d.setMonth(now.getMonth() - 1); d.setHours(0, 0, 0, 0); return refDate >= d; }
+        if (range === '6months') { const d = new Date(now); d.setMonth(now.getMonth() - 6); d.setHours(0, 0, 0, 0); return refDate >= d; }
+        if (range === '1year') { const d = new Date(now); d.setFullYear(now.getFullYear() - 1); d.setHours(0, 0, 0, 0); return refDate >= d; }
+        if (range === 'custom') { if (!fromStr && !toStr) return true; let isValid = true; if (fromStr) { const from = new Date(fromStr); from.setHours(0, 0, 0, 0); isValid = isValid && (refDate >= from); } if (toStr) { const to = new Date(toStr); to.setHours(23, 59, 59, 999); isValid = isValid && (refDate <= to); } return isValid; }
+        return true;
+    }
+
+    function setAnalyticsDateFilter(range, btnEl) {
+        currentAnalyticsDateRange = range;
+        document.querySelectorAll('.analytics-filter-container .tab-filter-item').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        const customRow = document.getElementById('analyticsCustomDateRow');
+        if (range === 'custom') { customRow.style.display = 'flex'; return; }
+        customRow.style.display = 'none';
+        applyAnalyticsFilters();
+    }
+    window.setAnalyticsDateFilter = setAnalyticsDateFilter;
+
+    function setHistoryDateFilter(range, btnEl) {
+        currentHistoryDateRange = range;
+        document.querySelectorAll('.filter-tabs-container:not(.analytics-filter-container) .tab-filter-item').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        const customRow = document.getElementById('customDateRow');
+        if (range === 'custom') { customRow.style.display = 'flex'; return; }
+        customRow.style.display = 'none';
+        applyHistoryFilters();
+    }
+    window.setHistoryDateFilter = setHistoryDateFilter;
+
     function applyHistoryFilters() {
+        let range = currentHistoryDateRange, fromStr = document.getElementById('customDateFrom').value, toStr = document.getElementById('customDateTo').value;
         const input = document.getElementById('historySearchQuery');
         let query = input ? input.value.toLowerCase().trim() : '';
+        const timeFilterEl = document.getElementById('historyTimeFilter');
+        let timeFilter = timeFilterEl ? timeFilterEl.value : 'both';
+        const now = new Date();
+
+        let filtered = globalLogsCache.filter(r => {
+            const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
+            const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
+            if (timeFilter === 'in') return checkInMatch;
+            if (timeFilter === 'out') return checkOutMatch;
+            return checkInMatch || checkOutMatch;
+        });
+
+        if (query) {
+            filtered = filtered.filter(r => String(r.driverName||'').toLowerCase().includes(query) || String(r.plateNumber||'').toLowerCase().includes(query));
+        }
+
         let html = ''; let count = 0;
-        for (let i = 0; i < globalLogsCache.length; i++) {
+        for (let i = 0; i < filtered.length; i++) {
             if (count >= 100) break;
-            let r = globalLogsCache[i];
-            if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
-            
+            let r = filtered[i];
             const dir = String(r.direction || '').split('-')[0].trim();
-            html += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td><span class="badge ${dir.includes('In')?'in':'out'}">${dir}</span></td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleString()}</td><td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : '<span style="color:var(--accent-color); font-weight:700;">Inside</span>'}</td></tr>`;
+            html += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td><span class="badge ${dir.includes('In')?'in':'out'}">${dir}</span></td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleString()}</td><td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : '<span style="color:var(--accent-color); font-weight:700;">Inside</span>'}</td><td>--</td></tr>`;
             count++;
         }
         const hTable = document.getElementById('historyLogTableBody');
-        if (hTable) hTable.innerHTML = html || `<tr><td colspan="6" style="text-align:center;">No records match</td></tr>`;
+        if (hTable) hTable.innerHTML = html || `<tr><td colspan="7" style="text-align:center;">No records match</td></tr>`;
     }
+    window.applyHistoryFilters = applyHistoryFilters;
 
     function filterActiveTrucks() {
         const input = document.getElementById('yardSearchQuery');
@@ -746,11 +1089,31 @@
             row.style.display = String(row.innerText).toLowerCase().includes(query) ? '' : 'none';
         });
     }
+    window.filterActiveTrucks = filterActiveTrucks;
 
     function applyAnalyticsFilters() {
+        let range = currentAnalyticsDateRange, fromStr = document.getElementById('analyticsCustomDateFrom').value, toStr = document.getElementById('analyticsCustomDateTo').value;
+        const input = document.getElementById('analyticsSearchQuery');
+        let query = input ? input.value.toLowerCase().trim() : '';
+        const timeFilterEl = document.getElementById('analyticsTimeFilter');
+        let timeFilter = timeFilterEl ? timeFilterEl.value : 'both';
+        const now = new Date();
+
+        let filtered = globalLogsCache.filter(r => {
+            const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
+            const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
+            if (timeFilter === 'in') return checkInMatch;
+            if (timeFilter === 'out') return checkOutMatch;
+            return checkInMatch || checkOutMatch;
+        });
+
+        if (query) {
+            filtered = filtered.filter(r => String(r.driverName||'').toLowerCase().includes(query) || String(r.plateNumber||'').toLowerCase().includes(query));
+        }
+
         // Growth Line
         let growthMap = {};
-        globalLogsCache.forEach(log => {
+        filtered.forEach(log => {
             let time = new Date(log.checkInTime);
             if (!isNaN(time.getTime())) {
                 let dLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -761,17 +1124,19 @@
         let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a, b) => a.ts - b.ts);
         const lineCont = document.getElementById('chartGrowthLine');
         if (lineCont) {
-            let max = growthData.length ? Math.max(...growthData.map(i=>i.count)) : 1;
-            let svgPoints = growthData.map((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500; let y = 140 - ((item.count / max) * 90); return `${x},${y}`; }).join(' ');
-            let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;"><svg viewBox="0 0 1000 180" style="width:100%; height:100%; overflow:visible;"><line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" /><polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
-            growthData.forEach((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500; let y = 140 - ((item.count / max) * 90); html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" /><text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text><text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle">${item.label}</text>`; });
-            html += `</svg></div>`;
-            lineCont.innerHTML = html;
+            if(growthData.length === 0) { lineCont.innerHTML = "No Data"; } else {
+                let max = Math.max(...growthData.map(i=>i.count)); if(max===0) max=1;
+                let svgPoints = growthData.map((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500; let y = 140 - ((item.count / max) * 90); return `${x},${y}`; }).join(' ');
+                let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;"><svg viewBox="0 0 1000 180" style="width:100%; height:100%; overflow:visible;"><line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" /><polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
+                growthData.forEach((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500; let y = 140 - ((item.count / max) * 90); html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" /><text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text><text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle">${item.label}</text>`; });
+                html += `</svg></div>`;
+                lineCont.innerHTML = html;
+            }
         }
 
         // Peak Hours Column Chart
         let hourMap = {};
-        globalLogsCache.forEach(log => {
+        filtered.forEach(log => {
             let time = new Date(log.checkInTime);
             if (!isNaN(time.getTime())) {
                 let hour = time.getHours(), ampm = hour >= 12 ? 'PM' : 'AM', hourLabel = `${hour % 12 || 12} ${ampm}`;
@@ -785,7 +1150,7 @@
             if (hourData.length === 0) { hoursCont.innerHTML = "No Data"; }
             else {
                 let maxH = Math.max(...hourData.map(item => item.count)); if(maxH === 0) maxH = 1;
-                let hHtml = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:200px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
+                let hHtml = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
                 hourData.slice(0, 7).forEach(item => {
                     let heightPct = (item.count / maxH) * 100;
                     hHtml += `<div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:40px; position:relative;">
@@ -801,24 +1166,26 @@
 
         // Cohorts
         let cohortMap = {};
-        globalLogsCache.forEach(log => {
+        filtered.forEach(log => {
             let dir = String(log.direction || "Unknown").split('-')[0].trim().toUpperCase();
             cohortMap[dir] = (cohortMap[dir] || 0) + 1;
         });
         let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k] })).sort((a,b) => b.count - a.count);
         const barsCont = document.getElementById('chartCohortsBars');
         if (barsCont) {
-            let maxC = cohortData.length ? Math.max(...cohortData.map(d=>d.count)) : 1;
-            let bHtml = '';
-            cohortData.slice(0,5).forEach(d => {
-                bHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="width:85px; font-size:0.65rem; font-weight:700; color:var(--text-muted);">${d.label}</div><div style="flex-grow:1; background:rgba(255,255,255,0.05); height:20px; border-radius:4px; margin:0 10px; overflow:hidden;"><div style="width:${(d.count/maxC)*100}%; background:var(--accent-color); height:100%;"></div></div><div style="font-size:0.75rem; font-weight:bold; color:#fff;">${d.count}</div></div>`;
-            });
-            barsCont.innerHTML = bHtml || "No Data";
+            if(cohortData.length === 0) { barsCont.innerHTML = "No Data"; } else {
+                let maxC = Math.max(...cohortData.map(d=>d.count)); if(maxC===0) maxC=1;
+                let bHtml = '';
+                cohortData.slice(0,5).forEach(d => {
+                    bHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="width:85px; font-size:0.65rem; font-weight:700; color:var(--text-muted);">${d.label}</div><div style="flex-grow:1; background:rgba(255,255,255,0.05); height:20px; border-radius:4px; margin:0 10px; overflow:hidden;"><div style="width:${(d.count/maxC)*100}%; background:var(--accent-color); height:100%;"></div></div><div style="font-size:0.75rem; font-weight:bold; color:#fff;">${d.count}</div></div>`;
+                });
+                barsCont.innerHTML = bHtml;
+            }
         }
 
         // Docks Ranking
         let dockMap = {};
-        globalLogsCache.forEach(log => { let dock = log.dockNumber; if (dock) dockMap[dock] = (dockMap[dock] || 0) + 1; });
+        filtered.forEach(log => { let dock = log.dockNumber; if (dock) dockMap[dock] = (dockMap[dock] || 0) + 1; });
         let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k] })).sort((a,b) => b.count - a.count);
         let total = dockData.reduce((sum, item) => sum + item.count, 0); 
         const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
@@ -830,37 +1197,61 @@
         } else {
             if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
         }
+
+        // Build Accordion Grouped Tables
+        const aTables = document.getElementById('analyticsGroupedTables');
+        if (aTables) {
+            let groups = {};
+            filtered.forEach(r => {
+                let dDir = String(r.direction || '').split('-')[0].toUpperCase();
+                if (!groups[dDir]) groups[dDir] = [];
+                groups[dDir].push(r);
+            });
+            let aHtml = '';
+            for (let [dir, items] of Object.entries(groups)) {
+                let rows = items.slice(0,20).map(r => `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td>${r.dockNumber}</td><td>${new Date(r.checkInTime).toLocaleString()}</td></tr>`).join('');
+                aHtml += `<div class="accordion-wrapper"><div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')"><div class="accordion-title">${dir}</div><div class="accordion-badge">${items.length}</div></div><div class="accordion-content"><div class="table-responsive"><table><thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Time In</th></tr></thead><tbody>${rows}</tbody></table></div></div></div>`;
+            }
+            aTables.innerHTML = aHtml;
+        }
     }
+    window.applyAnalyticsFilters = applyAnalyticsFilters;
 
     // --- REGISTRY COMPILATION ---
     function compileDriversRegistryCards(data) {
         let uniqueMap = {};
         data.forEach(item => {
-            if (item.driverName && !uniqueMap[item.driverName]) uniqueMap[item.driverName] = item;
+            if (item.driverName && !uniqueMap[item.driverName]) {
+                uniqueMap[item.driverName] = {
+                    name: item.driverName, plate: item.plateNumber || "--",
+                    id: item.iqamaNumber || "--", phone: item.mobileNumber || "--",
+                    checkOutTime: item.checkOutTime, dock: item.dockNumber || "--"
+                };
+            }
         });
         driversRegistryList = Object.values(uniqueMap);
         const container = document.getElementById('driversRegistryContainer');
         if (!container) return;
         let html = '';
         driversRegistryList.slice(0, 50).forEach(d => {
-            const searchName = String(d.driverName || "").toLowerCase();
-            const searchPlate = String(d.plateNumber || "").toLowerCase();
-            const searchIqama = String(d.iqamaNumber || "").toLowerCase();
+            const searchName = String(d.name || "").toLowerCase();
+            const searchPlate = String(d.plate || "").toLowerCase();
+            const searchIqama = String(d.id || "").toLowerCase();
             html += `
             <div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}">
                 <div class="driver-card-header">
                     <div class="driver-avatar-img">👤</div>
                     <div class="driver-meta">
-                        <h3>${d.driverName}</h3>
+                        <h3>${d.name}</h3>
                         <div class="driver-badges"><span class="tag-badge verified">Verified</span></div>
                     </div>
                 </div>
                 <div class="driver-card-info-grid">
-                    <div><p class="info-block">Plate Number</p><p>${d.plateNumber || '--'}</p></div>
-                    <div><p class="info-block">Iqama Number</p><p>${d.iqamaNumber || '--'}</p></div>
-                    <div><p class="info-block">Phone Number</p><p>${d.mobileNumber || 'N/A'}</p></div>
-                    <div><p class="info-block">Status</p><p>${d.checkOutTime ? 'Checked Out' : '<span style="color:var(--accent-color);">Inside</span>'}</p></div>
+                    <div><p class="info-block">Plate Number</p><p>${d.plate}</p></div>
+                    <div><p class="info-block">Iqama Number</p><p>${d.id}</p></div>
+                    <div style="grid-column: 1 / -1;"><p class="info-block">Mobile Number</p><p>${d.phone}</p></div>
                 </div>
+                <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')">View Records</button>
             </div>`;
         });
         container.innerHTML = html;
@@ -916,48 +1307,65 @@
         });
     }
 
-    // --- Search Autocomplete ---
-    let searchTimeout;
-    document.getElementById('driverSearchBox').addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        let value = this.value.trim().toUpperCase();
-        searchTimeout = setTimeout(() => {
-            const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
-            listEl.innerHTML = '';
-            if (!value) { listEl.classList.remove('open'); return; }
-            let matches = driversRegistryList.filter(d => 
-                String(d.driverName||'').toUpperCase().includes(value) || 
-                String(d.plateNumber||'').toUpperCase().includes(value) || 
-                String(d.iqamaNumber||'').toUpperCase().includes(value)
-            ).slice(0, 5);
-            if (matches.length === 0) { listEl.classList.remove('open'); return; }
-            matches.forEach(d => {
-                const item = document.createElement('div'); item.className = 'suggestion-item'; 
-                item.innerHTML = `<strong>${d.driverName}</strong><br><small>Plate: ${d.plateNumber} | ID: ${d.iqamaNumber}</small>`;
-                item.addEventListener('click', () => {
-                    document.getElementById('driverSearchBox').value = d.driverName;
-                    document.getElementById('driverName').value = d.driverName;
-                    document.getElementById('plateNumber').value = d.plateNumber || '';
-                    document.getElementById('iqamaNumber').value = d.iqamaNumber || '';
-                    document.getElementById('mobileNumber').value = d.mobileNumber || '';
-                    listEl.classList.remove('open');
-                });
-                listEl.appendChild(item);
+    const renderDriverSuggestions = debounce(function(value) {
+        const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
+        listEl.innerHTML = '';
+        if (!value) { listEl.classList.remove('open'); return; }
+        let matches = driversRegistryList.filter(d => 
+            String(d.name||'').toUpperCase().includes(value.toUpperCase()) ||
+            String(d.plate||'').toUpperCase().includes(value.toUpperCase()) ||
+            String(d.id||'').toUpperCase().includes(value.toUpperCase())
+        ).slice(0, 5);
+        if (matches.length === 0) { listEl.classList.remove('open'); return; }
+        matches.forEach(d => {
+            const item = document.createElement('div'); item.className = 'suggestion-item'; 
+            item.innerHTML = `<strong>${d.name}</strong><br><small>Plate: ${d.plate} | ID: ${d.id}</small>`;
+            item.addEventListener('click', () => {
+                const searchBox = document.getElementById('driverSearchBox'); if(searchBox) searchBox.value = d.name;
+                const dName = document.getElementById('driverName'); if(dName) dName.value = d.name;
+                const pNum = document.getElementById('plateNumber'); if(pNum) pNum.value = d.plate !== '--' ? d.plate : '';
+                const iqNum = document.getElementById('iqamaNumber'); if(iqNum) iqNum.value = d.id !== '--' ? d.id : '';
+                const mobNum = document.getElementById('mobileNumber'); if(mobNum) mobNum.value = d.phone !== '--' ? d.phone : '';
+                listEl.classList.remove('open');
             });
-            listEl.classList.add('open');
-        }, 250);
-    });
+            listEl.appendChild(item);
+        });
+        listEl.classList.add('open');
+    }, 250);
+    window.renderDriverSuggestions = renderDriverSuggestions;
+
+    const renderSecuritySuggestions = debounce(function(value) {
+        const listEl = document.getElementById('securitySuggestionsList'); if (!listEl) return;
+        listEl.innerHTML = '';
+        if (!value) { listEl.classList.remove('open'); return; }
+        let matches = securityRegistryList.filter(g => String(g.securityName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        if (matches.length === 0) { listEl.classList.remove('open'); return; }
+        matches.forEach(g => {
+            const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `${g.securityName}`;
+            item.addEventListener('click', () => {
+                const secName = document.getElementById('securityNameField'); if(secName) secName.value = g.securityName;
+                const secId = document.getElementById('securityNameId'); if(secId) secId.value = g.securityId || '';
+                listEl.classList.remove('open');
+            });
+            listEl.appendChild(item);
+        });
+        listEl.classList.add('open');
+    }, 250);
+    window.renderSecuritySuggestions = renderSecuritySuggestions;
 
     // --- Live Duplicate Checking ---
     function runInstantConflictCheck(e) {
-        const isNew = document.getElementById('toggleNewDriverBtn').classList.contains('active');
+        const toggleBtn = document.getElementById('toggleNewDriverBtn');
+        const isNew = toggleBtn && toggleBtn.classList.contains('active');
         if (!isNew || !driversRegistryList.length) return;
-        const target = e.target; target.setCustomValidity('');
+        
+        const target = e.target; 
+        target.setCustomValidity('');
         const val = target.value.trim().toLowerCase();
         if (!val) return;
         
         if (target.id === 'iqamaNumber') {
-            let match = driversRegistryList.find(d => String(d.iqamaNumber||'').toLowerCase() === val && val !== 'n/a');
+            let match = driversRegistryList.find(d => String(d.id||'').toLowerCase() === val && val !== 'n/a' && val !== '--');
             if (match) {
                 target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.');
                 target.reportValidity();
@@ -965,7 +1373,7 @@
         }
         if (target.id === 'plateNumber') {
             let cleanVal = val.replace(/\s+/g,'');
-            let match = driversRegistryList.find(d => String(d.plateNumber||'').replace(/\s+/g,'').toLowerCase() === cleanVal && cleanVal !== 'n/a');
+            let match = driversRegistryList.find(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === cleanVal && cleanVal !== 'n/a' && cleanVal !== '--');
             if (match) {
                 target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.');
                 target.reportValidity();
@@ -975,9 +1383,12 @@
 
     // --- Form UI Handling ---
     function setDriverMode(mode, btn) {
-        btn.parentNode.querySelectorAll('.btn-excel').forEach(b => {
-            b.style.background = 'transparent'; b.style.color = 'var(--accent-color)'; b.classList.remove('active');
-        });
+        const container = document.querySelector('.toggle-container');
+        if (container) {
+            container.querySelectorAll('.toggle-btn').forEach(b => {
+                b.style.background = 'transparent'; b.style.color = 'var(--text-muted)'; b.classList.remove('active');
+            });
+        }
         btn.style.background = 'var(--accent-color)'; btn.style.color = '#000'; btn.classList.add('active');
         
         const lookup = document.getElementById('driverLookupGroup');
@@ -996,6 +1407,27 @@
             document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = 'block'; const i = f.querySelector('input'); if(i) i.required = true; });
         }
     }
+    window.setDriverMode = setDriverMode;
+
+    // --- Profile Modals ---
+    function openDriverProfileModal(name, iqama, plate, date, phone) {
+        document.getElementById('modalDataName').innerText = name;
+        document.getElementById('modalDataIqama').innerText = iqama;
+        document.getElementById('modalDataDate').innerText = date;
+        document.getElementById('modalDataMobile').innerText = phone || 'N/A';
+        
+        let plateBox = document.getElementById('modalDataPlate');
+        if(plateBox) {
+            plateBox.innerHTML = '';
+            let segments = plate ? plate.split(' ') : ['--'];
+            segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
+        }
+        document.getElementById('driverProfileModal').classList.add('modal-active');
+    }
+    window.openDriverProfileModal = openDriverProfileModal;
+    
+    function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
+    window.closeDriverProfileModal = closeDriverProfileModal;
 
     // --- CAMERA & OCR ---
     async function openCamera(statusLabelId, scanType) {
@@ -1008,14 +1440,17 @@
             if (video) video.srcObject = cameraStream;
         } catch (err) { alert('Camera access failed.'); closeCamera(); }
     }
+    window.openCamera = openCamera;
 
     function openCheckoutCamera(statusLabelId, scanType) { openCamera(statusLabelId, scanType); }
+    window.openCheckoutCamera = openCheckoutCamera;
 
     function closeCamera() {
         const overlay = document.getElementById('cameraOverlay');
         if (overlay) overlay.classList.remove('open');
         if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
     }
+    window.closeCamera = closeCamera;
 
     function captureCameraFrame() {
         const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
@@ -1041,8 +1476,10 @@
             closeCamera();
         }
     }
+    window.captureCameraFrame = captureCameraFrame;
 
     function handleCameraCancel() { closeCamera(); }
+    window.handleCameraCancel = handleCameraCancel;
 
     async function runLocalOcrEngine(file, statusLabelId, scanType) {
         const status = document.getElementById(statusLabelId); if (status) status.innerHTML = "🌀 Processing...";
@@ -1054,8 +1491,8 @@
                 const result = await response.json();
                 if (result.success && result.text) {
                     let clean = result.text.replace(/[٠-٩]/g, m => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(m)]).toUpperCase();
-                    if (scanType === 'IQAMA') { let m = clean.match(/\b[12]\d{9}\b/); if (m) { const iq = document.getElementById('iqamaNumber'); if(iq) iq.value = m[0]; } }
-                    if (scanType === 'PLATE') { let m = clean.match(/\b\d{3,4}\b/); if (m) { const pl = document.getElementById('plateNumber'); if(pl) pl.value = m[0] + " KSA"; } }
+                    if (scanType === 'IQAMA') { let m = clean.match(/\b[12]\d{9}\b/); if (m) { const iq = document.getElementById('iqamaNumber'); if(iq) { iq.value = m[0]; iq.dispatchEvent(new Event('input')); } } }
+                    if (scanType === 'PLATE') { let m = clean.match(/\b\d{3,4}\b/); if (m) { const pl = document.getElementById('plateNumber'); if(pl) { pl.value = m[0] + " KSA"; pl.dispatchEvent(new Event('input')); } } }
                     if (scanType === 'LOGIN_OFFICER') { let m = clean.match(/LP\d+/i); if (m) { const nid = document.getElementById('loginNoonId'); if(nid) nid.value = m[0]; } }
                     if (status) { status.innerHTML = "✅ Attached & Read"; status.style.color = "var(--success-color)"; }
                 } else { if (status) status.innerHTML = "⚠️ Captured (No Text)"; }
@@ -1067,6 +1504,7 @@
         if (inputEl.files && inputEl.files[0]) runLocalOcrEngine(inputEl.files[0], statusContainerId, scanType); 
         inputEl.value = ''; 
     }
+    window.handleFileSelected = handleFileSelected;
 
     function handleCheckoutPhoto(inputEl, statusContainerId, scanType) {
         const file = inputEl.files ? inputEl.files[0] : null;
@@ -1076,6 +1514,7 @@
         const statusEl = document.getElementById(statusContainerId);
         if (statusEl) statusEl.innerHTML = "✅ Attached";
     }
+    window.handleCheckoutPhoto = handleCheckoutPhoto;
     
     function exportHistoryToExcel() {
         if (!globalLogsCache || globalLogsCache.length === 0) { alert('No data to export.'); return; }
@@ -1090,6 +1529,20 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = `movement-history-${new Date().toISOString().slice(0, 10)}.csv`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+    window.exportHistoryToExcel = exportHistoryToExcel;
+
+    const CURRENT_APP_VERSION = "1.6";
+    function checkForNewCode() {
+        fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
+            .then(r => r.text())
+            .then(html => { 
+                const match = html.match(/const CURRENT_APP_VERSION = "([^"]+)";/); 
+                if (match && match[1] !== CURRENT_APP_VERSION) { 
+                    const btn = document.getElementById('updateAppBtn');
+                    if (btn) btn.style.display = 'flex'; 
+                } 
+            }).catch(() => { });
     }
 </script>
 </body>
