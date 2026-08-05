@@ -6,50 +6,65 @@
     <title>Noon SLP Dock Security Platform</title>
     <link rel="icon" href="https://fav.farm/🚚" />
     <style>
-        :root { --bg-color: #0b0e14; --card-bg: #12161f; --card-solid: #12161f; --sidebar-bg: #07090c; --accent-color: #fcc200; --text-main: #f0f2f5; --text-muted: #8b949e; --border-color: rgba(255, 255, 255, 0.08); --success-color: #2ea043; --danger-color: #f85149; --nav-hover: rgba(252, 194, 0, 0.1); }
+        :root { --bg-color: #0b0e14; --card-bg: rgba(18, 22, 31, 0.95); --card-solid: #12161f; --sidebar-bg: #07090c; --accent-color: #fcc200; --text-main: #f0f2f5; --text-muted: #8b949e; --border-color: rgba(255, 255, 255, 0.08); --success-color: #2ea043; --danger-color: #f85149; --nav-hover: rgba(252, 194, 0, 0.1); }
         #cameraModal, .camera-modal, .camera-overlay, [id*="camera"] { z-index: 999999 !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
         
+        body { 
+            background-color: var(--bg-color); 
+            background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg'); 
+            background-size: 55%; 
+            background-position: center center; 
+            background-repeat: no-repeat; 
+            background-attachment: fixed; 
+            color: var(--text-main); 
+            display: flex; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
+        
+        /* Intro Overlay & Login */
         .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .intro-overlay.hidden { opacity: 0; pointer-events: none; }
-        .login-container { position: relative; z-index: 2; background: var(--sidebar-bg); border: 2px solid var(--accent-color); border-radius: 12px; padding: 3rem 4rem; text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 450px; width: 90%; box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8); }
+        .login-container { position: relative; z-index: 2; background: var(--sidebar-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 3rem 4rem; text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 450px; width: 90%; box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8); }
         .login-logo { height: 120px; margin-bottom: 2rem; }
         .auth-status { margin-top: 1.5rem; display: none; }
         .auth-status p { font-size: 0.75rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; animation: authPulse 1.5s infinite; }
         @keyframes authPulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-        
         .login-tabs { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         .login-tab { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.6rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .login-tab.active { background: var(--accent-color); color: #000; }
 
-        .desktop-nav-btn { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(18, 22, 31, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); width: 40px; height: 80px; font-size: 1.5rem; cursor: pointer; z-index: 900; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: 0.2s; }
-        .desktop-nav-btn:hover { background: var(--accent-color); color: #000; opacity: 1; }
+        /* Navigation Buttons (Always visible on mobile/tablet) */
+        .desktop-nav-btn { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(18, 22, 31, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); width: 40px; height: 80px; font-size: 1.5rem; cursor: pointer; z-index: 900; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.4; transition: 0.2s; }
+        .desktop-nav-btn:hover { background: var(--accent-color); color: #000; opacity: 1; border-color: var(--accent-color); }
         .nav-prev-btn { left: calc(260px + 10px); }
         .nav-next-btn { right: 10px; }
         .main-content.expanded .nav-prev-btn { left: 10px; }
 
+        /* Sidebar */
         .sidebar { width: 260px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1.25rem 1rem; position: fixed; top: 0; left: 0; z-index: 1000; transition: transform 0.3s ease; overflow-y: auto; }
         .sidebar.hidden { transform: translateX(-100%); }
-        .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; }
+        .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem; }
         .brand-text h2 { font-size: 1.35rem; font-weight: 800; color: #fff; }
         .brand-text p { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 2px;}
-        .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.75rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; transition: 0.2s; }
+        .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.6rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; transition: 0.2s; }
         .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
         
-        .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; display: none; position: absolute; top: 1.25rem; right: 1rem; transition: 0.2s; z-index: 1010; }
+        .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; display: none; position: absolute; top: 1.25rem; right: 1rem; transition: color 0.2s; z-index: 1010; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
         
         #floatingOpenBtn { position: fixed; top: 1.5rem; left: 1.5rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.6rem 0.85rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         
-        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.2rem; flex-grow: 1; }
-        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem 1rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.2s; }
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.1rem; flex-grow: 1; }
+        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.6rem 1rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; border-left: 3px solid transparent; transition: all 0.2s; }
         .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1.15rem; }
         
-        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-        .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.5rem; }
+        /* Adjusted footer padding to fit tablet landscape perfectly */
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color); }
+        .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.5rem 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.25rem; }
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
         
         .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); position: relative; transition: margin 0.3s, width 0.3s; }
@@ -64,14 +79,14 @@
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         
         /* Mobile / Landscape Adjustments */
-        @media (max-width: 950px) {
+        @media (max-width: 1200px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); width: 260px; }
-            .sidebar-close-btn { display: block; }
+            .sidebar-close-btn { display: block !important; }
             #floatingOpenBtn { display: flex; }
             .main-content { margin-left: 0; width: 100%; padding: 1.5rem 1rem; margin-top: 3rem; }
+            .nav-prev-btn { left: 10px; }
         }
-        @media (max-width: 600px) { .desktop-nav-btn { display: none !important; } }
 
         .app-view { display: none; } .app-view.active-view { display: block; }
         .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 4rem 1.5rem 3rem 1.5rem; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; position: relative; }
@@ -85,11 +100,13 @@
         .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative; }
         .metric-card-slate .num { font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1.1; }
         .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 8px; font-weight: 600; }
+        .metric-accent-line{position:absolute;top:15px;right:15px;width:30px;height:3px;background-color:var(--accent-color);border-radius:2px}
+        
         .docks-grid-container { display: grid; grid-template-columns: repeat(10, 1fr); gap: 1rem; padding: 1.5rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px; flex-grow: 1; align-content: start; }
         @media (max-width: 1100px) { .docks-grid-container { grid-template-columns: repeat(6, 1fr); } }
         @media (max-width: 800px) { .docks-grid-container { grid-template-columns: repeat(5, 1fr); } }
-        .dock-badge-active { background: #2ea043; border: 2px solid #238636; color: #fff; padding: 1rem 0; border-radius: 8px; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(46,160,67,0.3); cursor: default;}
-        .dock-badge-inactive { background: #f0f2f5; color: #24292f; padding: 1rem 0; border-radius: 8px; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; opacity: 0.9; cursor: default;}
+        .dock-badge-active { background: #2ea043; border: 2px solid #238636; color: #fff; padding: 1rem 0; border-radius: 8px; font-weight: 900; font-size: 1.25rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(46,160,67,0.3); cursor: default;}
+        .dock-badge-inactive { background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; padding: 1rem 0; border-radius: 8px; font-weight: 800; font-size: 1.1rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; opacity: 0.9; cursor: default;}
         
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; }
         .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
@@ -107,9 +124,12 @@
         th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding: 1rem 0.85rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; vertical-align: middle; white-space: nowrap; }
         tr:hover td { background-color: rgba(255,255,255,0.02); }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
-        .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
-        .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border: 1px solid rgba(248, 81, 73, 0.3); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; display: inline-block; border: 1px solid transparent; }
+        .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border-color: rgba(46, 160, 67, 0.3); }
+        .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border-color: rgba(248, 81, 73, 0.3); }
+        .badge.purple { background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border-color: rgba(163, 113, 247, 0.3); }
+        .badge.blue { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3); }
+        
         .btn-checkout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .btn-checkout-action:hover { background: var(--danger-color); color: #fff; }
         .btn-excel { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 700; text-transform: uppercase; transition: 0.2s; }
@@ -156,6 +176,14 @@
         .chart-legend li { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .chart-legend li span { color: #fff; font-weight: 700; }
         
+        .accordion-wrapper { margin-bottom: 0; }
+        .accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
+        .accordion-header:hover { background: rgba(255,255,255,0.02); }
+        .accordion-title { font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .accordion-badge { color: var(--accent-color); font-weight: bold; font-size: 1.1rem; }
+        .accordion-content { display: none; padding: 1rem 0; background: transparent; overflow-x: auto; }
+        .accordion-content.open { display: block; }
+        
         .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
         .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .tab-filter-item.active { background: var(--accent-color); color: #000; }
@@ -189,7 +217,13 @@
         .modal-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
         .btn-modal-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem 1.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-modal-cancel:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        
+        .modal-slate-cell { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem 1rem; border-radius: 6px; }
+        .modal-slate-cell span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
+        .modal-slate-cell p { font-size: 0.95rem; color: #fff; font-weight: 700; font-family: monospace; }
+        .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-media-viewport { width: 100%; height: 210px; border-radius: 6px; border: 1px solid var(--border-color); display:flex; align-items:center; justify-content:center; background-color: #0b0e14; background-size: contain; background-position: center; background-repeat: no-repeat; }
+        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; }
+
         .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
         .suggestions-dropdown.open { display: block; }
         .suggestion-item { padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid var(--border-color); color: #fff; font-size: 0.85rem; }
@@ -211,16 +245,16 @@
     </style>
 </head>
 <body>
-    <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none; position:fixed; top:20px; right:50%; transform:translateX(50%); z-index:2147483647; background:#1a1a1a; color:#fff; border:1px solid #333; padding:10px 24px; border-radius:50px; font-weight:bold; cursor:pointer; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,0.8);">
+    <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none; position:fixed; top:20px; right:50%; transform:translateX(50%); z-index:2147483647; background:#1a1a1a; color:#fff; border:1px solid #333; padding:10px 24px; border-radius:50px; font-weight:bold; cursor:pointer; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,0.8); transition:0.3s;">
         <div style="width:12px; height:12px; background:#ff4444; border-radius:50%; box-shadow:0 0 10px #ff4444; animation: pulse 1s infinite alternate;"></div>
-        <span style="font-size:1.1rem;">New Update Available! Click to Refresh</span>
+        <span style="font-size:1.1rem; letter-spacing:0.5px;">New Update Available! Click to Refresh</span>
     </div>
     
     <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu">
         <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
     </button>
 
-    <!-- Login Screen (Operations Removed) -->
+    <!-- Login Screen -->
     <div id="introOverlay" class="intro-overlay">
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
@@ -297,10 +331,10 @@
                 </div>
             </div>
             <div class="metrics-bar-four">
-                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div></div>
-                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label" data-i18n="Completed Today">Completed Today</div></div>
-                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-i18n="Total Check-Ins">Total Check-Ins</div></div>
-                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div></div>
+                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div><div class="metric-accent-line"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label" data-i18n="Completed Today">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-i18n="Total Check-Ins">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
             <div class="card">
                 <div class="card-header-flex">
@@ -315,7 +349,7 @@
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1 data-i18n="Analytics">Analytics</h1><p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p></div>
-                <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="debouncedApplyAnalyticsFilters()"></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedApplyAnalyticsFilters) window.debouncedApplyAnalyticsFilters()"></div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()">
@@ -353,23 +387,16 @@
             <div style="max-width: 850px; margin: 0 auto;">
                 <header class="view-header-row" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;"><div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div></header>
                 
-                <div class="scanners-double-row" id="checkinScannersRow">
-                    <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
-                        <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
-                        <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                <div class="scanners-double-row" id="topScannersRow">
+                    <div class="scan-box-dashed" id="scanBoxDriverTop" onclick="document.getElementById('driverPhotoInput').click()">
+                        <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusTop" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
+                        <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatusTop', 'PLATE')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusTop', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
-                    
-                    <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
+                    <div class="scan-box-dashed" id="scanBoxIqamaTop" onclick="document.getElementById('iqamaScanner').click()">
                         <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
-                    </div>
-
-                    <div class="scan-box-dashed" id="scanBoxItem" onclick="document.getElementById('itemPhotoInput').click()" style="display:none;">
-                        <div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus" data-i18n="Item Picture">Item Picture *</span></div>
-                        <input type="file" id="itemPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'itemPhotoStatus', 'ITEM_PHOTO')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('itemPhotoStatus', 'ITEM_PHOTO')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                 </div>
 
@@ -383,7 +410,7 @@
                             <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
                                 <label class="badge-style" data-i18n="Search Driver By Name or Plate... *">Search Driver By Name, Plate or ID... *</label>
                                 <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
-                                <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" data-i18n="Search records..." placeholder="Type to search drivers..." autocomplete="off">
+                                <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" data-i18n="Search records..." placeholder="Type to search drivers..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" oninput="window.renderDriverSuggestions(this.value)">
                                 <div id="driverSuggestionsList" class="suggestions-dropdown"></div>
                             </div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Driver Name *">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required></div>
@@ -430,6 +457,20 @@
                             </div>
                             
                             <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled" required onchange="handleDispatchChange(this)"><option value="" data-i18n="Select...">Select...</option><option value="Dispatching" data-i18n="Dispatching">Dispatching</option><option value="Receiving" data-i18n="Receiving">Receiving</option></select></div>
+                            
+                            <!-- Bottom Scanners Row (Shown for Existing Driver + Receiving) -->
+                            <div class="scanners-double-row" id="bottomScannersRow" style="display:none; grid-column: 1 / -1; margin-bottom: 0;">
+                                <div class="scan-box-dashed" id="bottomScanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()" style="display:none;">
+                                    <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusBottom" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
+                                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusBottom', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                                </div>
+                                <div class="scan-box-dashed" id="bottomScanBoxItem" onclick="document.getElementById('itemPhotoInput').click()" style="display:none;">
+                                    <div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus" data-i18n="Item Picture">Item Picture *</span></div>
+                                    <input type="file" id="itemPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'itemPhotoStatus', 'ITEM_PHOTO')">
+                                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('itemPhotoStatus', 'ITEM_PHOTO')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                                </div>
+                            </div>
+                            
                             <div class="form-group"><label class="badge-style" data-i18n="Noon Employee ID">Noon Employee ID</label><input type="text" id="noonEmployeeId" class="input-box-styled" placeholder="Enter Noon employee ID" autocomplete="off"></div>
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="How many Boxes/Pallets">Quantity (Boxes/Pallets)</label>
@@ -533,6 +574,24 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="editDriverModal">
+        <div class="modal-window" style="max-width: 500px;">
+            <div class="modal-header-container"><h2 id="editModalTitle" data-i18n="Edit Driver Record">Edit Driver Record</h2><button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button></div>
+            <div class="modal-body-content">
+                <input type="hidden" id="editOriginalName"><input type="hidden" id="editRecordType" value="driver">
+                <div class="form-group"><label id="editLabelName" class="badge-style" data-i18n="Driver Name *">Driver Name</label><input type="text" id="editName" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group"><label id="editLabelId" class="badge-style" data-i18n="Iqama Number *">Iqama Number</label><input type="text" id="editIqama" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group" id="editPlateGroup"><label class="badge-style" data-i18n="Truck Plate Number *">Plate Number</label><input type="text" id="editPlate" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group" id="editPhoneGroup"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled" autocomplete="off"></div>
+            </div>
+            <div class="modal-footer-container">
+                <button class="btn-modal-cancel" style="color: var(--danger-color); border-color: var(--danger-color); margin-right: auto;" onclick="deleteDriver()" data-i18n="Delete">Delete</button>
+                <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()" data-i18n="Cancel">Cancel</button>
+                <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()" data-i18n="Save Updates">Save Updates</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="signOutModal">
         <div class="modal-window" style="max-width: 500px;">
             <div class="modal-header-container"><h2 style="color: #fff; font-size: 1.25rem;" data-i18n="CHECK OUT">CHECK OUT</h2><button class="btn-modal-close" onclick="closeSignOutModal()">✕</button></div>
@@ -604,6 +663,8 @@
     let cameraStream = null;
     let cameraTargetStatusId = null;
     let cameraTargetScanType = null;
+
+    const chartColors = ['var(--accent-color)', '#3fb950', '#79c0ff', '#d2a8ff', '#f85149', '#ff9800'];
 
     function debounce(func, wait) {
         let timeout;
@@ -677,7 +738,7 @@
             element.classList.add('active');
         }
         
-        if (window.innerWidth <= 900) {
+        if (window.innerWidth <= 1200) {
             const sidebar = document.getElementById('appSidebar');
             if (sidebar) sidebar.classList.remove('mobile-open');
         }
@@ -722,7 +783,7 @@
     function toggleSidebar() {
         const sidebar = document.getElementById('appSidebar');
         if (!sidebar) return;
-        if (window.innerWidth <= 900) {
+        if (window.innerWidth <= 1200) {
             sidebar.classList.toggle('mobile-open');
         } else {
             sidebar.classList.toggle('hidden');
@@ -855,8 +916,6 @@
         const plNum = document.getElementById('plateNumber');
         if (plNum) { plNum.addEventListener('input', runInstantConflictCheck); plNum.addEventListener('change', runInstantConflictCheck); }
 
-        const drvSearch = document.getElementById('driverSearchBox');
-        if (drvSearch) drvSearch.addEventListener('input', function() { renderDriverSuggestions(this.value); });
         const secField = document.getElementById('securityNameField');
         if (secField) secField.addEventListener('input', function() { renderSecuritySuggestions(this.value); });
         
@@ -883,7 +942,7 @@
                     el.innerText = calculateDurationStr(checkInTime, null);
                 }
             });
-        }, 60000);
+        }, 1000);
 
         fetchLogs();
         setInterval(fetchLogs, 20000);
@@ -898,23 +957,22 @@
         const dispSel = document.getElementById('dispatchSelect');
         const isReceiving = dispSel && dispSel.value === 'Receiving';
 
-        const driverScan = document.getElementById('scanBoxDriver');
-        const iqamaScan = document.getElementById('scanBoxIqama');
-        const itemScan = document.getElementById('scanBoxItem');
-        const scannersRow = document.getElementById('checkinScannersRow');
+        const topScanners = document.getElementById('topScannersRow');
+        const bottomScanners = document.getElementById('bottomScannersRow');
+        const bottomDriver = document.getElementById('bottomScanBoxDriver');
+        const bottomItem = document.getElementById('bottomScanBoxItem');
 
         if (isNew) {
-            if (driverScan) driverScan.style.display = 'block';
-            if (iqamaScan) iqamaScan.style.display = 'block';
-            if (itemScan) itemScan.style.display = isReceiving ? 'block' : 'none';
-            if (scannersRow) scannersRow.style.gridTemplateColumns = isReceiving ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)';
+            if (topScanners) topScanners.style.display = 'grid';
+            if (bottomScanners) bottomScanners.style.display = 'none';
         } else {
-            // Existing Driver: Always show Driver Photo, hide Iqama
-            if (driverScan) driverScan.style.display = 'block';
-            if (iqamaScan) iqamaScan.style.display = 'none';
-            if (itemScan) itemScan.style.display = isReceiving ? 'block' : 'none';
-            // If receiving, show Driver Photo + Item Picture side-by-side
-            if (scannersRow) scannersRow.style.gridTemplateColumns = isReceiving ? 'repeat(2, 1fr)' : '1fr';
+            if (topScanners) topScanners.style.display = 'none';
+            if (bottomScanners) {
+                bottomScanners.style.display = isReceiving ? 'grid' : 'none';
+                bottomScanners.style.gridTemplateColumns = isReceiving ? 'repeat(2, 1fr)' : 'none';
+            }
+            if (bottomDriver) bottomDriver.style.display = 'block';
+            if (bottomItem) bottomItem.style.display = 'block';
         }
     }
 
@@ -997,6 +1055,7 @@
             document.getElementById('securityNameField').value = loggedInUser.name;
             document.getElementById('securityNameId').value = loggedInUser.noonId || '';
             temporaryCapturedImage = null; temporaryCapturedItemImage = null;
+            updateScannerVisibility();
             
             if (btn) { btn.innerText = "CHECK IN TRUCK"; btn.disabled = false; }
             
@@ -1078,6 +1137,13 @@
         return `<div class="plate-bumper"><span class="plate-num">${numbers}</span><span class="plate-let">${letters}</span></div>`;
     }
 
+    function getBadgeClass(displayDir, isOut) {
+        if (isOut || displayDir.includes("OUTBOUND") || displayDir.includes("مغادرة")) return "badge out";
+        if (displayDir.includes("INBOUND") || displayDir.includes("دخول")) return "badge in";
+        if (displayDir.includes("RTV") || displayDir.includes("LQD") || displayDir.includes("LIQUIDATION")) return "badge purple";
+        return "badge blue";
+    }
+
     window.handleLogsResponse = function(responsePayload) {
         window.hasFetchedLogs = true;
         let rawLogs = responsePayload.logs || [];
@@ -1124,14 +1190,14 @@
         // Active Yard Table (12 Columns, Aligned, Timer)
         let activeHtml = '';
         activeList.forEach(r => {
-            const dir = String(r.direction || '').split('-')[0].trim();
-            const badgeClass = (dir.toUpperCase().includes('OUT') || dir.includes('مغادرة')) ? 'out' : 'in';
+            const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
+            const badgeClass = getBadgeClass(dir, false);
             const durStr = calculateDurationStr(r.checkInTime, null);
             
             activeHtml += `<tr>
                 <td><strong>${r.driverName}</strong></td>
                 <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                <td><span class="badge ${badgeClass}">${dir}</span></td>
+                <td><span class="${badgeClass}">${dir}</span></td>
                 <td><span style="color:var(--accent-color); font-weight:700;">${r.dispatchType || '--'}</span></td>
                 <td style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</td>
                 <td>${r.boxCount||'--'}</td>
@@ -1225,14 +1291,14 @@
             let r = filtered[i];
             if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
             
-            const dir = String(r.direction || '').split('-')[0].trim();
-            const badgeClass = (dir.toUpperCase().includes('OUT') || dir.includes('مغادرة')) ? 'out' : 'in';
+            const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
+            const badgeClass = getBadgeClass(dir, r.checkOutTime !== "");
             const durStr = calculateDurationStr(r.checkInTime, r.checkOutTime);
             
             html += `<tr>
                 <td><strong>${r.driverName}</strong></td>
                 <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                <td><span class="badge ${badgeClass}">${dir}</span></td>
+                <td><span class="${badgeClass}">${dir}</span></td>
                 <td><strong>${r.dockNumber}</strong></td>
                 <td><span style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</span></td>
                 <td>${r.boxCount||'--'}</td>
@@ -1314,11 +1380,12 @@
             else {
                 let maxH = Math.max(...hourData.map(item => item.count)); if(maxH === 0) maxH = 1;
                 let hHtml = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
-                hourData.slice(0, 7).forEach(item => {
+                hourData.slice(0, 7).forEach((item, idx) => {
+                    let c = chartColors[idx % chartColors.length];
                     let heightPct = (item.count / maxH) * 100;
                     hHtml += `<div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:40px; position:relative;">
                         <div style="font-size:0.9rem; color:#fff; font-weight:800; margin-bottom:8px;">${item.count}</div>
-                        <div style="width:100%; background:var(--accent-color); height:${heightPct}%; border-radius:4px 4px 0 0;"></div>
+                        <div style="width:100%; background:${c}; height:${heightPct}%; border-radius:4px 4px 0 0;"></div>
                         <div style="position:absolute; bottom:-25px; font-size:0.7rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${item.label}</div>
                     </div>`;
                 });
@@ -1361,6 +1428,47 @@
         } else {
             if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
         }
+
+        // Build Accordion Grouped Tables
+        const aTables = document.getElementById('analyticsGroupedTables');
+        if (aTables) {
+            let groups = {};
+            filtered.forEach(r => {
+                let dDir = String(r.direction || '').split('-')[0].trim().toUpperCase();
+                if (!groups[dDir]) groups[dDir] = [];
+                groups[dDir].push(r);
+            });
+            let aHtml = '';
+            for (let [dir, items] of Object.entries(groups)) {
+                let badgeCls = getBadgeClass(dir, false);
+                let rows = items.slice(0,20).map(r => `<tr>
+                    <td><strong>${r.driverName}</strong></td>
+                    <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                    <td><strong>${r.dockNumber}</strong></td>
+                    <td style="font-family:monospace; color:var(--text-muted);">${r.sealNumber||'--'}</td>
+                    <td>${new Date(r.checkInTime).toLocaleString()}</td>
+                    <td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : 'Inside'}</td>
+                    <td style="color:var(--accent-color); font-weight:bold;">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
+                    <td>🛡️ ${r.securityName}</td>
+                </tr>`).join('');
+                
+                aHtml += `<div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <div class="accordion-title"><span class="${badgeCls}">${dir}</span></div>
+                        <div class="accordion-badge" style="background:transparent; color:var(--accent-color); font-weight:bold; font-size:1.1rem; border:none;">${items.length}</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Seal Number</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            aTables.innerHTML = aHtml;
+        }
     }
     window.applyAnalyticsFilters = applyAnalyticsFilters;
 
@@ -1394,11 +1502,11 @@
                     </div>
                 </div>
                 <div class="driver-card-info-grid">
-                    <div><p class="info-block">Driver Name</p><p>${d.name}</p></div>
                     <div><p class="info-block">Plate Number</p><p>${generatePlateBumperUI(d.plate)}</p></div>
                     <div><p class="info-block">Iqama Number</p><p>${d.id}</p></div>
-                    <div><p class="info-block">Phone Number</p><p>${d.phone}</p></div>
+                    <div style="grid-column: 1 / -1;"><p class="info-block">Mobile Number</p><p>${d.phone}</p></div>
                 </div>
+                <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')">View Records</button>
             </div>`;
         });
         container.innerHTML = html;
@@ -1416,6 +1524,7 @@
             card.style.display = (name.includes(query) || plate.includes(query) || iqama.includes(query)) ? 'flex' : 'none';
         });
     }
+    window.filterRegistryCards = filterRegistryCards;
 
     function compileSecurityRegistryCards(data) {
         let uniqueMap = {};
@@ -1453,8 +1562,9 @@
             card.style.display = name.includes(query) ? 'flex' : 'none';
         });
     }
+    window.filterSecurityCards = filterSecurityCards;
 
-    const renderDriverSuggestions = debounce(function(value) {
+    window.renderDriverSuggestions = debounce(function(value) {
         const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
         listEl.innerHTML = '';
         if (!value) { listEl.classList.remove('open'); return; }
@@ -1479,9 +1589,8 @@
         });
         listEl.classList.add('open');
     }, 250);
-    window.renderDriverSuggestions = renderDriverSuggestions;
 
-    const renderSecuritySuggestions = debounce(function(value) {
+    window.renderSecuritySuggestions = debounce(function(value) {
         const listEl = document.getElementById('securitySuggestionsList'); if (!listEl) return;
         listEl.innerHTML = '';
         if (!value) { listEl.classList.remove('open'); return; }
@@ -1498,7 +1607,6 @@
         });
         listEl.classList.add('open');
     }, 250);
-    window.renderSecuritySuggestions = renderSecuritySuggestions;
 
     // --- Live Duplicate Checking ---
     function runInstantConflictCheck(e) {
@@ -1527,6 +1635,26 @@
             }
         }
     }
+
+    // --- Profile Modals ---
+    function openDriverProfileModal(name, iqama, plate, date, phone) {
+        document.getElementById('modalDataName').innerText = name;
+        document.getElementById('modalDataIqama').innerText = iqama;
+        document.getElementById('modalDataDate').innerText = date;
+        document.getElementById('modalDataMobile').innerText = phone || 'N/A';
+        
+        let plateBox = document.getElementById('modalDataPlate');
+        if(plateBox) {
+            plateBox.innerHTML = '';
+            let segments = plate ? plate.split(' ') : ['--'];
+            segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
+        }
+        document.getElementById('driverProfileModal').classList.add('modal-active');
+    }
+    window.openDriverProfileModal = openDriverProfileModal;
+    
+    function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
+    window.closeDriverProfileModal = closeDriverProfileModal;
 
     // --- CAMERA & OCR ---
     async function openCamera(statusLabelId, scanType) {
@@ -1631,7 +1759,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "1.9";
+    const CURRENT_APP_VERSION = "2.2";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
