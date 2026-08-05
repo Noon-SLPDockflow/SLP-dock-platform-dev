@@ -63,7 +63,6 @@
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1rem; }
         
-        /* Compact Footer to Fit All Screen Heights */
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
@@ -79,7 +78,6 @@
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         
-        /* Tablet/Mobile Adjustments */
         @media (max-width: 1200px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); width: 240px; }
@@ -877,13 +875,6 @@
                 }
             });
         }
-        
-        const dispatchSel = document.getElementById('dispatchSelect');
-        if (dispatchSel) {
-            dispatchSel.addEventListener('change', function() {
-                updateScannerVisibility();
-            });
-        }
 
         const iqNum = document.getElementById('iqamaNumber');
         if (iqNum) { iqNum.addEventListener('input', runInstantConflictCheck); iqNum.addEventListener('change', runInstantConflictCheck); }
@@ -924,7 +915,26 @@
         setInterval(checkForNewCode, 120000);
     });
 
-    // --- FORM UI & LOGIC ---
+    // --- FORM UI & LOGIC HANDLERS ---
+    function toggleCustomDockInput(val) {
+        const dCust = document.getElementById('dockNumberCustom');
+        if (dCust) dCust.style.display = (val === 'Others') ? 'block' : 'none';
+    }
+    window.toggleCustomDockInput = toggleCustomDockInput;
+
+    function handlePurposeChange(selectEl) {
+        const dCust = document.getElementById('directionCustom');
+        if (dCust) dCust.style.display = (selectEl.value === 'Others') ? 'block' : 'none';
+    }
+    window.handlePurposeChange = handlePurposeChange;
+
+    function handleDispatchChange(selectEl) {
+        const sealCont = document.getElementById('sealNumberContainer');
+        if (sealCont) sealCont.style.display = (selectEl.value === 'Dispatching') ? 'block' : 'none';
+        updateScannerVisibility();
+    }
+    window.handleDispatchChange = handleDispatchChange;
+
     function updateScannerVisibility() {
         const toggleBtn = document.getElementById('toggleNewDriverBtn');
         const isNew = toggleBtn && toggleBtn.classList.contains('active');
@@ -949,25 +959,6 @@
             if (bottomItem) bottomItem.style.display = 'block';
         }
     }
-
-    function toggleCustomDockInput(val) {
-        const dCust = document.getElementById('dockNumberCustom');
-        if (dCust) dCust.style.display = (val === 'Others') ? 'block' : 'none';
-    }
-    window.toggleCustomDockInput = toggleCustomDockInput;
-
-    function handlePurposeChange(selectEl) {
-        const dCust = document.getElementById('directionCustom');
-        if (dCust) dCust.style.display = (selectEl.value === 'Others') ? 'block' : 'none';
-    }
-    window.handlePurposeChange = handlePurposeChange;
-
-    function handleDispatchChange(selectEl) {
-        const sealCont = document.getElementById('sealNumberContainer');
-        if (sealCont) sealCont.style.display = (selectEl.value === 'Dispatching') ? 'block' : 'none';
-        updateScannerVisibility();
-    }
-    window.handleDispatchChange = handleDispatchChange;
 
     function setDriverMode(mode, btn) {
         const container = document.querySelector('.toggle-container');
@@ -1356,7 +1347,7 @@
             }
         }
 
-        // Peak Hours Column Chart (Vertical Bars)
+        // Peak Hours Column Chart
         let hourMap = {};
         filtered.forEach(log => {
             let time = new Date(log.checkInTime);
@@ -1387,9 +1378,8 @@
             }
         }
 
-        // Cohorts (Horizontal Bars)
+        // Cohorts
         let cohortMap = {};
-        const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
         filtered.forEach(log => {
             let dir = String(log.direction || "Unknown").split('-')[0].trim().toUpperCase();
             cohortMap[dir] = (cohortMap[dir] || 0) + 1;
@@ -1401,14 +1391,14 @@
                 let maxC = Math.max(...cohortData.map(d=>d.count)); if(maxC===0) maxC=1;
                 let bHtml = '';
                 cohortData.slice(0,5).forEach((d, idx) => {
-                    let c = colors[idx % colors.length];
+                    let c = chartColors[idx % chartColors.length];
                     bHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="width:85px; font-size:0.65rem; font-weight:700; color:var(--text-muted); text-align:right;">${d.label}</div><div style="flex-grow:1; background:rgba(255,255,255,0.05); height:20px; border-radius:4px; margin:0 10px; overflow:hidden;"><div style="width:${(d.count/maxC)*100}%; background:${c}; height:100%;"></div></div><div style="font-size:0.75rem; font-weight:bold; color:#fff;">${d.count}</div></div>`;
                 });
                 barsCont.innerHTML = bHtml;
             }
         }
 
-        // Docks Ranking (Donut)
+        // Docks Ranking
         let dockMap = {};
         filtered.forEach(log => { let dock = log.dockNumber; if (dock) dockMap[dock] = (dockMap[dock] || 0) + 1; });
         let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k] })).sort((a,b) => b.count - a.count);
@@ -1416,13 +1406,13 @@
         let donutEl = document.getElementById('chartDocksDonut'), legendEl = document.getElementById('chartDocksLegend');
         if (total > 0) {
             let gradientParts = [], currentPct = 0, legendHTML = '';
-            dockData.slice(0, 5).forEach((item, index) => { let color = colors[index % colors.length], pct = (item.count / total) * 100, nextPct = currentPct + pct; gradientParts.push(`${color} ${currentPct}% ${nextPct}%`); currentPct = nextPct; legendHTML += `<li><div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:3px; background: ${color};"></span>${item.label}</div><span>${item.count} Uses</span></li>`; });
+            dockData.slice(0, 5).forEach((item, index) => { let color = chartColors[index % chartColors.length], pct = (item.count / total) * 100, nextPct = currentPct + pct; gradientParts.push(`${color} ${currentPct}% ${nextPct}%`); currentPct = nextPct; legendHTML += `<li><div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:3px; background: ${color};"></span>${item.label}</div><span>${item.count} Uses</span></li>`; });
             if (donutEl) donutEl.style.background = `conic-gradient(${gradientParts.join(', ')})`; if (legendEl) legendEl.innerHTML = legendHTML;
         } else {
             if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
         }
 
-        // Build Accordion Grouped Tables (Matching screenshot format)
+        // Build Accordion Grouped Tables
         const aTables = document.getElementById('analyticsGroupedTables');
         if (aTables) {
             let groups = {};
@@ -1650,7 +1640,44 @@
     function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
     window.closeDriverProfileModal = closeDriverProfileModal;
 
-    // --- CAMERA & OCR ---
+    // --- CAMERA & FAST OPTIMIZED OCR ---
+    function convertArabicNumeralsToDigits(str) {
+        const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+        return str.replace(/[٠-٩]/g, m => map[m]);
+    }
+
+    function loadImageRobust(file) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Image failed to load'));
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    async function preprocessImageForOcr(file, scanType) {
+        const img = await loadImageRobust(file);
+        const targetWidth = 1000;
+        const scale = img.width > targetWidth ? targetWidth / img.width : 1;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.6);
+        });
+    }
+
+    function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = () => reject(new Error('Blob to Base64 failed'));
+            reader.readAsDataURL(blob);
+        });
+    }
+
     async function openCamera(statusLabelId, scanType) {
         cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
         const overlay = document.getElementById('cameraOverlay');
@@ -1703,22 +1730,71 @@
     window.handleCameraCancel = handleCameraCancel;
 
     async function runLocalOcrEngine(file, statusLabelId, scanType) {
-        const status = document.getElementById(statusLabelId); if (status) status.innerHTML = "🌀 Processing...";
+        const status = document.getElementById(statusLabelId); 
+        if (status) status.innerHTML = "🌀 Reading with Google OCR...";
+        
         try {
-            const reader = new FileReader(); reader.readAsDataURL(file);
-            reader.onloadend = async () => {
-                let b64 = reader.result.split(',')[1];
-                const response = await fetch(OCR_API_URL, { method: 'POST', body: JSON.stringify({ scanType: scanType, imageObj: b64 }) });
-                const result = await response.json();
-                if (result.success && result.text) {
-                    let clean = result.text.replace(/[٠-٩]/g, m => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(m)]).toUpperCase();
-                    if (scanType === 'IQAMA') { let m = clean.match(/\b[12]\d{9}\b/); if (m) { const iq = document.getElementById('iqamaNumber'); if(iq) { iq.value = m[0]; iq.dispatchEvent(new Event('input')); } } }
-                    if (scanType === 'PLATE') { let m = clean.match(/\b\d{3,4}\b/); if (m) { const pl = document.getElementById('plateNumber'); if(pl) { pl.value = m[0] + " KSA"; pl.dispatchEvent(new Event('input')); } } }
-                    if (scanType === 'LOGIN_OFFICER') { let m = clean.match(/LP\d+/i); if (m) { const nid = document.getElementById('loginNoonId'); if(nid) nid.value = m[0]; } }
-                    if (status) { status.innerHTML = "✅ Attached & Read"; status.style.color = "var(--success-color)"; }
-                } else { if (status) status.innerHTML = "⚠️ Captured (No Text)"; }
-            };
-        } catch (e) { if (status) status.innerHTML = "❌ Failed"; }
+            const processedBlob = await preprocessImageForOcr(file, scanType);
+            const base64Data = await blobToBase64(processedBlob);
+            
+            const response = await fetch(OCR_API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) 
+            });
+            
+            const result = await response.json();
+            if (!result.success || !result.text) throw new Error(result.error || "OCR Extraction Failed");
+
+            let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
+            let matched = false;
+
+            if (scanType === "IQAMA") {
+                let idMatch = cleanText.match(/\b[12]\d{9}\b/);
+                let idNum = idMatch ? idMatch[0] : "";
+                if (idMatch) {
+                    const iqEl = document.getElementById('iqamaNumber');
+                    if (iqEl) { iqEl.value = idNum; iqEl.dispatchEvent(new Event('input')); }
+                    matched = true;
+                }
+                
+                let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+                let nameMatch = lines.find(line => {
+                    let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
+                    let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ/.test(line);
+                    if (idNum.startsWith('1')) return isArabicName;
+                    if (idNum.startsWith('2')) return isEnglishName;
+                    return isEnglishName || isArabicName;
+                });
+                
+                if (nameMatch) {
+                    const dNameEl = document.getElementById('driverName');
+                    if (dNameEl) dNameEl.value = nameMatch;
+                    matched = true;
+                }
+            } else if (scanType === "PLATE") {
+                let m = cleanText.match(/\b\d{3,4}\b/);
+                if (m) {
+                    const plEl = document.getElementById('plateNumber');
+                    if (plEl) { plEl.value = m[0] + " KSA"; plEl.dispatchEvent(new Event('input')); }
+                    matched = true;
+                }
+            } else if (scanType === "OFFICER" || scanType === "LOGIN_OFFICER") {
+                let m = cleanText.match(/LP\d+/i);
+                if (m) {
+                    const nidEl = document.getElementById('loginNoonId');
+                    if (nidEl) nidEl.value = m[0];
+                    matched = true;
+                }
+            }
+
+            if (status) {
+                status.innerHTML = matched ? "✅ Extracted — please double-check the fields" : "⚠️ Couldn't confidently read this image";
+                status.style.color = matched ? "var(--success-color)" : "#ef4444";
+            }
+        } catch (e) { 
+            if (status) { status.innerHTML = "❌ OCR Failed"; status.style.color = "#ef4444"; }
+        }
     }
 
     function handleFileSelected(inputEl, statusContainerId, scanType) { 
@@ -1753,7 +1829,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "2.3";
+    const CURRENT_APP_VERSION = "2.4";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
