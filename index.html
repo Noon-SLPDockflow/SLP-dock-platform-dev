@@ -40,7 +40,6 @@
         .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); position: relative; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
         
-        /* Layout Adjustments */
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 260px; }
         html[dir="rtl"] .nav-item { border-left: none; border-right: 3px solid transparent; }
@@ -53,7 +52,6 @@
             .nav-item { justify-content: center; padding: 0.85rem 0; width: 100%; border-left: none; border-bottom: 3px solid transparent; }
             .nav-item.active { border-left: none; border-bottom: 3px solid var(--accent-color); }
             .main-content { margin-left: 75px; width: calc(100% - 75px); padding: 1.5rem 1rem; }
-            .desktop-nav-btn { display: none !important; }
         }
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; align-items: flex-start; padding: 1.5rem 1rem; }
@@ -150,24 +148,28 @@
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
             <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;">
-                <button type="button" onclick="toggleLoginLanguage()" style="background: transparent; color: var(--accent-color); border: 1px solid rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
+                <button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color, #fcc200); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
             </div>
             <div class="login-tabs">
-                <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ Guard</button>
-                <button class="login-tab" onclick="switchLoginMode('ops', this)">📊 Operations</button>
-                <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ Admin</button>
+                <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ <span data-i18n="Guard">Guard</span></button>
+                <button class="login-tab" onclick="switchLoginMode('ops', this)">📊 <span data-i18n="Operations">Operations</span></button>
+                <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
             </div>
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                <div class="scan-box-dashed" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
-                    <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">🛡️</span><span class="label-text" id="loginOfficerStatus">Scan Security ID</span></div>
+                <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
+                    <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">🛡️</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
-                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 Use Camera</div>
+                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                 </div>
-                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center;">
-                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center;">
-                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center;">
+                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name">
+                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID">
+                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Authorized Noon Email">
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
-                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center;">
+                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);">
+                </div>
+                <div id="opsAccessStatusMsg" style="display:none; background:rgba(252,194,0,0.15); border:1px solid rgba(252,194,0,0.3); padding:1rem; border-radius:6px; text-align:center;">
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Don't have access yet? Request it from an admin.</p>
+                    <button type="button" onclick="var name=document.getElementById('loginName').value; var email=document.getElementById('loginEmail').value; if(!name||!email){alert('Please fill in Name and Email first');return;} requestOpsAccess(name, email);" style="background:var(--accent-color); color:#000; border:none; padding:0.6rem 1.25rem; border-radius:4px; cursor:pointer; font-weight:700; font-size:0.75rem; text-transform:uppercase;">🔔 Request Access</button>
                 </div>
                 <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem;">AUTHORIZE ACCESS</button>
             </div>
@@ -185,13 +187,13 @@
         </div>
         <button type="button" class="sidebar-refresh-btn" onclick="location.reload();">🔄 Refresh</button>
         <ul class="nav-links">
-            <li class="nav-item active" onclick="switchView('dashboard', this)"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></li>
-            <li class="nav-item" onclick="switchView('analytics', this)"><span class="nav-icon">📈</span><span class="nav-text">Analytics</span></li>
-            <li class="nav-item" onclick="switchView('checkin', this)"><span class="nav-icon">🚛</span><span class="nav-text">Check-in Truck</span></li>
-            <li class="nav-item" onclick="switchView('active-trucks', this)"><span class="nav-icon">⏱️</span><span class="nav-text">Active Trucks</span></li>
-            <li class="nav-item" onclick="switchView('history', this)"><span class="nav-icon">📜</span><span class="nav-text">History Log</span></li>
-            <li class="nav-item" onclick="switchView('drivers', this)"><span class="nav-icon">🪪</span><span class="nav-text">Drivers Database</span></li>
-            <li class="nav-item" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text">Security Guard Database</span></li>
+            <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></li>
+            <li class="nav-item" id="nav-analytics" onclick="switchView('analytics', this)"><span class="nav-icon">📈</span><span class="nav-text">Analytics</span></li>
+            <li class="nav-item" id="nav-checkin" onclick="switchView('checkin', this)"><span class="nav-icon">🚛</span><span class="nav-text">Check-in Truck</span></li>
+            <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)"><span class="nav-icon">⏱️</span><span class="nav-text">Active Trucks</span></li>
+            <li class="nav-item" id="nav-history" onclick="switchView('history', this)"><span class="nav-icon">📜</span><span class="nav-text">History Log</span></li>
+            <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)"><span class="nav-icon">🪪</span><span class="nav-text">Drivers Database</span></li>
+            <li class="nav-item" id="nav-security" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text">Security Guard Database</span></li>
         </ul>
         <div class="sidebar-footer">
             <div class="system-health">
@@ -249,7 +251,7 @@
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
                     </div>
-                    <div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()">
+                    <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
                         <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
@@ -269,7 +271,7 @@
                             <div class="form-group"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled"></div>
                             
                             <div class="form-section-divider">Security & Facility Details</div>
-                            <div class="form-group" style="position: relative;">
+                            <div class="form-group" id="securityDropdownWrapper" style="position: relative;">
                                 <label class="badge-style">Security Name *</label>
                                 <input type="text" id="securityNameField" class="input-box-styled" required autocomplete="off">
                                 <div id="securitySuggestionsList" class="suggestions-dropdown"></div>
@@ -310,7 +312,7 @@
         <div id="view-history" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div>
-                <button class="btn-excel" onclick="exportHistoryToExcel()">⤓ Export to Excel</button>
+                <button class="btn-excel" id="btnExportExcel" onclick="exportHistoryToExcel()">⤓ Export to Excel</button>
             </div>
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
@@ -386,6 +388,7 @@
     let currentLang = 'en';
     const API_URL = "https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
     const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
+    const allowedEmails = ["ruh01dock.security1@noon.com","ruh01dock.security2@noon.com","ruh01dock.security3@noon.com","ruh01dock.security4@noon.com","ruh01dock.security5@noon.com","ruh01dock.security6@noon.com","ruh01dock.security7@noon.com","ruh01dock.security8@noon.com","ruh01dock.security9@noon.com","ruh01dock.security10@noon.com","ruh01dock.security11@noon.com","ruh01dock.security12@noon.com","ruh01dock.security13@noon.com","ruh01dock.security14@noon.com","fsbutt@noon.com"];
     
     let globalLogsCache = [];
     let driversRegistryList = [];
@@ -406,6 +409,8 @@
     let currentLoginMode = 'guard';
     let isConfirmingState = false;
     let currentSignOutContext = null;
+    let accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
+    let approvedOpsEmails = JSON.parse(localStorage.getItem('SLP_APPROVED_OPS_EMAILS')) || [];
     
     let cameraStream = null;
     let cameraTargetStatusId = null;
@@ -429,33 +434,44 @@
 
     function switchView(viewId, element) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
-        document.getElementById('view-' + viewId).classList.add('active-view');
+        const targetView = document.getElementById('view-' + viewId);
+        if (targetView) targetView.classList.add('active-view');
         if (element) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
         }
         if (window.innerWidth <= 768) {
-            document.getElementById('appSidebar').classList.remove('mobile-open');
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebar) sidebar.classList.remove('mobile-open');
         }
     }
 
     function toggleSidebar() {
         const sidebar = document.getElementById('appSidebar');
+        if (!sidebar) return;
         if (window.innerWidth <= 768) {
             sidebar.classList.toggle('mobile-open');
         } else {
             sidebar.classList.toggle('hidden');
-            document.getElementById('mainContentArea').classList.toggle('expanded');
+            const main = document.getElementById('mainContentArea');
+            if (main) main.classList.toggle('expanded');
         }
     }
 
     function switchLoginMode(mode, btn) {
         currentLoginMode = mode;
         document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('loginScanBox').style.display = (mode === 'admin' || mode === 'ops') ? 'none' : 'block';
-        document.getElementById('loginNoonId').style.display = (mode === 'admin' || mode === 'ops') ? 'none' : 'block';
-        document.getElementById('adminPasswordContainer').style.display = (mode === 'admin') ? 'block' : 'none';
+        if (btn) btn.classList.add('active');
+        
+        const scanBox = document.getElementById('loginScanBox');
+        const noonId = document.getElementById('loginNoonId');
+        const pass = document.getElementById('adminPasswordContainer');
+        const opsMsg = document.getElementById('opsAccessStatusMsg');
+
+        if (scanBox) scanBox.style.display = (mode === 'admin' || mode === 'ops') ? 'none' : 'block';
+        if (noonId) noonId.style.display = (mode === 'admin' || mode === 'ops') ? 'none' : 'block';
+        if (pass) pass.style.display = (mode === 'admin') ? 'block' : 'none';
+        if (opsMsg) opsMsg.style.display = (mode === 'ops') ? 'block' : 'none';
     }
 
     function executeLogin(name, email, noonId, role, isInitialLoad = false) {
@@ -463,32 +479,56 @@
         if (!isInitialLoad) {
             localStorage.setItem('noonSlpUserSession', JSON.stringify({ name, email, noonId, role, loginTime: Date.now() }));
         }
-        document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-        document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-        document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
-        document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
-        
+
+        const navDash = document.getElementById('nav-dashboard');
+        const navAnalytics = document.getElementById('nav-analytics');
+        const navCheckin = document.getElementById('nav-checkin');
+        const navActive = document.getElementById('nav-active-trucks');
+        const navHistory = document.getElementById('nav-history');
+        const navDrivers = document.getElementById('nav-drivers');
+        const navSecurity = document.getElementById('nav-security');
+        const btnExcel = document.getElementById('btnExportExcel');
+
+        if (navDash) navDash.style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
+        if (navAnalytics) navAnalytics.style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
+        if (navCheckin) navCheckin.style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+        if (navActive) navActive.style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+        if (navHistory) navHistory.style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+        if (navDrivers) navDrivers.style.display = (role === 'admin') ? 'flex' : 'none';
+        if (navSecurity) navSecurity.style.display = (role === 'admin') ? 'flex' : 'none';
+        if (btnExcel) btnExcel.style.display = (role === 'admin') ? 'block' : 'none';
+
         if (role === 'guard') {
-            document.getElementById('securityNameField').value = name;
-            document.getElementById('securityNameId').value = noonId;
+            const secName = document.getElementById('securityNameField');
+            const secId = document.getElementById('securityNameId');
+            if (secName) secName.value = name;
+            if (secId) secId.value = noonId;
         }
 
         const overlay = document.getElementById('introOverlay');
         if (isInitialLoad) {
-            overlay.style.display = 'none';
-            switchView((role === 'ops') ? 'dashboard' : 'checkin', document.getElementById((role === 'ops') ? 'nav-dashboard' : 'nav-checkin'));
+            if (overlay) overlay.style.display = 'none';
+            switchView((role === 'ops') ? 'dashboard' : 'checkin', (role === 'ops') ? navDash : navCheckin);
         } else {
-            document.getElementById('customLoginBox').style.display = 'none';
-            document.querySelector('.login-tabs').style.display = 'none';
-            document.getElementById('authStatus').style.display = 'block';
+            const loginBox = document.getElementById('customLoginBox');
+            const tabs = document.querySelector('.login-tabs');
+            const statusBox = document.getElementById('authStatus');
+            const authText = document.getElementById('authText');
+
+            if (loginBox) loginBox.style.display = 'none';
+            if (tabs) tabs.style.display = 'none';
+            if (statusBox) statusBox.style.display = 'block';
+
             setTimeout(() => {
-                document.getElementById('authText').innerText = "SUCCESS";
-                document.getElementById('authText').style.color = "#2ea043";
+                if (authText) {
+                    authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
+                    authText.style.color = "var(--success-color)";
+                }
                 setTimeout(() => {
-                    overlay.style.opacity = '0';
+                    if (overlay) overlay.style.opacity = '0';
                     setTimeout(() => {
-                        overlay.style.display = 'none';
-                        switchView((role === 'ops') ? 'dashboard' : 'checkin', document.getElementById((role === 'ops') ? 'nav-dashboard' : 'nav-checkin'));
+                        if (overlay) overlay.style.display = 'none';
+                        switchView((role === 'ops') ? 'dashboard' : 'checkin', (role === 'ops') ? navDash : navCheckin);
                     }, 500);
                 }, 800);
             }, 800);
@@ -503,8 +543,8 @@
     document.addEventListener("DOMContentLoaded", () => {
         // Init Docks
         const dockSelect = document.getElementById('dockNumber');
-        for (let i = 15; i <= 90; i++) {
-            dockSelect.innerHTML += `<option value="${i}">${i}</option>`;
+        if (dockSelect) {
+            for (let i = 15; i <= 90; i++) dockSelect.innerHTML += `<option value="${i}">${i}</option>`;
         }
         
         // Session Check
@@ -516,38 +556,45 @@
         }
 
         // Login Submit
-        document.getElementById('customSignInBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('loginName').value.trim();
-            const email = document.getElementById('loginEmail').value.trim();
-            const noonId = document.getElementById('loginNoonId').value.trim();
-            const pass = document.getElementById('adminPassword').value;
-            
-            if (currentLoginMode === 'admin') {
-                if (pass === 'NoonCCTVSLP#2026') executeLogin(name, email, '', 'admin', false);
-                else alert("Incorrect Password");
-            } else if (currentLoginMode === 'ops') {
-                if (email.endsWith('noon.com')) executeLogin(name, email, '', 'ops', false);
-                else alert("Must use noon.com email");
-            } else {
-                executeLogin(name, email, noonId, 'guard', false);
-            }
-        });
+        const btnSignIn = document.getElementById('customSignInBtn');
+        if (btnSignIn) {
+            btnSignIn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('loginName').value.trim();
+                const email = document.getElementById('loginEmail').value.trim();
+                const noonId = document.getElementById('loginNoonId').value.trim();
+                const pass = document.getElementById('adminPassword').value;
+                
+                if (currentLoginMode === 'admin') {
+                    if (pass === 'NoonCCTVSLP#2026') executeLogin(name, email, '', 'admin', false);
+                    else alert("Incorrect Password");
+                } else if (currentLoginMode === 'ops') {
+                    if (email.toLowerCase().endsWith('noon.com')) executeLogin(name, email, '', 'ops', false);
+                    else alert("Must use valid noon.com email");
+                } else {
+                    executeLogin(name, email, noonId, 'guard', false);
+                }
+            });
+        }
         
         // Dispatch Listener
-        document.getElementById('dispatchSelect').addEventListener('change', function() {
-            const isReceiving = this.value === 'Receiving';
-            document.getElementById('itemPhotoWrapper').style.display = isReceiving ? 'block' : 'none';
-            if(isReceiving) {
-                document.getElementById('scanBoxIqama').style.display = 'none';
-            } else {
-                document.getElementById('scanBoxIqama').style.display = 'block';
-            }
-        });
+        const dispatchSel = document.getElementById('dispatchSelect');
+        if (dispatchSel) {
+            dispatchSel.addEventListener('change', function() {
+                const isReceiving = this.value === 'Receiving';
+                const wrapper = document.getElementById('itemPhotoWrapper');
+                const iqamaBox = document.getElementById('scanBoxIqama');
+                if (wrapper) wrapper.style.display = isReceiving ? 'block' : 'none';
+                if (iqamaBox) iqamaBox.style.display = isReceiving ? 'none' : 'block';
+            });
+        }
 
         // Search Autocomplete Listeners
-        document.getElementById('driverSearchBox').addEventListener('input', function() { renderDriverSuggestions(this.value); });
-        document.getElementById('securityNameField').addEventListener('input', function() { renderSecuritySuggestions(this.value); });
+        const drvSearch = document.getElementById('driverSearchBox');
+        if (drvSearch) drvSearch.addEventListener('input', function() { renderDriverSuggestions(this.value); });
+        
+        const secField = document.getElementById('securityNameField');
+        if (secField) secField.addEventListener('input', function() { renderSecuritySuggestions(this.value); });
         
         // Fetch Initial Data
         fetchLogs();
@@ -559,78 +606,88 @@
             const timeStr = String(d.getHours() % 12 || 12) + ":" + String(d.getMinutes()).padStart(2, '0');
             const b = document.getElementById('heroTimeBadge'); if (b) b.innerText = timeStr;
         }, 1000);
-        
-        setTimeout(checkForNewCode, 5000);
-        setInterval(checkForNewCode, 120000);
     });
 
     // --- MAIN FORM SUBMISSION ---
-    document.getElementById('entryForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const btn = document.querySelector('.submit-btn-global');
-        btn.innerText = "⏳ Processing..."; btn.disabled = true;
-        
-        const payload = {
-            action: 'checkin',
-            driverName: document.getElementById('driverName').value,
-            iqamaNumber: document.getElementById('iqamaNumber').value,
-            plateNumber: document.getElementById('plateNumber').value,
-            mobileNumber: document.getElementById('mobileNumber').value || "N/A",
-            securityName: document.getElementById('securityNameField').value,
-            dockNumber: document.getElementById('dockNumber').value,
-            direction: document.getElementById('direction').value,
-            dispatchType: document.getElementById('dispatchSelect').value,
-            noonEmployeeId: document.getElementById('noonEmployeeId').value || "N/A",
-            boxCount: document.getElementById('boxCount').value || "0",
-            securityId: document.getElementById('securityNameId').value,
-            driverPhoto: temporaryCapturedImage || "",
-            checkInItemPhoto: temporaryCapturedItemImage || ""
-        };
+    const entryForm = document.getElementById('entryForm');
+    if (entryForm) {
+        entryForm.addEventListener('submit', (e) => {
+            e.preventDefault(); const btn = document.querySelector('.submit-btn-global');
+            if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
+            
+            const payload = {
+                action: 'checkin',
+                driverName: document.getElementById('driverName').value,
+                iqamaNumber: document.getElementById('iqamaNumber').value,
+                plateNumber: document.getElementById('plateNumber').value,
+                mobileNumber: document.getElementById('mobileNumber').value || "N/A",
+                securityName: document.getElementById('securityNameField').value,
+                dockNumber: document.getElementById('dockNumber').value,
+                direction: document.getElementById('direction').value,
+                dispatchType: document.getElementById('dispatchSelect').value,
+                noonEmployeeId: document.getElementById('noonEmployeeId').value || "N/A",
+                boxCount: document.getElementById('boxCount').value || "0",
+                securityId: document.getElementById('securityNameId').value,
+                driverPhoto: temporaryCapturedImage || "",
+                checkInItemPhoto: temporaryCapturedItemImage || ""
+            };
 
-        fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
-        
-        // Instant Local Update
-        payload.checkInTime = new Date().toISOString();
-        globalLogsCache.unshift(payload);
-        window.handleLogsResponse({logs: globalLogsCache, ops: window.globalSystemLogs});
-        
-        document.getElementById('entryForm').reset();
-        document.getElementById('securityNameField').value = loggedInUser.name;
-        document.getElementById('securityNameId').value = loggedInUser.noonId || '';
-        temporaryCapturedImage = null; temporaryCapturedItemImage = null;
-        
-        btn.innerText = "CHECK IN TRUCK"; btn.disabled = false;
-        switchView('active-trucks');
-    });
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
+            
+            // Instant Local Update
+            payload.checkInTime = new Date().toISOString();
+            globalLogsCache.unshift(payload);
+            window.handleLogsResponse({logs: globalLogsCache, ops: window.globalSystemLogs});
+            
+            entryForm.reset();
+            document.getElementById('securityNameField').value = loggedInUser.name;
+            document.getElementById('securityNameId').value = loggedInUser.noonId || '';
+            temporaryCapturedImage = null; temporaryCapturedItemImage = null;
+            
+            if (btn) { btn.innerText = "CHECK IN TRUCK"; btn.disabled = false; }
+            switchView('active-trucks', document.getElementById('nav-active-trucks'));
+        });
+    }
 
     // --- CHECK OUT ---
     function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
         currentSignOutContext = { driverName, plateNumber, dockNumber, dispatchType };
-        document.getElementById('signOutModalSubtext').innerText = "Vehicle: " + plateNumber;
-        document.getElementById('checkoutScanners').style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
-        document.getElementById('signOutModal').classList.add('modal-active');
+        const subtext = document.getElementById('signOutModalSubtext');
+        if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
+        
+        const sc = document.getElementById('checkoutScanners');
+        if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
+        
+        const modal = document.getElementById('signOutModal');
+        if (modal) modal.classList.add('modal-active');
     }
 
-    function closeSignOutModal() { document.getElementById('signOutModal').classList.remove('modal-active'); }
+    function closeSignOutModal() {
+        const modal = document.getElementById('signOutModal');
+        if (modal) modal.classList.remove('modal-active');
+    }
 
-    document.getElementById('btnConfirmSignOut').addEventListener('click', () => {
-        const btn = document.getElementById('btnConfirmSignOut'); btn.innerText = "⏳..."; btn.disabled = true;
-        const seal = document.getElementById('signOutSeal').value;
-        const payload = {
-            action: "checkout", driverName: currentSignOutContext.driverName, plateNumber: currentSignOutContext.plateNumber,
-            sealNumber: seal, truckPhoto: tempCheckoutTruckPhoto || "", itemPhoto: tempCheckoutItemPhoto || ""
-        };
-        fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        
-        // Fast Local Update
-        let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
-        if (match) { match.checkOutTime = new Date().toISOString(); match.sealNumber = seal; }
-        
-        window.handleLogsResponse({logs: globalLogsCache, ops: window.globalSystemLogs});
-        closeSignOutModal(); btn.innerText = "CONFIRM CHECK OUT"; btn.disabled = false;
-    });
+    const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
+    if (btnConfirmSignOut) {
+        btnConfirmSignOut.addEventListener('click', () => {
+            btnConfirmSignOut.innerText = "⏳..."; btnConfirmSignOut.disabled = true;
+            const sealInput = document.getElementById('signOutSeal');
+            const seal = sealInput ? sealInput.value : '';
+            const payload = {
+                action: "checkout", driverName: currentSignOutContext.driverName, plateNumber: currentSignOutContext.plateNumber,
+                sealNumber: seal, truckPhoto: tempCheckoutTruckPhoto || "", itemPhoto: tempCheckoutItemPhoto || ""
+            };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            
+            let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
+            if (match) { match.checkOutTime = new Date().toISOString(); match.sealNumber = seal; }
+            
+            window.handleLogsResponse({logs: globalLogsCache, ops: window.globalSystemLogs});
+            closeSignOutModal(); btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
+        });
+    }
 
-    // --- DATA HANDLING (DOM BATCHING) ---
+    // --- DATA HANDLING ---
     let isFetchingLogs = false;
     function fetchLogs() {
         if (isFetchingLogs) return; isFetchingLogs = true;
@@ -652,15 +709,20 @@
         globalLogsCache = rawLogs.sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
         
         const activeList = globalLogsCache.filter(r => !r.checkOutTime);
-        document.getElementById('metric-total-checkins').innerText = globalLogsCache.length;
-        document.getElementById('metric-active-now').innerText = activeList.length;
-        document.getElementById('activeYardCounter').innerText = activeList.length;
+        const mTotal = document.getElementById('metric-total-checkins');
+        const mActive = document.getElementById('metric-active-now');
+        const yardCounter = document.getElementById('activeYardCounter');
+        
+        if (mTotal) mTotal.innerText = globalLogsCache.length;
+        if (mActive) mActive.innerText = activeList.length;
+        if (yardCounter) yardCounter.innerText = activeList.length;
         
         let activeHtml = '';
         activeList.forEach(r => {
             activeHtml += `<tr><td>${r.driverName}</td><td>${r.plateNumber}</td><td>${(r.direction||'').split('-')[0]}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${r.driverName}', '${r.plateNumber}', '${r.securityName}', '${r.dockNumber}', '${r.dispatchType}')">OUT</button></td></tr>`;
         });
-        document.getElementById('activeYardTableBody').innerHTML = activeHtml || `<tr><td colspan="6" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
+        const yardTable = document.getElementById('activeYardTableBody');
+        if (yardTable) yardTable.innerHTML = activeHtml || `<tr><td colspan="6" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
         
         applyHistoryFilters();
         applyAnalyticsFilters();
@@ -675,30 +737,26 @@
     const debouncedFilterRegistryCards = debounce(filterRegistryCards, 300);
     const debouncedFilterSecurityCards = debounce(filterSecurityCards, 300);
 
-    function isDateInRange(dateValue, range, now, fromStr, toStr) {
-        if (!dateValue) return false; const refDate = new Date(dateValue);
-        if (range === 'all') return true;
-        if (range === 'today') return refDate.toDateString() === now.toDateString();
-        return true; // Simplified for speed on tablets
-    }
-
     function applyHistoryFilters() {
-        let query = document.getElementById('historySearchQuery').value.toLowerCase().trim();
+        const input = document.getElementById('historySearchQuery');
+        let query = input ? input.value.toLowerCase().trim() : '';
         let html = '';
         let count = 0;
         for (let i = 0; i < globalLogsCache.length; i++) {
-            if (count >= 100) break; // Limit render size for tablet
+            if (count >= 100) break;
             let r = globalLogsCache[i];
             if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
             
             html += `<tr><td>${r.driverName}</td><td>${r.plateNumber}</td><td>${(r.direction||'').split('-')[0]}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : '<span style="color:var(--accent-color);">Inside</span>'}</td><td>--</td></tr>`;
             count++;
         }
-        document.getElementById('historyLogTableBody').innerHTML = html || `<tr><td colspan="7" style="text-align:center;">No records match</td></tr>`;
+        const hTable = document.getElementById('historyLogTableBody');
+        if (hTable) hTable.innerHTML = html || `<tr><td colspan="7" style="text-align:center;">No records match</td></tr>`;
     }
 
     function filterActiveTrucks() {
-        let query = document.getElementById('yardSearchQuery').value.toLowerCase().trim();
+        const input = document.getElementById('yardSearchQuery');
+        let query = input ? input.value.toLowerCase().trim() : '';
         document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
             row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
         });
@@ -733,17 +791,19 @@
         if (!container) return;
         let html = '';
         driversRegistryList.slice(0, 50).forEach(d => {
-            html += `<div class="card driver-card" data-name="${d.driverName.toLowerCase()}" data-plate="${(d.plateNumber||'').toLowerCase()}"><h3>${d.driverName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">Plate: ${d.plateNumber} | ID: ${d.iqamaNumber}</p></div>`;
+            html += `<div class="card driver-card" data-name="${(d.driverName||'').toLowerCase()}" data-plate="${(d.plateNumber||'').toLowerCase()}"><h3>${d.driverName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">Plate: ${d.plateNumber} | ID: ${d.iqamaNumber}</p></div>`;
         });
         container.innerHTML = html;
-        document.getElementById('metric-drivers-count').innerText = driversRegistryList.length;
+        const mDrv = document.getElementById('metric-drivers-count');
+        if (mDrv) mDrv.innerText = driversRegistryList.length;
     }
 
     function filterRegistryCards() {
-        let query = document.getElementById('driverRegistrySearch').value.toLowerCase().trim();
+        const input = document.getElementById('driverRegistrySearch');
+        let query = input ? input.value.toLowerCase().trim() : '';
         document.querySelectorAll('.driver-card').forEach(card => {
-            let name = card.getAttribute('data-name');
-            let plate = card.getAttribute('data-plate');
+            let name = card.getAttribute('data-name') || '';
+            let plate = card.getAttribute('data-plate') || '';
             card.style.display = (name.includes(query) || plate.includes(query)) ? '' : 'none';
         });
     }
@@ -758,22 +818,25 @@
         if (!container) return;
         let html = '';
         securityRegistryList.forEach(g => {
-            html += `<div class="card security-card" data-name="${g.securityName.toLowerCase()}"><h3>${g.securityName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">ID: ${g.securityId}</p></div>`;
+            html += `<div class="card security-card" data-name="${(g.securityName||'').toLowerCase()}"><h3>${g.securityName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">ID: ${g.securityId}</p></div>`;
         });
         container.innerHTML = html;
     }
 
     function filterSecurityCards() {
-        let query = document.getElementById('securityRegistrySearch').value.toLowerCase().trim();
+        const input = document.getElementById('securityRegistrySearch');
+        let query = input ? input.value.toLowerCase().trim() : '';
         document.querySelectorAll('.security-card').forEach(card => {
-            card.style.display = card.getAttribute('data-name').includes(query) ? '' : 'none';
+            let name = card.getAttribute('data-name') || '';
+            card.style.display = name.includes(query) ? '' : 'none';
         });
     }
 
     const renderDriverSuggestions = debounce(function(value) {
-        const listEl = document.getElementById('driverSuggestionsList'); listEl.innerHTML = '';
+        const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
+        listEl.innerHTML = '';
         if (!value) { listEl.classList.remove('open'); return; }
-        let matches = driversRegistryList.filter(d => d.driverName.toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        let matches = driversRegistryList.filter(d => (d.driverName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
         if (matches.length === 0) { listEl.classList.remove('open'); return; }
         matches.forEach(d => {
             const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `${d.driverName}`;
@@ -790,9 +853,10 @@
     }, 250);
 
     const renderSecuritySuggestions = debounce(function(value) {
-        const listEl = document.getElementById('securitySuggestionsList'); listEl.innerHTML = '';
+        const listEl = document.getElementById('securitySuggestionsList'); if (!listEl) return;
+        listEl.innerHTML = '';
         if (!value) { listEl.classList.remove('open'); return; }
-        let matches = securityRegistryList.filter(g => g.securityName.toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        let matches = securityRegistryList.filter(g => (g.securityName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
         if (matches.length === 0) { listEl.classList.remove('open'); return; }
         matches.forEach(g => {
             const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `${g.securityName}`;
@@ -806,22 +870,23 @@
         listEl.classList.add('open');
     }, 250);
 
-    // --- CAMERA & OCR (HUAWEI OPTIMIZED) ---
+    // --- CAMERA & OCR ---
     async function openCamera(statusLabelId, scanType) {
         cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
-        document.getElementById('cameraOverlay').classList.add('open');
+        const overlay = document.getElementById('cameraOverlay');
+        if (overlay) overlay.classList.add('open');
         try {
             cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1024 }, height: { ideal: 768 }, frameRate: { ideal: 15 } } });
-            document.getElementById('cameraVideo').srcObject = cameraStream;
+            const video = document.getElementById('cameraVideo');
+            if (video) video.srcObject = cameraStream;
         } catch (err) { alert('Camera access failed.'); closeCamera(); }
     }
 
-    async function openCheckoutCamera(statusLabelId, scanType) {
-        openCamera(statusLabelId, scanType);
-    }
+    function openCheckoutCamera(statusLabelId, scanType) { openCamera(statusLabelId, scanType); }
 
     function closeCamera() {
-        document.getElementById('cameraOverlay').classList.remove('open');
+        const overlay = document.getElementById('cameraOverlay');
+        if (overlay) overlay.classList.remove('open');
         if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
     }
 
@@ -838,7 +903,8 @@
                     if (currentScanType === 'truck' || currentScanType === 'item') {
                         if (currentScanType === 'truck') tempCheckoutTruckPhoto = blob;
                         if (currentScanType === 'item') tempCheckoutItemPhoto = blob;
-                        document.getElementById(currentStatusId).innerText = "✅ Attached";
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
                     } else {
                         temporaryCapturedImage = reader.result; 
                         runLocalOcrEngine(blob, currentStatusId, currentScanType); 
@@ -852,7 +918,7 @@
     function handleCameraCancel() { closeCamera(); }
 
     async function runLocalOcrEngine(file, statusLabelId, scanType) {
-        const status = document.getElementById(statusLabelId); status.innerHTML = "🌀 Processing...";
+        const status = document.getElementById(statusLabelId); if (status) status.innerHTML = "🌀 Processing...";
         try {
             const reader = new FileReader(); reader.readAsDataURL(file);
             reader.onloadend = async () => {
@@ -864,10 +930,15 @@
                     if (scanType === 'IQAMA') { let m = clean.match(/\b[12]\d{9}\b/); if (m) document.getElementById('iqamaNumber').value = m[0]; }
                     if (scanType === 'PLATE') { let m = clean.match(/\b\d{3,4}\b/); if (m) document.getElementById('plateNumber').value = m[0] + " KSA"; }
                     if (scanType === 'LOGIN_OFFICER') { let m = clean.match(/LP\d+/i); if (m) document.getElementById('loginNoonId').value = m[0]; }
-                    status.innerHTML = "✅ Attached & Read"; status.style.color = "var(--success-color)";
-                } else { status.innerHTML = "⚠️ Captured (No Text)"; }
+                    if (status) { status.innerHTML = "✅ Attached & Read"; status.style.color = "var(--success-color)"; }
+                } else { if (status) status.innerHTML = "⚠️ Captured (No Text)"; }
             };
-        } catch (e) { status.innerHTML = "❌ Failed"; }
+        } catch (e) { if (status) status.innerHTML = "❌ Failed"; }
+    }
+
+    function handleFileSelected(inputEl, statusContainerId, scanType) { 
+        if (inputEl.files && inputEl.files[0]) runLocalOcrEngine(inputEl.files[0], statusContainerId, scanType); 
+        inputEl.value = ''; 
     }
 
     function handleCheckoutPhoto(inputEl, statusContainerId, scanType) {
@@ -875,17 +946,19 @@
         if (!file) return;
         if (scanType === 'truck') tempCheckoutTruckPhoto = file;
         if (scanType === 'item') tempCheckoutItemPhoto = file;
-        document.getElementById(statusContainerId).innerHTML = "✅ Attached";
+        const statusEl = document.getElementById(statusContainerId);
+        if (statusEl) statusEl.innerHTML = "✅ Attached";
     }
 
-    const CURRENT_APP_VERSION = "1.2";
+    const CURRENT_APP_VERSION = "1.3";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
             .then(html => { 
                 const match = html.match(/const CURRENT_APP_VERSION = "([^"]+)";/); 
                 if (match && match[1] !== CURRENT_APP_VERSION) { 
-                    document.getElementById('updateAppBtn').style.display = 'flex'; 
+                    const btn = document.getElementById('updateAppBtn');
+                    if (btn) btn.style.display = 'flex'; 
                 } 
             }).catch(() => { });
     }
