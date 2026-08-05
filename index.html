@@ -40,6 +40,7 @@
         .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); position: relative; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
         
+        /* Layout Adjustments */
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 260px; }
         html[dir="rtl"] .nav-item { border-left: none; border-right: 3px solid transparent; }
@@ -148,28 +149,24 @@
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
             <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;">
-                <button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color, #fcc200); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
+                <button type="button" onclick="toggleLoginLanguage()" style="background: transparent; color: var(--accent-color); border: 1px solid rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
             </div>
             <div class="login-tabs">
-                <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ <span data-i18n="Guard">Guard</span></button>
-                <button class="login-tab" onclick="switchLoginMode('ops', this)">📊 <span data-i18n="Operations">Operations</span></button>
-                <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
+                <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ Guard</button>
+                <button class="login-tab" onclick="switchLoginMode('ops', this)">📊 Operations</button>
+                <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ Admin</button>
             </div>
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
                 <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
-                    <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">🛡️</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
+                    <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">🛡️</span><span class="label-text" id="loginOfficerStatus">Scan Security ID</span></div>
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
-                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 Use Camera</div>
                 </div>
-                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name">
-                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID">
-                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Authorized Noon Email">
+                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center;">
+                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center;">
+                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center;">
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
-                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);">
-                </div>
-                <div id="opsAccessStatusMsg" style="display:none; background:rgba(252,194,0,0.15); border:1px solid rgba(252,194,0,0.3); padding:1rem; border-radius:6px; text-align:center;">
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Don't have access yet? Request it from an admin.</p>
-                    <button type="button" onclick="var name=document.getElementById('loginName').value; var email=document.getElementById('loginEmail').value; if(!name||!email){alert('Please fill in Name and Email first');return;} requestOpsAccess(name, email);" style="background:var(--accent-color); color:#000; border:none; padding:0.6rem 1.25rem; border-radius:4px; cursor:pointer; font-weight:700; font-size:0.75rem; text-transform:uppercase;">🔔 Request Access</button>
+                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center;">
                 </div>
                 <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem;">AUTHORIZE ACCESS</button>
             </div>
@@ -251,7 +248,7 @@
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
                     </div>
-                    <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
+                    <div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()">
                         <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
@@ -271,7 +268,7 @@
                             <div class="form-group"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled"></div>
                             
                             <div class="form-section-divider">Security & Facility Details</div>
-                            <div class="form-group" id="securityDropdownWrapper" style="position: relative;">
+                            <div class="form-group" style="position: relative;">
                                 <label class="badge-style">Security Name *</label>
                                 <input type="text" id="securityNameField" class="input-box-styled" required autocomplete="off">
                                 <div id="securitySuggestionsList" class="suggestions-dropdown"></div>
@@ -312,15 +309,10 @@
         <div id="view-history" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div>
-                <button class="btn-excel" id="btnExportExcel" onclick="exportHistoryToExcel()">⤓ Export to Excel</button>
             </div>
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate..." oninput="debouncedApplyHistoryFilters()"></div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <input type="date" id="customDateFrom" style="background:#0d1117; border:1px solid #333; color:#fff; padding:0.4rem; border-radius:4px;">
-                        <button onclick="applyHistoryFilters()" style="background:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:4px; font-weight:bold; cursor:pointer;">Apply</button>
-                    </div>
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="historyLogTable">
@@ -388,16 +380,11 @@
     let currentLang = 'en';
     const API_URL = "https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
     const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
-    const allowedEmails = ["ruh01dock.security1@noon.com","ruh01dock.security2@noon.com","ruh01dock.security3@noon.com","ruh01dock.security4@noon.com","ruh01dock.security5@noon.com","ruh01dock.security6@noon.com","ruh01dock.security7@noon.com","ruh01dock.security8@noon.com","ruh01dock.security9@noon.com","ruh01dock.security10@noon.com","ruh01dock.security11@noon.com","ruh01dock.security12@noon.com","ruh01dock.security13@noon.com","ruh01dock.security14@noon.com","fsbutt@noon.com"];
     
     let globalLogsCache = [];
     let driversRegistryList = [];
     let securityRegistryList = [];
-    let globalHistoryListCache = [];
     window.globalSystemLogs = [];
-    window.hasFetchedLogs = false;
-    let currentHistoryDateRange = 'all';
-    let currentAnalyticsDateRange = 'weekly';
     
     let temporaryCapturedImage = null;
     let temporaryCapturedItemImage = null;
@@ -409,8 +396,6 @@
     let currentLoginMode = 'guard';
     let isConfirmingState = false;
     let currentSignOutContext = null;
-    let accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
-    let approvedOpsEmails = JSON.parse(localStorage.getItem('SLP_APPROVED_OPS_EMAILS')) || [];
     
     let cameraStream = null;
     let cameraTargetStatusId = null;
@@ -432,14 +417,21 @@
     
     function toggleLoginLanguage() { toggleLang(); }
 
+    function setDisplay(id, displayValue) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = displayValue;
+    }
+
     function switchView(viewId, element) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
         const targetView = document.getElementById('view-' + viewId);
         if (targetView) targetView.classList.add('active-view');
+        
         if (element) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
         }
+        
         if (window.innerWidth <= 768) {
             const sidebar = document.getElementById('appSidebar');
             if (sidebar) sidebar.classList.remove('mobile-open');
@@ -463,40 +455,28 @@
         document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
         if (btn) btn.classList.add('active');
         
-        const scanBox = document.getElementById('loginScanBox');
-        const noonId = document.getElementById('loginNoonId');
-        const pass = document.getElementById('adminPasswordContainer');
-        const opsMsg = document.getElementById('opsAccessStatusMsg');
-
-        if (scanBox) scanBox.style.display = (mode === 'admin' || mode === 'ops') ? 'none' : 'block';
-        if (noonId) noonId.style.display = (mode === 'admin' || mode === 'ops') ? 'none' : 'block';
-        if (pass) pass.style.display = (mode === 'admin') ? 'block' : 'none';
-        if (opsMsg) opsMsg.style.display = (mode === 'ops') ? 'block' : 'none';
+        setDisplay('loginScanBox', (mode === 'admin' || mode === 'ops') ? 'none' : 'block');
+        setDisplay('loginNoonId', (mode === 'admin' || mode === 'ops') ? 'none' : 'block');
+        setDisplay('adminPasswordContainer', (mode === 'admin') ? 'block' : 'none');
+        setDisplay('opsAccessStatusMsg', (mode === 'ops') ? 'block' : 'none');
     }
 
     function executeLogin(name, email, noonId, role, isInitialLoad = false) {
-        loggedInUser = { name, email, noonId }; userRole = role;
+        loggedInUser = { name, email, noonId }; 
+        userRole = role;
+        
         if (!isInitialLoad) {
             localStorage.setItem('noonSlpUserSession', JSON.stringify({ name, email, noonId, role, loginTime: Date.now() }));
         }
 
-        const navDash = document.getElementById('nav-dashboard');
-        const navAnalytics = document.getElementById('nav-analytics');
-        const navCheckin = document.getElementById('nav-checkin');
-        const navActive = document.getElementById('nav-active-trucks');
-        const navHistory = document.getElementById('nav-history');
-        const navDrivers = document.getElementById('nav-drivers');
-        const navSecurity = document.getElementById('nav-security');
-        const btnExcel = document.getElementById('btnExportExcel');
-
-        if (navDash) navDash.style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-        if (navAnalytics) navAnalytics.style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-        if (navCheckin) navCheckin.style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-        if (navActive) navActive.style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-        if (navHistory) navHistory.style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-        if (navDrivers) navDrivers.style.display = (role === 'admin') ? 'flex' : 'none';
-        if (navSecurity) navSecurity.style.display = (role === 'admin') ? 'flex' : 'none';
-        if (btnExcel) btnExcel.style.display = (role === 'admin') ? 'block' : 'none';
+        // Safely set navigation item visibility based on role
+        setDisplay('nav-dashboard', (role === 'admin' || role === 'ops') ? 'flex' : 'none');
+        setDisplay('nav-analytics', (role === 'admin' || role === 'ops') ? 'flex' : 'none');
+        setDisplay('nav-checkin', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
+        setDisplay('nav-active-trucks', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
+        setDisplay('nav-history', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
+        setDisplay('nav-drivers', (role === 'admin') ? 'flex' : 'none');
+        setDisplay('nav-security', (role === 'admin') ? 'flex' : 'none');
 
         if (role === 'guard') {
             const secName = document.getElementById('securityNameField');
@@ -508,18 +488,16 @@
         const overlay = document.getElementById('introOverlay');
         if (isInitialLoad) {
             if (overlay) overlay.style.display = 'none';
-            switchView((role === 'ops') ? 'dashboard' : 'checkin', (role === 'ops') ? navDash : navCheckin);
+            switchView((role === 'ops') ? 'dashboard' : 'checkin', document.getElementById((role === 'ops') ? 'nav-dashboard' : 'nav-checkin'));
         } else {
-            const loginBox = document.getElementById('customLoginBox');
+            setDisplay('customLoginBox', 'none');
             const tabs = document.querySelector('.login-tabs');
-            const statusBox = document.getElementById('authStatus');
-            const authText = document.getElementById('authText');
-
-            if (loginBox) loginBox.style.display = 'none';
             if (tabs) tabs.style.display = 'none';
-            if (statusBox) statusBox.style.display = 'block';
+            
+            setDisplay('authStatus', 'block');
 
             setTimeout(() => {
+                const authText = document.getElementById('authText');
                 if (authText) {
                     authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
                     authText.style.color = "var(--success-color)";
@@ -528,7 +506,7 @@
                     if (overlay) overlay.style.opacity = '0';
                     setTimeout(() => {
                         if (overlay) overlay.style.display = 'none';
-                        switchView((role === 'ops') ? 'dashboard' : 'checkin', (role === 'ops') ? navDash : navCheckin);
+                        switchView((role === 'ops') ? 'dashboard' : 'checkin', document.getElementById((role === 'ops') ? 'nav-dashboard' : 'nav-checkin'));
                     }, 500);
                 }, 800);
             }, 800);
@@ -582,10 +560,8 @@
         if (dispatchSel) {
             dispatchSel.addEventListener('change', function() {
                 const isReceiving = this.value === 'Receiving';
-                const wrapper = document.getElementById('itemPhotoWrapper');
-                const iqamaBox = document.getElementById('scanBoxIqama');
-                if (wrapper) wrapper.style.display = isReceiving ? 'block' : 'none';
-                if (iqamaBox) iqamaBox.style.display = isReceiving ? 'none' : 'block';
+                setDisplay('itemPhotoWrapper', isReceiving ? 'block' : 'none');
+                setDisplay('scanBoxIqama', isReceiving ? 'none' : 'block');
             });
         }
 
@@ -604,7 +580,8 @@
         setInterval(() => {
             const d = new Date();
             const timeStr = String(d.getHours() % 12 || 12) + ":" + String(d.getMinutes()).padStart(2, '0');
-            const b = document.getElementById('heroTimeBadge'); if (b) b.innerText = timeStr;
+            const b = document.getElementById('heroTimeBadge'); 
+            if (b) b.innerText = timeStr;
         }, 1000);
     });
 
@@ -612,7 +589,8 @@
     const entryForm = document.getElementById('entryForm');
     if (entryForm) {
         entryForm.addEventListener('submit', (e) => {
-            e.preventDefault(); const btn = document.querySelector('.submit-btn-global');
+            e.preventDefault(); 
+            const btn = document.querySelector('.submit-btn-global');
             if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
             
             const payload = {
@@ -655,8 +633,7 @@
         const subtext = document.getElementById('signOutModalSubtext');
         if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
         
-        const sc = document.getElementById('checkoutScanners');
-        if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
+        setDisplay('checkoutScanners', (dispatchType === 'Receiving') ? 'none' : 'grid');
         
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.add('modal-active');
@@ -719,7 +696,7 @@
         
         let activeHtml = '';
         activeList.forEach(r => {
-            activeHtml += `<tr><td>${r.driverName}</td><td>${r.plateNumber}</td><td>${(r.direction||'').split('-')[0]}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${r.driverName}', '${r.plateNumber}', '${r.securityName}', '${r.dockNumber}', '${r.dispatchType}')">OUT</button></td></tr>`;
+            activeHtml += `<tr><td>${r.driverName}</td><td>${r.plateNumber}</td><td>${String(r.direction||'').split('-')[0]}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')">OUT</button></td></tr>`;
         });
         const yardTable = document.getElementById('activeYardTableBody');
         if (yardTable) yardTable.innerHTML = activeHtml || `<tr><td colspan="6" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
@@ -747,7 +724,7 @@
             let r = globalLogsCache[i];
             if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
             
-            html += `<tr><td>${r.driverName}</td><td>${r.plateNumber}</td><td>${(r.direction||'').split('-')[0]}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : '<span style="color:var(--accent-color);">Inside</span>'}</td><td>--</td></tr>`;
+            html += `<tr><td>${r.driverName}</td><td>${r.plateNumber}</td><td>${String(r.direction||'').split('-')[0]}</td><td><strong>${r.dockNumber}</strong></td><td>${new Date(r.checkInTime).toLocaleTimeString()}</td><td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : '<span style="color:var(--accent-color);">Inside</span>'}</td><td>--</td></tr>`;
             count++;
         }
         const hTable = document.getElementById('historyLogTableBody');
@@ -758,7 +735,7 @@
         const input = document.getElementById('yardSearchQuery');
         let query = input ? input.value.toLowerCase().trim() : '';
         document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+            row.style.display = String(row.innerText).toLowerCase().includes(query) ? '' : 'none';
         });
     }
 
@@ -791,7 +768,7 @@
         if (!container) return;
         let html = '';
         driversRegistryList.slice(0, 50).forEach(d => {
-            html += `<div class="card driver-card" data-name="${(d.driverName||'').toLowerCase()}" data-plate="${(d.plateNumber||'').toLowerCase()}"><h3>${d.driverName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">Plate: ${d.plateNumber} | ID: ${d.iqamaNumber}</p></div>`;
+            html += `<div class="card driver-card" data-name="${String(d.driverName||'').toLowerCase()}" data-plate="${String(d.plateNumber||'').toLowerCase()}"><h3>${d.driverName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">Plate: ${d.plateNumber} | ID: ${d.iqamaNumber}</p></div>`;
         });
         container.innerHTML = html;
         const mDrv = document.getElementById('metric-drivers-count');
@@ -802,8 +779,8 @@
         const input = document.getElementById('driverRegistrySearch');
         let query = input ? input.value.toLowerCase().trim() : '';
         document.querySelectorAll('.driver-card').forEach(card => {
-            let name = card.getAttribute('data-name') || '';
-            let plate = card.getAttribute('data-plate') || '';
+            let name = String(card.getAttribute('data-name') || '');
+            let plate = String(card.getAttribute('data-plate') || '');
             card.style.display = (name.includes(query) || plate.includes(query)) ? '' : 'none';
         });
     }
@@ -818,7 +795,7 @@
         if (!container) return;
         let html = '';
         securityRegistryList.forEach(g => {
-            html += `<div class="card security-card" data-name="${(g.securityName||'').toLowerCase()}"><h3>${g.securityName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">ID: ${g.securityId}</p></div>`;
+            html += `<div class="card security-card" data-name="${String(g.securityName||'').toLowerCase()}"><h3>${g.securityName}</h3><p style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">ID: ${g.securityId}</p></div>`;
         });
         container.innerHTML = html;
     }
@@ -827,7 +804,7 @@
         const input = document.getElementById('securityRegistrySearch');
         let query = input ? input.value.toLowerCase().trim() : '';
         document.querySelectorAll('.security-card').forEach(card => {
-            let name = card.getAttribute('data-name') || '';
+            let name = String(card.getAttribute('data-name') || '');
             card.style.display = name.includes(query) ? '' : 'none';
         });
     }
@@ -836,15 +813,15 @@
         const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
         listEl.innerHTML = '';
         if (!value) { listEl.classList.remove('open'); return; }
-        let matches = driversRegistryList.filter(d => (d.driverName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        let matches = driversRegistryList.filter(d => String(d.driverName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
         if (matches.length === 0) { listEl.classList.remove('open'); return; }
         matches.forEach(d => {
             const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `${d.driverName}`;
             item.addEventListener('click', () => {
-                document.getElementById('driverSearchBox').value = d.driverName;
-                document.getElementById('driverName').value = d.driverName;
-                document.getElementById('plateNumber').value = d.plateNumber || '';
-                document.getElementById('iqamaNumber').value = d.iqamaNumber || '';
+                const searchBox = document.getElementById('driverSearchBox'); if(searchBox) searchBox.value = d.driverName;
+                const dName = document.getElementById('driverName'); if(dName) dName.value = d.driverName;
+                const pNum = document.getElementById('plateNumber'); if(pNum) pNum.value = d.plateNumber || '';
+                const iqNum = document.getElementById('iqamaNumber'); if(iqNum) iqNum.value = d.iqamaNumber || '';
                 listEl.classList.remove('open');
             });
             listEl.appendChild(item);
@@ -856,13 +833,13 @@
         const listEl = document.getElementById('securitySuggestionsList'); if (!listEl) return;
         listEl.innerHTML = '';
         if (!value) { listEl.classList.remove('open'); return; }
-        let matches = securityRegistryList.filter(g => (g.securityName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        let matches = securityRegistryList.filter(g => String(g.securityName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
         if (matches.length === 0) { listEl.classList.remove('open'); return; }
         matches.forEach(g => {
             const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `${g.securityName}`;
             item.addEventListener('click', () => {
-                document.getElementById('securityNameField').value = g.securityName;
-                document.getElementById('securityNameId').value = g.securityId || '';
+                const secName = document.getElementById('securityNameField'); if(secName) secName.value = g.securityName;
+                const secId = document.getElementById('securityNameId'); if(secId) secId.value = g.securityId || '';
                 listEl.classList.remove('open');
             });
             listEl.appendChild(item);
@@ -927,9 +904,9 @@
                 const result = await response.json();
                 if (result.success && result.text) {
                     let clean = result.text.replace(/[٠-٩]/g, m => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(m)]).toUpperCase();
-                    if (scanType === 'IQAMA') { let m = clean.match(/\b[12]\d{9}\b/); if (m) document.getElementById('iqamaNumber').value = m[0]; }
-                    if (scanType === 'PLATE') { let m = clean.match(/\b\d{3,4}\b/); if (m) document.getElementById('plateNumber').value = m[0] + " KSA"; }
-                    if (scanType === 'LOGIN_OFFICER') { let m = clean.match(/LP\d+/i); if (m) document.getElementById('loginNoonId').value = m[0]; }
+                    if (scanType === 'IQAMA') { let m = clean.match(/\b[12]\d{9}\b/); if (m) { const iq = document.getElementById('iqamaNumber'); if(iq) iq.value = m[0]; } }
+                    if (scanType === 'PLATE') { let m = clean.match(/\b\d{3,4}\b/); if (m) { const pl = document.getElementById('plateNumber'); if(pl) pl.value = m[0] + " KSA"; } }
+                    if (scanType === 'LOGIN_OFFICER') { let m = clean.match(/LP\d+/i); if (m) { const nid = document.getElementById('loginNoonId'); if(nid) nid.value = m[0]; } }
                     if (status) { status.innerHTML = "✅ Attached & Read"; status.style.color = "var(--success-color)"; }
                 } else { if (status) status.innerHTML = "⚠️ Captured (No Text)"; }
             };
@@ -948,19 +925,6 @@
         if (scanType === 'item') tempCheckoutItemPhoto = file;
         const statusEl = document.getElementById(statusContainerId);
         if (statusEl) statusEl.innerHTML = "✅ Attached";
-    }
-
-    const CURRENT_APP_VERSION = "1.3";
-    function checkForNewCode() {
-        fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
-            .then(r => r.text())
-            .then(html => { 
-                const match = html.match(/const CURRENT_APP_VERSION = "([^"]+)";/); 
-                if (match && match[1] !== CURRENT_APP_VERSION) { 
-                    const btn = document.getElementById('updateAppBtn');
-                    if (btn) btn.style.display = 'flex'; 
-                } 
-            }).catch(() => { });
     }
 </script>
 </body>
