@@ -63,6 +63,7 @@
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1rem; }
         
+        /* Compact Footer to Fit All Screen Heights */
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
@@ -564,6 +565,24 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="editDriverModal">
+        <div class="modal-window" style="max-width: 500px;">
+            <div class="modal-header-container"><h2 id="editModalTitle" data-i18n="Edit Driver Record">Edit Driver Record</h2><button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button></div>
+            <div class="modal-body-content">
+                <input type="hidden" id="editOriginalName"><input type="hidden" id="editRecordType" value="driver">
+                <div class="form-group"><label id="editLabelName" class="badge-style" data-i18n="Driver Name *">Driver Name</label><input type="text" id="editName" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group"><label id="editLabelId" class="badge-style" data-i18n="Iqama Number *">Iqama Number</label><input type="text" id="editIqama" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group" id="editPlateGroup"><label class="badge-style" data-i18n="Truck Plate Number *">Plate Number</label><input type="text" id="editPlate" class="input-box-styled" autocomplete="off"></div>
+                <div class="form-group" id="editPhoneGroup"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled" autocomplete="off"></div>
+            </div>
+            <div class="modal-footer-container">
+                <button class="btn-modal-cancel" style="color: var(--danger-color); border-color: var(--danger-color); margin-right: auto;" onclick="deleteDriver()" data-i18n="Delete">Delete</button>
+                <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()" data-i18n="Cancel">Cancel</button>
+                <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()" data-i18n="Save Updates">Save Updates</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="signOutModal">
         <div class="modal-window" style="max-width: 500px;">
             <div class="modal-header-container"><h2 style="color: #fff; font-size: 1.25rem;" data-i18n="CHECK OUT">CHECK OUT</h2><button class="btn-modal-close" onclick="closeSignOutModal()">✕</button></div>
@@ -873,13 +892,6 @@
                 } else {
                     executeLogin(name, email, noonId, 'guard', false);
                 }
-            });
-        }
-        
-        const dispatchSel = document.getElementById('dispatchSelect');
-        if (dispatchSel) {
-            dispatchSel.addEventListener('change', function() {
-                updateScannerVisibility();
             });
         }
 
@@ -1667,11 +1679,9 @@
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { alpha: false });
 
-        // Adaptive Check: If scan is a PLATE and image is wide/landscape or NOT forced full-frame
         const isAlreadyCropped = (img.width / img.height) > 1.8;
 
         if (scanType === 'PLATE' && !forceFullFrame && !isAlreadyCropped) {
-            // Smart Bumper Crop: Focus on lower 55% center of whole car shots
             const cropX = img.width * 0.10;
             const cropY = img.height * 0.35;
             const cropW = img.width * 0.80;
@@ -1681,7 +1691,6 @@
             canvas.height = Math.round((cropH / cropW) * canvas.width);
             ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
         } else {
-            // Full Frame processing
             const targetWidth = 1000;
             const scale = img.width > targetWidth ? targetWidth / img.width : 1;
             canvas.width = Math.round(img.width * scale);
@@ -1776,7 +1785,6 @@
             let cleanText = convertArabicNumeralsToDigits((result && result.text) || "").toUpperCase();
             let matched = false;
 
-            // Fallback: If Plate scan yielded no digits, retry with Full Frame!
             if (scanType === "PLATE" && !cleanText.match(/\b\d{3,4}\b/)) {
                 result = await processOcrRequest(file, scanType, true);
                 cleanText = convertArabicNumeralsToDigits((result && result.text) || "").toUpperCase();
@@ -1793,8 +1801,8 @@
                 
                 let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
                 let nameMatch = lines.find(line => {
-                    let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
-                    let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ/.test(line);
+                    let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|RESIDENCE|PERMIT|LICENSE|DRIVING|SPECIAL|VERSION|ISSUE|NUMBER|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
+                    let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ|رخصة|إقامة/.test(line);
                     if (idNum.startsWith('1')) return isArabicName;
                     if (idNum.startsWith('2')) return isEnglishName;
                     return isEnglishName || isArabicName;
@@ -1899,7 +1907,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "2.6";
+    const CURRENT_APP_VERSION = "2.7";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
