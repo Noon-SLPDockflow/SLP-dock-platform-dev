@@ -939,7 +939,7 @@
         const toggleBtn = document.getElementById('toggleNewDriverBtn');
         const isNew = toggleBtn && toggleBtn.classList.contains('active');
         const dispSel = document.getElementById('dispatchSelect');
-        const isReceiving = dispSel && dispSel.value === 'Receiving';
+        const hasDispatchChoice = dispSel && dispSel.value !== ''; 
 
         const topScanners = document.getElementById('topScannersRow');
         const bottomScanners = document.getElementById('bottomScannersRow');
@@ -949,16 +949,16 @@
         if (isNew) {
             if (topScanners) topScanners.style.display = 'grid';
             if (bottomScanners) {
-                bottomScanners.style.display = isReceiving ? 'grid' : 'none';
+                bottomScanners.style.display = hasDispatchChoice ? 'grid' : 'none';
                 bottomScanners.style.gridTemplateColumns = '1fr';
             }
             if (bottomDriver) bottomDriver.style.display = 'none';
-            if (bottomItem) bottomItem.style.display = isReceiving ? 'block' : 'none';
+            if (bottomItem) bottomItem.style.display = hasDispatchChoice ? 'block' : 'none';
         } else {
             if (topScanners) topScanners.style.display = 'none';
             if (bottomScanners) {
-                bottomScanners.style.display = isReceiving ? 'grid' : 'none';
-                bottomScanners.style.gridTemplateColumns = isReceiving ? 'repeat(2, 1fr)' : 'none';
+                bottomScanners.style.display = hasDispatchChoice ? 'grid' : 'none';
+                bottomScanners.style.gridTemplateColumns = hasDispatchChoice ? 'repeat(2, 1fr)' : 'none';
             }
             if (bottomDriver) bottomDriver.style.display = 'block';
             if (bottomItem) bottomItem.style.display = 'block';
@@ -1941,7 +1941,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "3.0";
+    const CURRENT_APP_VERSION = "3.1";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
