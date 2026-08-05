@@ -63,6 +63,7 @@
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1rem; }
         
+        /* Compact Footer to Fit All Screen Heights */
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
@@ -78,6 +79,7 @@
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         
+        /* Tablet/Mobile Adjustments */
         @media (max-width: 1200px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); width: 240px; }
@@ -1347,7 +1349,7 @@
             }
         }
 
-        // Peak Hours Column Chart
+        // Peak Hours Column Chart (Vertical Bars)
         let hourMap = {};
         filtered.forEach(log => {
             let time = new Date(log.checkInTime);
@@ -1378,7 +1380,7 @@
             }
         }
 
-        // Cohorts
+        // Cohorts (Horizontal Bars)
         let cohortMap = {};
         filtered.forEach(log => {
             let dir = String(log.direction || "Unknown").split('-')[0].trim().toUpperCase();
@@ -1398,7 +1400,7 @@
             }
         }
 
-        // Docks Ranking
+        // Docks Ranking (Donut)
         let dockMap = {};
         filtered.forEach(log => { let dock = log.dockNumber; if (dock) dockMap[dock] = (dockMap[dock] || 0) + 1; });
         let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k] })).sort((a,b) => b.count - a.count);
@@ -1412,7 +1414,7 @@
             if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
         }
 
-        // Build Accordion Grouped Tables
+        // Build Accordion Grouped Tables (Matching screenshot format)
         const aTables = document.getElementById('analyticsGroupedTables');
         if (aTables) {
             let groups = {};
@@ -1657,13 +1659,27 @@
 
     async function preprocessImageForOcr(file, scanType) {
         const img = await loadImageRobust(file);
-        const targetWidth = 1000;
-        const scale = img.width > targetWidth ? targetWidth / img.width : 1;
         const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext('2d', { alpha: false });
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        if (scanType === 'PLATE') {
+            // Smart Bumper Zoom: Crop lower 55% of the vehicle center
+            const cropX = img.width * 0.15;
+            const cropY = img.height * 0.40;
+            const cropW = img.width * 0.70;
+            const cropH = img.height * 0.55;
+
+            canvas.width = Math.min(1000, Math.round(cropW));
+            canvas.height = Math.round((cropH / cropW) * canvas.width);
+            ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+        } else {
+            const targetWidth = 1000;
+            const scale = img.width > targetWidth ? targetWidth / img.width : 1;
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
         return new Promise((resolve, reject) => {
             canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.6);
         });
@@ -1731,7 +1747,7 @@
 
     async function runLocalOcrEngine(file, statusLabelId, scanType) {
         const status = document.getElementById(statusLabelId); 
-        if (status) status.innerHTML = "🌀 Reading with Google OCR...";
+        if (status) status.innerHTML = "🌀 Processing OCR...";
         
         try {
             const processedBlob = await preprocessImageForOcr(file, scanType);
@@ -1773,23 +1789,60 @@
                     matched = true;
                 }
             } else if (scanType === "PLATE") {
-                let m = cleanText.match(/\b\d{3,4}\b/);
-                if (m) {
+                let finalDigits = null, finalLetters = null, lines = cleanText.split('\n');
+                for (let i = lines.length - 1; i >= 0; i--) {
+                    let line = lines[i], dMatch = line.match(/\b\d{3,4}\b/), lMatches = line.match(/\b[A-Z]{3}\b/g);
+                    if (lMatches) lMatches = lMatches.filter(l => l !== 'KSA');
+                    if (!lMatches || lMatches.length === 0) {
+                        let sMatch = line.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/);
+                        if (sMatch) {
+                            let combined = sMatch[0].replace(/\s+/g, '');
+                            if (combined !== 'KSA') lMatches = [combined];
+                        }
+                    }
+                    if (dMatch && lMatches && lMatches.length > 0) {
+                        finalDigits = dMatch[0];
+                        finalLetters = lMatches[lMatches.length - 1];
+                        break;
+                    }
+                }
+                if (!finalDigits || !finalLetters) {
+                    let allDMatches = cleanText.match(/\b\d{3,4}\b/g), allLMatches = cleanText.match(/\b[A-Z]{3}\b/g);
+                    if (allLMatches) allLMatches = allLMatches.filter(l => l !== 'KSA');
+                    if (!allLMatches || allLMatches.length === 0) {
+                        let allSMatches = cleanText.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/g);
+                        if (allSMatches) {
+                            allLMatches = allSMatches.map(m => m.replace(/\s+/g, '')).filter(m => m !== 'KSA');
+                        }
+                    }
+                    if (!finalDigits && allDMatches) finalDigits = allDMatches[allDMatches.length - 1];
+                    if (!finalLetters && allLMatches && allLMatches.length > 0) finalLetters = allLMatches[allLMatches.length - 1];
+                }
+
+                if (finalDigits) {
+                    let plateStr = finalLetters ? `${finalDigits} ${finalLetters}` : `${finalDigits} KSA`;
                     const plEl = document.getElementById('plateNumber');
-                    if (plEl) { plEl.value = m[0] + " KSA"; plEl.dispatchEvent(new Event('input')); }
+                    if (plEl) { plEl.value = plateStr; plEl.dispatchEvent(new Event('input')); }
                     matched = true;
                 }
             } else if (scanType === "OFFICER" || scanType === "LOGIN_OFFICER") {
-                let m = cleanText.match(/LP\d+/i);
-                if (m) {
-                    const nidEl = document.getElementById('loginNoonId');
-                    if (nidEl) nidEl.value = m[0];
-                    matched = true;
+                let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
+                let foundId = badgeMatch ? badgeMatch[0] : "";
+                let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+                let nameMatch = lines.find(line => /^[A-Z][A-Z\s.']{2,25}$/i.test(line) && !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line) && !/^(.)\1+$/.test(line.replace(/\s/g,'')));
+                let foundName = nameMatch || (foundId ? "Officer #" + foundId : "");
+
+                if (scanType === "OFFICER") {
+                    if (foundId) { const el = document.getElementById('securityNameId'); if (el) el.value = foundId; matched = true; }
+                    if (foundName) { const el = document.getElementById('securityNameField'); if (el) el.value = foundName; matched = true; }
+                } else if (scanType === "LOGIN_OFFICER") {
+                    if (foundId) { const el = document.getElementById('loginNoonId'); if (el) el.value = foundId; matched = true; }
+                    if (foundName) { const el = document.getElementById('loginName'); if (el) el.value = foundName; matched = true; }
                 }
             }
 
             if (status) {
-                status.innerHTML = matched ? "✅ Extracted — please double-check the fields" : "⚠️ Couldn't confidently read this image";
+                status.innerHTML = matched ? "✅ Extracted — please double-check fields" : "⚠️ Couldn't read image confidently";
                 status.style.color = matched ? "var(--success-color)" : "#ef4444";
             }
         } catch (e) { 
@@ -1829,7 +1882,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "2.4";
+    const CURRENT_APP_VERSION = "2.5";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
