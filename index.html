@@ -650,10 +650,13 @@
     // Smart Date Parser to bypass Arabic locale glitches
     function parseFlexibleDate(val) {
         if (!val) return new Date(NaN);
-        let d = new Date(val);
+        let s = String(val).trim();
+        
+        if (s.includes('T') && s.includes('Z')) return new Date(s);
+        
+        let d = new Date(s);
         if (!isNaN(d.getTime())) return d;
         
-        let s = String(val);
         const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
         s = s.replace(/[٠-٩]/g, m => map[m]);
         s = s.replace(/ص/gi, ' AM').replace(/م/gi, ' PM');
@@ -1242,6 +1245,9 @@
             const badgeClass = getBadgeClass(dir, false);
             const durStr = calculateDurationStr(r.checkInTime, null);
             let dCheckIn = parseFlexibleDate(r.checkInTime);
+            
+            // ISO formatted assignment to data-timein for live updates
+            let isoCheckIn = !isNaN(dCheckIn.getTime()) ? dCheckIn.toISOString() : r.checkInTime;
             let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
             
             activeHtml += `<tr>
@@ -1254,7 +1260,7 @@
                 <td style="font-family:monospace;">${r.sealNumber||'--'}</td>
                 <td><strong>${r.dockNumber}</strong></td>
                 <td>${safeCheckInStr}</td>
-                <td class="live-duration" data-timein="${r.checkInTime}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
+                <td class="live-duration" data-timein="${isoCheckIn}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
                 <td>🛡️ ${r.securityName}</td>
                 <td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button></td>
             </tr>`;
