@@ -647,6 +647,25 @@
         };
     }
 
+    // Smart Date Parser to bypass Arabic locale glitches
+    function parseFlexibleDate(val) {
+        if (!val) return new Date(NaN);
+        let d = new Date(val);
+        if (!isNaN(d.getTime())) return d;
+        
+        let s = String(val);
+        const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+        s = s.replace(/[٠-٩]/g, m => map[m]);
+        s = s.replace(/ص/gi, ' AM').replace(/م/gi, ' PM');
+        s = s.replace(/،/g, ',').replace(/[\u200E\u200F\u202A-\u202E]/g, '');
+        
+        d = new Date(s);
+        if (!isNaN(d.getTime())) return d;
+        
+        s = s.replace(/\s+AM/g, ' AM').replace(/\s+PM/g, ' PM');
+        return new Date(s);
+    }
+
     const translations = {
         "Dashboard": "لوحة القيادة", "Analytics": "التحليلات", "Check-in Truck": "تسجيل دخول شاحنة", "Active Trucks": "الشاحنات النشطة",
         "History Log": "سجل الحركة", "Drivers Database": "قاعدة بيانات السائقين", "Security Guard Database": "قاعدة بيانات حراس الأمن",
@@ -681,7 +700,7 @@
         "Close Window": "إغلاق النافذة", "Edit Driver Record": "تعديل سجل السائق", "Edit Guard Record": "تعديل سجل الحارس", "Delete": "حذف",
         "Cancel": "إلغاء", "Save Updates": "حفظ التحديثات", "Completing SLP cycle...": "إكمال دورة SLP...", "ATTACH DEPARTURE SEAL *": "إرفاق ختم المغادرة *",
         "CONFIRM CHECK OUT": "تأكيد تسجيل الخروج", "CHECK OUT": "تسجيل الخروج", "DISCARD CHANGES": "تجاهل التغييرات", "Capture": "التقاط",
-        "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق"
+        "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق", "Check out": "تسجيل الخروج"
     };
 
     function tr(key) { return currentLang === 'en' ? key : (translations[key] || key); }
@@ -958,10 +977,10 @@
         } else {
             if (topScanners) topScanners.style.display = 'none';
             if (bottomScanners) {
-                bottomScanners.style.display = 'grid';
-                bottomScanners.style.gridTemplateColumns = isReceiving ? 'repeat(2, 1fr)' : '1fr';
+                bottomScanners.style.display = isReceiving ? 'grid' : 'none';
+                bottomScanners.style.gridTemplateColumns = isReceiving ? 'repeat(2, 1fr)' : 'none';
             }
-            if (bottomDriver) bottomDriver.style.display = 'block';
+            if (bottomDriver) bottomDriver.style.display = isReceiving ? 'block' : 'none';
             if (bottomItem) bottomItem.style.display = isReceiving ? 'block' : 'none';
         }
     }
@@ -1046,7 +1065,7 @@
 
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
             
-            payload.checkInTime = new Date().toLocaleString();
+            payload.checkInTime = new Date().toISOString();
             globalLogsCache.unshift(payload);
             window.handleLogsResponse({logs: globalLogsCache});
             
@@ -1071,6 +1090,7 @@
         const subtext = document.getElementById('signOutModalSubtext');
         if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
         const sc = document.getElementById('checkoutScanners');
+        // Dispatching asks for photos at checkout. Receiving does not.
         if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.add('modal-active');
@@ -1101,7 +1121,7 @@
             
             let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
             if (match) { 
-                match.checkOutTime = new Date().toLocaleString(); 
+                match.checkOutTime = new Date().toISOString(); 
                 if (seal) match.sealNumber = seal; 
             }
             
@@ -1128,8 +1148,8 @@
 
     function calculateDurationStr(t1, t2) {
         if (!t1) return "--";
-        let start = new Date(t1).getTime();
-        let end = t2 ? new Date(t2).getTime() : Date.now();
+        let start = parseFlexibleDate(t1).getTime();
+        let end = t2 ? parseFlexibleDate(t2).getTime() : Date.now();
         let diff = end - start;
         if (diff < 0 || isNaN(diff)) return "0h 0m";
         let mins = Math.floor(diff / 60000);
@@ -1155,7 +1175,7 @@
     window.handleLogsResponse = function(responsePayload) {
         window.hasFetchedLogs = true;
         let rawLogs = responsePayload.logs || [];
-        globalLogsCache = rawLogs.sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
+        globalLogsCache = rawLogs.sort((a,b) => parseFlexibleDate(b.checkInTime) - parseFlexibleDate(a.checkInTime));
         
         const activeList = globalLogsCache.filter(r => !r.checkOutTime);
         const mTotal = document.getElementById('metric-total-checkins');
@@ -1168,7 +1188,7 @@
         if (yardCounter) yardCounter.innerText = activeList.length;
         
         const todayStr = new Date().toDateString();
-        if (mCompleted) mCompleted.innerText = globalLogsCache.filter(r => r.checkOutTime && new Date(r.checkOutTime).toDateString() === todayStr).length;
+        if (mCompleted) mCompleted.innerText = globalLogsCache.filter(r => r.checkOutTime && parseFlexibleDate(r.checkOutTime).toDateString() === todayStr).length;
 
         // Docks Container
         const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
@@ -1201,6 +1221,8 @@
             const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
             const badgeClass = getBadgeClass(dir, false);
             const durStr = calculateDurationStr(r.checkInTime, null);
+            let dCheckIn = parseFlexibleDate(r.checkInTime);
+            let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
             
             activeHtml += `<tr>
                 <td><strong>${r.driverName}</strong></td>
@@ -1211,10 +1233,10 @@
                 <td>${r.boxCount||'--'}</td>
                 <td style="font-family:monospace;">${r.sealNumber||'--'}</td>
                 <td><strong>${r.dockNumber}</strong></td>
-                <td>${new Date(r.checkInTime).toLocaleTimeString()}</td>
+                <td>${safeCheckInStr}</td>
                 <td class="live-duration" data-timein="${r.checkInTime}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
                 <td>🛡️ ${r.securityName}</td>
-                <td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')">OUT</button></td>
+                <td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button></td>
             </tr>`;
         });
         const yardTable = document.getElementById('activeYardTableBody');
@@ -1240,7 +1262,7 @@
     window.debouncedFilterSecurityCards = debouncedFilterSecurityCards;
 
     function isDateInRange(dateValue, range, now, fromStr, toStr) {
-        if (!dateValue) return false; const refDate = new Date(dateValue); if (isNaN(refDate.getTime())) return false;
+        if (!dateValue) return false; const refDate = parseFlexibleDate(dateValue); if (isNaN(refDate.getTime())) return false;
         if (range === 'all') return true;
         if (range === 'today') { return refDate.toDateString() === now.toDateString(); }
         if (range === '7days' || range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); d.setHours(0, 0, 0, 0); return refDate >= d; }
@@ -1303,6 +1325,11 @@
             const badgeClass = getBadgeClass(dir, r.checkOutTime !== "");
             const durStr = calculateDurationStr(r.checkInTime, r.checkOutTime);
             
+            let dCheckIn = parseFlexibleDate(r.checkInTime);
+            let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
+            let dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
+            let safeCheckOutStr = dCheckOut && !isNaN(dCheckOut.getTime()) ? dCheckOut.toLocaleString('en-US') : (r.checkOutTime || '<span style="color:var(--accent-color); font-weight:700;">Inside</span>');
+            
             html += `<tr>
                 <td><strong>${r.driverName}</strong></td>
                 <td>${generatePlateBumperUI(r.plateNumber)}</td>
@@ -1311,8 +1338,8 @@
                 <td><span style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</span></td>
                 <td>${r.boxCount||'--'}</td>
                 <td style="font-family:monospace;">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
-                <td>${new Date(r.checkInTime).toLocaleString()}</td>
-                <td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : '<span style="color:var(--accent-color); font-weight:700;">Inside</span>'}</td>
+                <td>${safeCheckInStr}</td>
+                <td>${safeCheckOutStr}</td>
                 <td style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
                 <td>🛡️ ${r.securityName}</td>
             </tr>`;
@@ -1351,7 +1378,7 @@
         // Growth Line
         let growthMap = {};
         filtered.forEach(log => {
-            let time = new Date(log.checkInTime);
+            let time = parseFlexibleDate(log.checkInTime);
             if (!isNaN(time.getTime())) {
                 let dLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 if (!growthMap[dLabel]) growthMap[dLabel] = { count: 0, ts: time.getTime() };
@@ -1374,7 +1401,7 @@
         // Peak Hours Column Chart (Vertical Bars)
         let hourMap = {};
         filtered.forEach(log => {
-            let time = new Date(log.checkInTime);
+            let time = parseFlexibleDate(log.checkInTime);
             if (!isNaN(time.getTime())) {
                 let hour = time.getHours(), ampm = hour >= 12 ? 'PM' : 'AM', hourLabel = `${hour % 12 || 12} ${ampm}`;
                 if (!hourMap[hourLabel]) hourMap[hourLabel] = { count: 0, rawHr: hour };
@@ -1448,16 +1475,23 @@
             let aHtml = '';
             for (let [dir, items] of Object.entries(groups)) {
                 let badgeCls = getBadgeClass(dir, false);
-                let rows = items.slice(0,20).map(r => `<tr>
-                    <td><strong>${r.driverName}</strong></td>
-                    <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                    <td><strong>${r.dockNumber}</strong></td>
-                    <td style="font-family:monospace; color:var(--text-muted);">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
-                    <td>${new Date(r.checkInTime).toLocaleString()}</td>
-                    <td>${r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : 'Inside'}</td>
-                    <td style="color:var(--accent-color); font-weight:bold;">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
-                    <td>🛡️ ${r.securityName}</td>
-                </tr>`).join('');
+                let rows = items.slice(0,20).map(r => {
+                    let dCheckIn = parseFlexibleDate(r.checkInTime);
+                    let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
+                    let dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
+                    let safeCheckOutStr = dCheckOut && !isNaN(dCheckOut.getTime()) ? dCheckOut.toLocaleString('en-US') : (r.checkOutTime || 'Inside');
+
+                    return `<tr>
+                        <td><strong>${r.driverName}</strong></td>
+                        <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                        <td><strong>${r.dockNumber}</strong></td>
+                        <td style="font-family:monospace; color:var(--text-muted);">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
+                        <td>${safeCheckInStr}</td>
+                        <td>${safeCheckOutStr}</td>
+                        <td style="color:var(--accent-color); font-weight:bold;">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
+                        <td>🛡️ ${r.securityName}</td>
+                    </tr>`;
+                }).join('');
                 
                 aHtml += `<div class="accordion-wrapper">
                     <div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')">
@@ -1957,7 +1991,12 @@
         const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Noon Employee ID', 'How many Boxes', 'Seal Number', 'Check In Truck', 'Check Out', 'Security'];
         const csvLines = [headers.join(',')];
         globalLogsCache.forEach(r => {
-            const line = [r.driverName || '', r.iqamaNumber || '', r.plateNumber || '', r.direction || '', r.dockNumber || '', r.noonEmployeeId || '', r.boxCount || '0', r.sealNumber || '--', new Date(r.checkInTime).toLocaleString(), r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : 'Inside', r.securityName || ''].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+            let dCheckIn = parseFlexibleDate(r.checkInTime);
+            let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
+            let dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
+            let safeCheckOutStr = dCheckOut && !isNaN(dCheckOut.getTime()) ? dCheckOut.toLocaleString('en-US') : (r.checkOutTime || 'Inside');
+
+            const line = [r.driverName || '', r.iqamaNumber || '', r.plateNumber || '', r.direction || '', r.dockNumber || '', r.noonEmployeeId || '', r.boxCount || '0', r.sealNumber || '--', safeCheckInStr, safeCheckOutStr, r.securityName || ''].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
             csvLines.push(line);
         });
         const csvContent = csvLines.join('\n');
@@ -1968,7 +2007,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "3.4";
+    const CURRENT_APP_VERSION = "3.8";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
