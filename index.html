@@ -464,7 +464,7 @@
                             
                             <div class="form-group"><label class="badge-style" data-i18n="Noon Employee ID">Noon Employee ID</label><input type="text" id="noonEmployeeId" class="input-box-styled" placeholder="Enter Noon employee ID" autocomplete="off"></div>
                             <div class="form-group">
-                                <label class="badge-style" data-i18n="How many Boxes/Pallets">Quantity (Boxes/Pallets)</label>
+                                <label class="badge-style" data-i18n="Quantity (Boxes/Pallets)">Quantity (Boxes/Pallets)</label>
                                 <div style="display: flex; gap: 8px;">
                                     <select id="boxType" class="input-box-styled" style="width: 35%; padding: 0.5rem;"><option value="Boxes" data-i18n="Boxes">Boxes</option><option value="Pallets" data-i18n="Pallets">Pallets</option></select>
                                     <input type="number" id="boxCount" class="input-box-styled" placeholder="Enter quantity" min="0" autocomplete="off" style="width: 65%;">
@@ -486,7 +486,7 @@
             </div>
             <div class="card table-responsive" style="padding: 0.5rem; background: transparent; border: none;">
                 <table id="activeYardTable">
-                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Type">Type</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="How many Boxes">How many Boxes</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Dock">Dock</th><th data-i18n="Check-In Time">Check-In Time</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th><th style="text-align: right; padding-right: 1.5rem;" data-i18n="Action">Action</th></tr></thead>
+                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Type">Type</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Dock">Dock</th><th data-i18n="Check-In Time">Check-In Time</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th><th style="text-align: right; padding-right: 1.5rem;" data-i18n="Action">Action</th></tr></thead>
                     <tbody id="activeYardTableBody"><tr><td colspan="12" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
                 </table>
             </div>
@@ -521,7 +521,7 @@
                 </div>
                 <div class="table-responsive" style="margin-top: 1rem;">
                     <table id="historyLogTable">
-                        <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="How many Boxes">How many Boxes</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
+                        <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
                         <tbody id="historyLogTableBody"><tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No historical logs parsed inside database.">No historical logs parsed inside database.</td></tr></tbody>
                     </table>
                 </div>
@@ -688,7 +688,7 @@
         "Security & Facility Details": "تفاصيل الأمن والمنشأة", "Security Name *": "اسم رجل الأمن *", "Security ID *": "هوية الأمن *",
         "Dock Number *": "رقم الرصيف *", "Purpose / Direction *": "الغرض / الاتجاه *", "Dispatching / Receiving *": "إرسال / استلام *",
         "Dispatching": "إرسال", "Receiving": "استلام", "Seal or transction number": "رقم الختم أو رقم المعاملة",
-        "Noon Employee ID": "معرف موظف نون", "How many Boxes": "كم عدد الصناديق", "Check In Truck": "إدخال الشاحنة",
+        "Noon Employee ID": "معرف موظف نون", "Quantity (Boxes/Pallets)": "الكمية (صناديق/طبالي)", "Boxes/Pallets": "الصناديق / الطبالي", "Check In Truck": "إدخال الشاحنة",
         "Active Trucks in Facility": "الشاحنات النشطة في المنشأة", "Currently Checked-In Vehicles": "المركبات المسجلة حالياً",
         "Total Inside": "الإجمالي بالداخل", "Search records...": "البحث في السجلات...", "Driver": "السائق", "Plate": "اللوحة",
         "Direction": "الاتجاه", "Type": "النوع", "Seal Number": "رقم الختم", "Dock": "الرصيف", "Check-In Time": "وقت الدخول",
@@ -1049,6 +1049,12 @@
             const btn = document.querySelector('.submit-btn-global');
             if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
             
+            // Format Box Count
+            let countVal = document.getElementById('boxCount')?.value || "0";
+            let typeVal = document.getElementById('boxType')?.value || "Boxes";
+            let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
+            let finalBoxCountStr = countVal + " " + displayUnit;
+            
             const payload = {
                 action: 'checkin', 
                 driverName: document.getElementById('driverName')?.value || '', 
@@ -1060,7 +1066,7 @@
                 direction: directionVal,
                 dispatchType: document.getElementById('dispatchSelect')?.value || '', 
                 noonEmployeeId: document.getElementById('noonEmployeeId')?.value || "N/A",
-                boxCount: document.getElementById('boxCount')?.value || "0", 
+                boxCount: finalBoxCountStr, 
                 sealNumber: document.getElementById('sealNumber')?.value || "--",
                 securityId: document.getElementById('securityNameId')?.value || '', 
                 truckPhoto: temporaryCapturedImage || "", 
@@ -2027,7 +2033,7 @@
     
     function exportHistoryToExcel() {
         if (!globalLogsCache || globalLogsCache.length === 0) { alert('No data to export.'); return; }
-        const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Noon Employee ID', 'How many Boxes', 'Seal Number', 'Check In Truck', 'Check Out', 'Security'];
+        const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Noon Employee ID', 'Boxes/Pallets', 'Seal Number', 'Check In Truck', 'Check Out', 'Security'];
         const csvLines = [headers.join(',')];
         globalLogsCache.forEach(r => {
             let dCheckIn = parseFlexibleDate(r.checkInTime);
@@ -2046,7 +2052,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "3.9";
+    const CURRENT_APP_VERSION = "4.0";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
