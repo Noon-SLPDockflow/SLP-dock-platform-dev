@@ -975,6 +975,7 @@
             if (bottomDriver) bottomDriver.style.display = 'none';
             if (bottomItem) bottomItem.style.display = isReceiving ? 'block' : 'none';
         } else {
+            // Existing Driver: Only show scanners on check-in IF Receiving
             if (topScanners) topScanners.style.display = 'none';
             if (bottomScanners) {
                 bottomScanners.style.display = isReceiving ? 'grid' : 'none';
@@ -1100,12 +1101,30 @@
     function closeSignOutModal() {
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.remove('modal-active');
+        
+        // Reset variables and labels to prevent carrying over to next truck
+        tempCheckoutTruckPhoto = null;
+        tempCheckoutItemPhoto = null;
+        const ts = document.getElementById('checkoutTruckStatus');
+        if (ts) { ts.innerHTML = "Truck Picture (with plate) *"; ts.style.color = ""; }
+        const is = document.getElementById('checkoutItemStatus');
+        if (is) { is.innerHTML = "Item Picture *"; is.style.color = ""; }
+        const seal = document.getElementById('signOutSeal');
+        if (seal) seal.value = '';
     }
     window.closeSignOutModal = closeSignOutModal;
 
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
         btnConfirmSignOut.addEventListener('click', () => {
+            // Validate required checkout photos for non-Receiving (e.g. Dispatching)
+            if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
+                if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
+                    alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
+                    return;
+                }
+            }
+
             btnConfirmSignOut.innerText = "⏳..."; btnConfirmSignOut.disabled = true;
             const sealInput = document.getElementById('signOutSeal');
             const seal = sealInput ? sealInput.value.trim() : '';
@@ -1126,7 +1145,8 @@
             }
             
             window.handleLogsResponse({logs: globalLogsCache});
-            closeSignOutModal(); btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
+            closeSignOutModal(); 
+            btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
         });
     }
 
@@ -1783,11 +1803,19 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck') {
+                        tempCheckoutTruckPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
+                    } else if (currentScanType === 'item') {
+                        tempCheckoutItemPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
@@ -1979,10 +2007,15 @@
     function handleCheckoutPhoto(inputEl, statusContainerId, scanType) {
         const file = inputEl.files ? inputEl.files[0] : null;
         if (!file) return;
-        if (scanType === 'truck') tempCheckoutTruckPhoto = file;
-        if (scanType === 'item') tempCheckoutItemPhoto = file;
-        const statusEl = document.getElementById(statusContainerId);
-        if (statusEl) statusEl.innerHTML = "✅ Attached";
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (scanType === 'truck') tempCheckoutTruckPhoto = reader.result;
+            if (scanType === 'item') tempCheckoutItemPhoto = reader.result;
+            const statusEl = document.getElementById(statusContainerId);
+            if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+        };
+        reader.readAsDataURL(file);
+        inputEl.value = '';
     }
     window.handleCheckoutPhoto = handleCheckoutPhoto;
     
@@ -2007,7 +2040,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "3.8";
+    const CURRENT_APP_VERSION = "3.9";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
