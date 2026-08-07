@@ -67,11 +67,13 @@
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
         
-        .main-content { margin-left: 240px; flex-grow: 1; padding: 1.5rem 2rem; width: calc(100% - 240px); position: relative; transition: margin 0.3s, width 0.3s; }
+        .main-content { margin-left: 240px; flex-grow: 1; padding: 1.5rem 2rem; width: calc(100% - 240px); position: relative; transition: margin 0.3s, width 0.3s; min-width: 0; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
 
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
+        html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
+        html[dir="rtl"] .main-content.expanded { margin-right: 0 !important; margin-left: 0 !important; }
         html[dir="rtl"] .nav-item { border-left: none; border-right: 3px solid transparent; }
         html[dir="rtl"] .nav-item.active { border-left: none; border-right: 3px solid var(--accent-color); }
         html[dir="rtl"] .nav-prev-btn { left: auto; right: calc(240px + 10px); transform: translateY(-50%) rotate(180deg); }
@@ -118,9 +120,9 @@
         .header-search-input:focus { border-color: var(--accent-color); }
         
         .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { color: var(--text-muted); font-weight: 600; font-size: 0.65rem; text-transform: uppercase; padding: 0.75rem 0.75rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
-        td { padding: 0.75rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.8rem; vertical-align: middle; white-space: nowrap; }
+        table { width: 100%; border-collapse: collapse; text-align: start; }
+        th { color: var(--text-muted); font-weight: 600; font-size: 0.65rem; text-transform: uppercase; padding: 0.75rem 0.75rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; text-align: start; }
+        td { padding: 0.75rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.8rem; vertical-align: middle; white-space: nowrap; text-align: start; }
         tr:hover td { background-color: rgba(255,255,255,0.02); }
         .badge { padding: 3px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; display: inline-block; border: 1px solid transparent; }
         .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border-color: rgba(46, 160, 67, 0.3); }
@@ -1049,7 +1051,6 @@
             const btn = document.querySelector('.submit-btn-global');
             if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
             
-            // Format Box Count
             let countVal = document.getElementById('boxCount')?.value || "0";
             let typeVal = document.getElementById('boxType')?.value || "Boxes";
             let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
@@ -1184,14 +1185,14 @@
         let mins = Math.floor(diff / 60000);
         let h = Math.floor(mins / 60);
         let m = mins % 60;
-        return currentLang === 'ar' ? `${h}س ${m}د` : `${h}h ${m}m`;
+        return `${h}h ${m}m`; // Force English
     }
 
     function generatePlateBumperUI(plateStr) {
         plateStr = String(plateStr || "").trim();
         if (!plateStr || plateStr === "--" || plateStr === "N/A") { return `<span style="color:#a0a0a0;">N/A</span>`; }
         const parts = plateStr.split(' '), numbers = parts[0] || '', letters = parts.slice(1).join(' ') || '';
-        return `<div class="plate-bumper"><span class="plate-num">${numbers}</span><span class="plate-let">${letters}</span></div>`;
+        return `<div class="plate-bumper notranslate" translate="no"><span class="plate-num">${numbers}</span><span class="plate-let">${letters}</span></div>`;
     }
 
     function getBadgeClass(displayDir, isOut) {
@@ -1263,10 +1264,10 @@
                 <td><span style="color:var(--accent-color); font-weight:700;">${r.dispatchType || '--'}</span></td>
                 <td style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</td>
                 <td>${r.boxCount||'--'}</td>
-                <td style="font-family:monospace;">${r.sealNumber||'--'}</td>
+                <td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber||'--'}</td>
                 <td><strong>${r.dockNumber}</strong></td>
-                <td>${safeCheckInStr}</td>
-                <td class="live-duration" data-timein="${isoCheckIn}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
+                <td class="notranslate" translate="no">${safeCheckInStr}</td>
+                <td class="live-duration notranslate" translate="no" data-timein="${isoCheckIn}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
                 <td>🛡️ ${r.securityName}</td>
                 <td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button></td>
             </tr>`;
@@ -1369,10 +1370,10 @@
                 <td><strong>${r.dockNumber}</strong></td>
                 <td><span style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</span></td>
                 <td>${r.boxCount||'--'}</td>
-                <td style="font-family:monospace;">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
-                <td>${safeCheckInStr}</td>
-                <td>${safeCheckOutStr}</td>
-                <td style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
+                <td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
+                <td class="notranslate" translate="no">${safeCheckInStr}</td>
+                <td class="notranslate" translate="no">${safeCheckOutStr}</td>
+                <td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${durStr}</td>
                 <td>🛡️ ${r.securityName}</td>
             </tr>`;
             count++;
@@ -1517,10 +1518,10 @@
                         <td><strong>${r.driverName}</strong></td>
                         <td>${generatePlateBumperUI(r.plateNumber)}</td>
                         <td><strong>${r.dockNumber}</strong></td>
-                        <td style="font-family:monospace; color:var(--text-muted);">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
-                        <td>${safeCheckInStr}</td>
-                        <td>${safeCheckOutStr}</td>
-                        <td style="color:var(--accent-color); font-weight:bold;">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
+                        <td style="font-family:monospace; color:var(--text-muted);" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
+                        <td class="notranslate" translate="no">${safeCheckInStr}</td>
+                        <td class="notranslate" translate="no">${safeCheckOutStr}</td>
+                        <td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
                         <td>🛡️ ${r.securityName}</td>
                     </tr>`;
                 }).join('');
@@ -1815,19 +1816,11 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck') {
-                        tempCheckoutTruckPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item') {
-                        tempCheckoutItemPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'ITEM_PHOTO') {
+                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
@@ -2052,7 +2045,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.0";
+    const CURRENT_APP_VERSION = "4.1";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
