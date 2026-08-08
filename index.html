@@ -1173,6 +1173,13 @@
             dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
             if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return; }
             
+            // NEW VALIDATION: Check if dock is already occupied
+            const isDockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim() === dockVal);
+            if (isDockOccupied) {
+                alert(currentLang === 'ar' ? `خطأ: الرصيف رقم (${dockVal}) مستخدم حالياً من قبل شاحنة أخرى.` : `Error: Dock ${dockVal} is currently occupied by another active truck. Please choose a different dock.`);
+                return;
+            }
+            
             let directionVal = document.getElementById('direction')?.value || '';
             if (directionVal === 'Others') {
                 const customDir = document.getElementById('directionCustom');
