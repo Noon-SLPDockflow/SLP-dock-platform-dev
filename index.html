@@ -77,6 +77,17 @@
         .main-content { margin-left: 240px; flex-grow: 1; padding: 1.5rem 2rem; width: calc(100% - 240px); position: relative; transition: margin 0.3s, width 0.3s; min-width: 0; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
 
+        /* Responsive Sidebar Base (LTR) */
+        @media (max-width: 1200px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0) !important; width: 240px; }
+            .sidebar-close-btn { display: block !important; }
+            #floatingOpenBtn { display: flex; }
+            .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; }
+            .nav-prev-btn { left: 10px; }
+        }
+
+        /* RTL Overrides (Desktop) */
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
         html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
@@ -86,14 +97,14 @@
         html[dir="rtl"] .nav-prev-btn { left: auto; right: calc(240px + 10px); transform: translateY(-50%) rotate(180deg); }
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
-        
+
+        /* RTL Overrides (Tablet & Mobile <= 1200px Fix) */
         @media (max-width: 1200px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.mobile-open { transform: translateX(0); width: 240px; }
-            .sidebar-close-btn { display: block !important; }
-            #floatingOpenBtn { display: flex; }
-            .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; }
-            .nav-prev-btn { left: 10px; }
+            html[dir="rtl"] .sidebar { transform: translateX(100%); }
+            html[dir="rtl"] .sidebar.mobile-open { transform: translateX(0) !important; }
+            html[dir="rtl"] #floatingOpenBtn { left: auto; right: 1rem; }
+            html[dir="rtl"] .main-content { margin-right: 0 !important; margin-left: 0 !important; }
+            html[dir="rtl"] .nav-prev-btn { right: 10px; left: auto; }
         }
 
         .app-view { display: none; } .app-view.active-view { display: block; }
