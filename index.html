@@ -410,7 +410,16 @@
                             </div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Driver Name *">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required></div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" required></div>
-                            <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" required></div>
+                            
+                            <!-- Checkin Split Plate Blocks -->
+                            <div class="form-group new-driver-field">
+                                <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="number" id="plateNumberDigits" class="input-box-styled" placeholder="1234" required style="width: 50%; font-family: monospace;" oninput="this.value = this.value.replace(/[^0-9]/g, ''); runInstantConflictCheck(event);">
+                                    <input type="text" id="plateNumberLetters" class="input-box-styled" placeholder="ABC" style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, ''); runInstantConflictCheck(event);">
+                                </div>
+                            </div>
+
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled"></div>
                             
                             <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
@@ -590,7 +599,7 @@
                 <div class="form-group">
                     <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="number" id="editDriverPlateNumbers" class="input-box-styled" placeholder="1234" required style="width: 50%; font-family: monospace;">
+                        <input type="number" id="editDriverPlateNumbers" class="input-box-styled" placeholder="1234" required style="width: 50%; font-family: monospace;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         <input type="text" id="editDriverPlateLetters" class="input-box-styled" placeholder="ABC" style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '')">
                     </div>
                 </div>
@@ -973,8 +982,12 @@
 
         const iqNum = document.getElementById('iqamaNumber');
         if (iqNum) { iqNum.addEventListener('input', runInstantConflictCheck); iqNum.addEventListener('change', runInstantConflictCheck); }
-        const plNum = document.getElementById('plateNumber');
-        if (plNum) { plNum.addEventListener('input', runInstantConflictCheck); plNum.addEventListener('change', runInstantConflictCheck); }
+        
+        const plNumD = document.getElementById('plateNumberDigits');
+        if (plNumD) { plNumD.addEventListener('input', runInstantConflictCheck); plNumD.addEventListener('change', runInstantConflictCheck); }
+        
+        const plNumL = document.getElementById('plateNumberLetters');
+        if (plNumL) { plNumL.addEventListener('input', runInstantConflictCheck); plNumL.addEventListener('change', runInstantConflictCheck); }
 
         const secField = document.getElementById('securityNameField');
         if (secField) secField.addEventListener('input', function() { renderSecuritySuggestions(this.value); });
@@ -1089,9 +1102,13 @@
             const toggleBtn = document.getElementById('toggleNewDriverBtn');
             const isNew = toggleBtn && toggleBtn.classList.contains('active');
             
+            let pDigits = document.getElementById('plateNumberDigits')?.value || '';
+            let pLetters = document.getElementById('plateNumberLetters')?.value || '';
+            let combinedPlate = (pDigits + ' ' + pLetters).trim();
+
             if (isNew && driversRegistryList.length > 0) {
                 const iqVal = (document.getElementById('iqamaNumber')?.value || '').trim().toLowerCase();
-                const plVal = (document.getElementById('plateNumber')?.value || '').trim().replace(/\s+/g,'').toLowerCase();
+                const plVal = combinedPlate.replace(/\s+/g,'').toLowerCase();
                 let iqamaConflicted = driversRegistryList.some(d => String(d.id||'').toLowerCase() === iqVal && iqVal !== 'n/a');
                 let plateConflicted = driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a');
                 
@@ -1130,7 +1147,7 @@
                 action: 'checkin', 
                 driverName: document.getElementById('driverName')?.value || '', 
                 iqamaNumber: document.getElementById('iqamaNumber')?.value || '',
-                plateNumber: document.getElementById('plateNumber')?.value || '', 
+                plateNumber: combinedPlate, 
                 mobileNumber: document.getElementById('mobileNumber')?.value || "N/A",
                 securityName: document.getElementById('securityNameField')?.value || '', 
                 dockNumber: dockVal, 
@@ -1182,6 +1199,7 @@
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.remove('modal-active');
         
+        // Reset variables and labels to prevent carrying over to next truck
         tempCheckoutTruckPhoto = null;
         tempCheckoutItemPhoto = null;
         const ts = document.getElementById('checkoutTruckStatus');
@@ -1196,6 +1214,7 @@
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
         btnConfirmSignOut.addEventListener('click', () => {
+            // Validate required checkout photos for non-Receiving (e.g. Dispatching)
             if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
                 if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
                     alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
@@ -1770,6 +1789,7 @@
         try {
             await fetch(API_URL, {
                 method: 'POST',
+                mode: 'no-cors',
                 body: JSON.stringify({
                     action: 'editDriver',
                     oldDriverName: oldName,
@@ -1794,11 +1814,11 @@
             window.handleLogsResponse({ logs: globalLogsCache });
         } catch (e) {
             console.error(e);
-            alert("Error saving update.");
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;
-            setTimeout(() => { window.isSavingEdit = false; }, 2000);
+            // Extend lock to prevent immediate background refresh from pulling un-updated sheet data
+            setTimeout(() => { window.isSavingEdit = false; }, 5000);
         }
     }
     window.saveDriverEdit = saveDriverEdit;
@@ -1835,6 +1855,7 @@
         try {
             await fetch(API_URL, {
                 method: 'POST',
+                mode: 'no-cors',
                 body: JSON.stringify({
                     action: 'editGuard',
                     oldSecurityName: oldName,
@@ -1854,11 +1875,10 @@
             window.handleLogsResponse({ logs: globalLogsCache });
         } catch (e) {
             console.error(e);
-            alert("Error saving update.");
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;
-            setTimeout(() => { window.isSavingEdit = false; }, 2000);
+            setTimeout(() => { window.isSavingEdit = false; }, 5000);
         }
     }
     window.saveGuardEdit = saveGuardEdit;
@@ -1879,7 +1899,15 @@
             item.addEventListener('click', () => {
                 const searchBox = document.getElementById('driverSearchBox'); if(searchBox) searchBox.value = d.name;
                 const dName = document.getElementById('driverName'); if(dName) dName.value = d.name;
-                const pNum = document.getElementById('plateNumber'); if(pNum) pNum.value = d.plate !== '--' ? d.plate : '';
+                
+                let plateStr = d.plate !== '--' ? d.plate : '';
+                let numMatch = plateStr.match(/\d+/);
+                let letMatch = plateStr.match(/[A-Za-z]+/g);
+                const pNumD = document.getElementById('plateNumberDigits');
+                const pNumL = document.getElementById('plateNumberLetters');
+                if (pNumD) pNumD.value = numMatch ? numMatch[0] : '';
+                if (pNumL) pNumL.value = letMatch ? letMatch.join('') : '';
+                
                 const iqNum = document.getElementById('iqamaNumber'); if(iqNum) iqNum.value = d.id !== '--' ? d.id : '';
                 const mobNum = document.getElementById('mobileNumber'); if(mobNum) mobNum.value = d.phone !== '--' ? d.phone : '';
                 listEl.classList.remove('open');
@@ -1925,15 +1953,23 @@
                 target.reportValidity();
             }
         }
-        if (target.id === 'plateNumber') {
-            let cleanVal = val.replace(/\s+/g,'');
-            let match = driversRegistryList.find(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === cleanVal && cleanVal !== 'n/a' && cleanVal !== '--');
+        
+        if (target.id === 'plateNumberDigits' || target.id === 'plateNumberLetters') {
+            let pD = document.getElementById('plateNumberDigits')?.value || '';
+            let pL = document.getElementById('plateNumberLetters')?.value || '';
+            let cleanVal = (pD + pL).replace(/\s+/g,'').toLowerCase();
+            
+            let match = driversRegistryList.find(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === cleanVal && cleanVal !== 'n/a' && cleanVal !== '--' && cleanVal !== '');
             if (match) {
                 target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.');
                 target.reportValidity();
+            } else {
+                document.getElementById('plateNumberDigits')?.setCustomValidity('');
+                document.getElementById('plateNumberLetters')?.setCustomValidity('');
             }
         }
     }
+    window.runInstantConflictCheck = runInstantConflictCheck;
 
     // --- Profile Modals ---
     function openDriverProfileModal(name, iqama, plate, date, phone) {
@@ -2040,11 +2076,19 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck') {
+                        tempCheckoutTruckPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
+                    } else if (currentScanType === 'item') {
+                        tempCheckoutItemPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
@@ -2180,9 +2224,11 @@
                 }
 
                 if (finalDigits) {
-                    let plateStr = finalLetters ? `${finalDigits} ${finalLetters}` : `${finalDigits} KSA`;
-                    const plEl = document.getElementById('plateNumber');
-                    if (plEl) { plEl.value = plateStr; plEl.dispatchEvent(new Event('input')); }
+                    const plNumD = document.getElementById('plateNumberDigits');
+                    const plNumL = document.getElementById('plateNumberLetters');
+                    if (plNumD) plNumD.value = finalDigits;
+                    if (plNumL) plNumL.value = finalLetters || 'KSA';
+                    if (plNumD) plNumD.dispatchEvent(new Event('input'));
                     matched = true;
                 }
             } else if (scanType === "OFFICER" || scanType === "LOGIN_OFFICER") {
@@ -2269,7 +2315,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.3";
+    const CURRENT_APP_VERSION = "4.4";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
