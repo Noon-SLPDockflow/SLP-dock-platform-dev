@@ -194,8 +194,11 @@
         .driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.85rem; border-radius: 6px; border: 1px solid var(--border-color); }
         .info-block p:first-child { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; font-weight: 600; }
         .info-block p:last-child, .info-block data { font-size: 0.85rem; color: #fff; font-weight: 700; font-family: monospace; }
-        .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; width: 100%; transition: 0.2s; }
+        .card-actions-wrapper { display: flex; gap: 0.5rem; margin-top: 0.25rem; }
+        .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; flex: 1; transition: 0.2s; }
         .btn-card-action:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .btn-card-action.edit-btn { border-color: rgba(252, 194, 0, 0.4); color: var(--accent-color); }
+        .btn-card-action.edit-btn:hover { background: var(--accent-color); color: #000; }
         .driver-badges { display: flex; gap: 0.4rem; margin-top: 4px; }
         .tag-badge { font-size: 0.55rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 3px; text-transform: uppercase; }
         .tag-badge.verified { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
@@ -216,7 +219,7 @@
         .modal-slate-cell p { font-size: 0.85rem; color: #fff; font-weight: 700; font-family: monospace; }
         .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
         .modal-media-viewport { width: 100%; height: 180px; border-radius: 6px; border: 1px solid var(--border-color); display:flex; align-items:center; justify-content:center; background-color: #0b0e14; background-size: contain; background-position: center; background-repeat: no-repeat; }
-        .modal-footer-container { padding: 0.85rem 1.25rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; }
+        .modal-footer-container { padding: 0.85rem 1.25rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; gap: 0.5rem; }
 
         .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
         .suggestions-dropdown.open { display: block; }
@@ -567,6 +570,64 @@
         </div>
     </div>
 
+    <!-- Admin Edit Driver Modal -->
+    <div class="modal-overlay" id="editDriverModal">
+        <div class="modal-window">
+            <div class="modal-header-container">
+                <h2 data-i18n="Edit Driver Record">Edit Driver Record</h2>
+                <button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button>
+            </div>
+            <div class="modal-body-content">
+                <input type="hidden" id="editDriverOldName">
+                <div class="form-group">
+                    <label class="badge-style" data-i18n="Driver Name *">Driver Name *</label>
+                    <input type="text" id="editDriverName" class="input-box-styled" required>
+                </div>
+                <div class="form-group">
+                    <label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label>
+                    <input type="text" id="editDriverIqama" class="input-box-styled" required>
+                </div>
+                <div class="form-group">
+                    <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
+                    <input type="text" id="editDriverPlate" class="input-box-styled" required>
+                </div>
+                <div class="form-group">
+                    <label class="badge-style" data-i18n="Mobile Number">Mobile Number</label>
+                    <input type="text" id="editDriverMobile" class="input-box-styled">
+                </div>
+            </div>
+            <div class="modal-footer-container">
+                <button class="btn-modal-cancel" onclick="closeEditDriverModal()" data-i18n="Cancel">Cancel</button>
+                <button class="submit-btn-global" style="margin-top:0; width:auto; padding:0.5rem 1.25rem;" onclick="saveDriverEdit()" data-i18n="Save Updates">Save Updates</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Edit Guard Modal -->
+    <div class="modal-overlay" id="editGuardModal">
+        <div class="modal-window">
+            <div class="modal-header-container">
+                <h2 data-i18n="Edit Guard Record">Edit Guard Record</h2>
+                <button class="btn-modal-close" onclick="closeEditGuardModal()">✕</button>
+            </div>
+            <div class="modal-body-content">
+                <input type="hidden" id="editGuardOldName">
+                <div class="form-group">
+                    <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
+                    <input type="text" id="editGuardName" class="input-box-styled" required>
+                </div>
+                <div class="form-group">
+                    <label class="badge-style" data-i18n="Security ID *">Security ID *</label>
+                    <input type="text" id="editGuardId" class="input-box-styled" required>
+                </div>
+            </div>
+            <div class="modal-footer-container">
+                <button class="btn-modal-cancel" onclick="closeEditGuardModal()" data-i18n="Cancel">Cancel</button>
+                <button class="submit-btn-global" style="margin-top:0; width:auto; padding:0.5rem 1.25rem;" onclick="saveGuardEdit()" data-i18n="Save Updates">Save Updates</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="signOutModal">
         <div class="modal-window" style="max-width: 500px;">
             <div class="modal-header-container"><h2 style="color: #fff; font-size: 1.25rem;" data-i18n="CHECK OUT">CHECK OUT</h2><button class="btn-modal-close" onclick="closeSignOutModal()">✕</button></div>
@@ -705,7 +766,7 @@
         "Close Window": "إغلاق النافذة", "Edit Driver Record": "تعديل سجل السائق", "Edit Guard Record": "تعديل سجل الحارس", "Delete": "حذف",
         "Cancel": "إلغاء", "Save Updates": "حفظ التحديثات", "Completing SLP cycle...": "إكمال دورة SLP...", "ATTACH DEPARTURE SEAL *": "إرفاق ختم المغادرة *",
         "CONFIRM CHECK OUT": "تأكيد تسجيل الخروج", "CHECK OUT": "تسجيل الخروج", "DISCARD CHANGES": "تجاهل التغييرات", "Capture": "التقاط",
-        "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق", "Check out": "تسجيل الخروج"
+        "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق", "Check out": "تسجيل الخروج", "Edit": "تعديل"
     };
 
     function tr(key) { return currentLang === 'en' ? key : (translations[key] || key); }
@@ -857,6 +918,11 @@
                     }, 1000);
                 }, 1200);
             }, 1200);
+        }
+        
+        if (window.hasFetchedLogs && globalLogsCache) {
+            compileDriversRegistryCards(globalLogsCache);
+            compileSecurityRegistryCards(globalLogsCache);
         }
     }
 
@@ -1101,7 +1167,6 @@
         const subtext = document.getElementById('signOutModalSubtext');
         if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
         const sc = document.getElementById('checkoutScanners');
-        // Dispatching asks for photos at checkout. Receiving does not.
         if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.add('modal-active');
@@ -1112,7 +1177,6 @@
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.remove('modal-active');
         
-        // Reset variables and labels to prevent carrying over to next truck
         tempCheckoutTruckPhoto = null;
         tempCheckoutItemPhoto = null;
         const ts = document.getElementById('checkoutTruckStatus');
@@ -1127,7 +1191,6 @@
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
         btnConfirmSignOut.addEventListener('click', () => {
-            // Validate required checkout photos for non-Receiving (e.g. Dispatching)
             if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
                 if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
                     alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
@@ -1185,7 +1248,7 @@
         let mins = Math.floor(diff / 60000);
         let h = Math.floor(mins / 60);
         let m = mins % 60;
-        return `${h}h ${m}m`; // Force English
+        return `${h}h ${m}m`;
     }
 
     function generatePlateBumperUI(plateStr) {
@@ -1253,7 +1316,6 @@
             const durStr = calculateDurationStr(r.checkInTime, null);
             let dCheckIn = parseFlexibleDate(r.checkInTime);
             
-            // ISO formatted assignment to data-timein for live updates
             let isoCheckIn = !isNaN(dCheckIn.getTime()) ? dCheckIn.toISOString() : r.checkInTime;
             let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
             
@@ -1562,10 +1624,15 @@
         const container = document.getElementById('driversRegistryContainer');
         if (!container) return;
         let html = '';
+        const isAdmin = (userRole === 'admin');
+
         driversRegistryList.slice(0, 50).forEach(d => {
             const searchName = String(d.name || "").toLowerCase();
             const searchPlate = String(d.plate || "").toLowerCase();
             const searchIqama = String(d.id || "").toLowerCase();
+            
+            const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
+
             html += `
             <div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}">
                 <div class="driver-card-header">
@@ -1581,7 +1648,10 @@
                     <div><p class="info-block">Iqama Number</p><p>${d.id}</p></div>
                     <div><p class="info-block">Phone Number</p><p>${d.phone}</p></div>
                 </div>
-                <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')">View Records</button>
+                <div class="card-actions-wrapper">
+                    <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="View Records">View Records</button>
+                    ${editBtnHtml}
+                </div>
             </div>`;
         });
         container.innerHTML = html;
@@ -1610,8 +1680,12 @@
         const container = document.getElementById('securityRegistryContainer');
         if (!container) return;
         let html = '';
+        const isAdmin = (userRole === 'admin');
+
         securityRegistryList.forEach(g => {
             const searchName = String(g.securityName || "").toLowerCase();
+            const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditGuardModal('${g.securityName.replace(/'/g, "\\'")}', '${String(g.securityId || '').replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
+
             html += `
             <div class="driver-registry-card security-card" data-name="${searchName}">
                 <div class="driver-card-header">
@@ -1623,6 +1697,9 @@
                 </div>
                 <div class="driver-card-info-grid">
                     <div><p class="info-block">Security ID</p><data>${g.securityId || '--'}</data></div>
+                </div>
+                <div class="card-actions-wrapper">
+                    ${editBtnHtml}
                 </div>
             </div>`;
         });
@@ -1638,6 +1715,107 @@
         });
     }
     window.filterSecurityCards = filterSecurityCards;
+
+    // --- ADMIN EDIT MODAL HANDLERS ---
+    function openEditDriverModal(name, iqama, plate, mobile) {
+        document.getElementById('editDriverOldName').value = name;
+        document.getElementById('editDriverName').value = name;
+        document.getElementById('editDriverIqama').value = iqama !== '--' ? iqama : '';
+        document.getElementById('editDriverPlate').value = plate !== '--' ? plate : '';
+        document.getElementById('editDriverMobile').value = mobile !== '--' ? mobile : '';
+        document.getElementById('editDriverModal').classList.add('modal-active');
+    }
+    window.openEditDriverModal = openEditDriverModal;
+
+    function closeEditDriverModal() {
+        document.getElementById('editDriverModal').classList.remove('modal-active');
+    }
+    window.closeEditDriverModal = closeEditDriverModal;
+
+    function saveDriverEdit() {
+        const oldName = document.getElementById('editDriverOldName').value;
+        const newName = document.getElementById('editDriverName').value.trim();
+        const newIqama = document.getElementById('editDriverIqama').value.trim();
+        const newPlate = document.getElementById('editDriverPlate').value.trim();
+        const newMobile = document.getElementById('editDriverMobile').value.trim();
+
+        if (!newName || !newIqama || !newPlate) {
+            alert("Please fill in all required fields (Driver Name, Iqama Number, and Plate Number).");
+            return;
+        }
+
+        // Update local cache across all matching logs
+        globalLogsCache.forEach(r => {
+            if (r.driverName === oldName) {
+                r.driverName = newName;
+                r.iqamaNumber = newIqama;
+                r.plateNumber = newPlate;
+                r.mobileNumber = newMobile || "N/A";
+            }
+        });
+
+        // Trigger Google Sheets update
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'editDriver',
+                oldDriverName: oldName,
+                driverName: newName,
+                iqamaNumber: newIqama,
+                plateNumber: newPlate,
+                mobileNumber: newMobile || "N/A"
+            })
+        }).catch(e => console.error(e));
+
+        closeEditDriverModal();
+        window.handleLogsResponse({ logs: globalLogsCache });
+    }
+    window.saveDriverEdit = saveDriverEdit;
+
+    function openEditGuardModal(name, guardId) {
+        document.getElementById('editGuardOldName').value = name;
+        document.getElementById('editGuardName').value = name;
+        document.getElementById('editGuardId').value = guardId !== '--' ? guardId : '';
+        document.getElementById('editGuardModal').classList.add('modal-active');
+    }
+    window.openEditGuardModal = openEditGuardModal;
+
+    function closeEditGuardModal() {
+        document.getElementById('editGuardModal').classList.remove('modal-active');
+    }
+    window.closeEditGuardModal = closeEditGuardModal;
+
+    function saveGuardEdit() {
+        const oldName = document.getElementById('editGuardOldName').value;
+        const newName = document.getElementById('editGuardName').value.trim();
+        const newGuardId = document.getElementById('editGuardId').value.trim();
+
+        if (!newName || !newGuardId) {
+            alert("Please fill in all required fields (Security Name and Security ID).");
+            return;
+        }
+
+        globalLogsCache.forEach(r => {
+            if (r.securityName === oldName) {
+                r.securityName = newName;
+                r.securityId = newGuardId;
+            }
+        });
+
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'editGuard',
+                oldSecurityName: oldName,
+                securityName: newName,
+                securityId: newGuardId
+            })
+        }).catch(e => console.error(e));
+
+        closeEditGuardModal();
+        window.handleLogsResponse({ logs: globalLogsCache });
+    }
+    window.saveGuardEdit = saveGuardEdit;
 
     window.renderDriverSuggestions = debounce(function(value) {
         const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
@@ -1816,11 +1994,19 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck') {
+                        tempCheckoutTruckPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
+                    } else if (currentScanType === 'item') {
+                        tempCheckoutItemPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
@@ -2045,7 +2231,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.1";
+    const CURRENT_APP_VERSION = "4.2";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
