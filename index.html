@@ -266,6 +266,10 @@
         .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
         .corner-br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
 
+        /* Locked Target (Green) */
+        .scanner-target-box.locked .scanner-corner { border-color: var(--success-color); }
+        .scanner-target-box.locked .scanner-laser { background: var(--success-color); box-shadow: 0 0 12px var(--success-color); animation-duration: 3s; }
+        
         .plate-bumper { display:inline-flex; align-items:center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-family: monospace; overflow: hidden;}
         .plate-num { padding: 3px 6px; background: rgba(0,0,0,0.4); font-weight: bold; color: #fff;}
         .plate-let { padding: 3px 6px; color: var(--accent-color); font-weight: bold;}
@@ -717,7 +721,7 @@
         </div>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
         <div class="camera-controls" style="margin-top: 1rem;">
-            <button class="btn-capture" onclick="captureCameraFrame()">📸 <span data-i18n="Capture">Capture</span></button>
+            <button class="btn-capture" id="mainCaptureBtn" onclick="captureCameraFrame()">📸 <span data-i18n="Capture">Capture</span></button>
             <button class="btn-torch" id="torchToggleBtn" onclick="toggleCameraTorch()">💡 Flash</button>
             <button class="btn-cancel-cam" onclick="handleCameraCancel()" data-i18n="Cancel">Cancel</button>
         </div>
@@ -821,7 +825,7 @@
         "Iqama/National ID": "الإقامة / الهوية الوطنية", "Primary Vehicle Plate": "لوحة المركبة الأساسية", "Registered Date": "تاريخ التسجيل",
         "Close Window": "إغلاق النافذة", "Edit Driver Record": "تعديل سجل السائق", "Edit Guard Record": "تعديل سجل الحارس", "Delete": "حذف",
         "Cancel": "إلغاء", "Save Updates": "حفظ التحديثات", "Completing SLP cycle...": "إكمال دورة SLP...", "ATTACH DEPARTURE SEAL *": "إرفاق ختم المغادرة *",
-        "CONFIRM CHECK OUT": "تأكيد تسجيل الخروج", "CHECK OUT": "تسجيل الخروج", "DISCARD CHANGES": "تجاهل التغييرات", "Capture": "التقاط",
+        "CONFIRM CHECK OUT": "تأكيد تسجيل الخروج", "CHECK OUT": "تسجيل الخروج", "DISCARD CHANGES": "تجاهل التغييرات", "Capture": "التقاط", "Hold Still...": "ثبت يدك...",
         "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق", "Check out": "تسجيل الخروج", "Edit": "تعديل"
     };
 
@@ -2191,11 +2195,19 @@
         isTorchOn = false;
         const torchBtn = document.getElementById('torchToggleBtn');
         if (torchBtn) torchBtn.style.background = 'rgba(255,255,255,0.15)';
+        
+        const captureBtn = document.getElementById('mainCaptureBtn');
+        if (captureBtn) {
+            captureBtn.innerHTML = `📸 <span data-i18n="Capture">${tr('Capture')}</span>`;
+            captureBtn.disabled = false;
+            captureBtn.style.background = 'var(--accent-color)';
+        }
 
         // Configure Scanner Overlay Box
         const scannerBox = document.getElementById('scannerTarget');
         const instruction = document.getElementById('cameraInstructionLabel');
         if (scannerBox) {
+            scannerBox.classList.remove('locked');
             scannerBox.style.display = 'block';
             if (instruction) instruction.style.color = 'var(--accent-color)';
             
@@ -2260,38 +2272,59 @@
     window.closeCamera = closeCamera;
 
     function captureCameraFrame() {
-        const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.getElementById('cameraCanvas');
+        const captureBtn = document.getElementById('mainCaptureBtn');
+        
         if (video && !video.paused) {
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height);
-            const currentStatusId = cameraTargetStatusId, currentScanType = cameraTargetScanType;
-            
-            canvas.toBlob(blob => {
-                let reader = new FileReader(); reader.readAsDataURL(blob);
-                reader.onloadend = () => { 
-                    if (currentScanType === 'truck') {
-                        tempCheckoutTruckPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
-                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
-                        temporaryCapturedImage = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
-                    } else if (currentScanType === 'item') {
-                        tempCheckoutItemPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
-                    } else if (currentScanType === 'ITEM_PHOTO') {
-                        temporaryCapturedItemImage = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
-                    } else {
-                        temporaryCapturedImage = reader.result; 
-                        runLocalOcrEngine(blob, currentStatusId, currentScanType); 
-                    }
-                };
-            }, 'image/jpeg', 0.85); 
-            closeCamera();
+            // Anti-shake feature: Wait for tap-shake to subside before capturing
+            if (captureBtn) {
+                captureBtn.innerHTML = `⏳ ${tr('Hold Still...')}`;
+                captureBtn.disabled = true;
+                captureBtn.style.background = '#fff';
+            }
+
+            setTimeout(() => {
+                canvas.width = video.videoWidth; 
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const currentStatusId = cameraTargetStatusId, currentScanType = cameraTargetScanType;
+                
+                canvas.toBlob(blob => {
+                    let reader = new FileReader(); reader.readAsDataURL(blob);
+                    reader.onloadend = () => { 
+                        if (currentScanType === 'truck') {
+                            tempCheckoutTruckPhoto = reader.result;
+                            const statusEl = document.getElementById(currentStatusId);
+                            if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                        } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
+                            temporaryCapturedImage = reader.result;
+                            const statusEl = document.getElementById(currentStatusId);
+                            if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                        } else if (currentScanType === 'item') {
+                            tempCheckoutItemPhoto = reader.result;
+                            const statusEl = document.getElementById(currentStatusId);
+                            if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                        } else if (currentScanType === 'ITEM_PHOTO') {
+                            temporaryCapturedItemImage = reader.result;
+                            const statusEl = document.getElementById(currentStatusId);
+                            if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                        } else {
+                            temporaryCapturedImage = reader.result; 
+                            runLocalOcrEngine(blob, currentStatusId, currentScanType); 
+                        }
+                    };
+                }, 'image/jpeg', 0.85); 
+                
+                if (captureBtn) {
+                    captureBtn.innerHTML = `📸 <span data-i18n="Capture">${tr('Capture')}</span>`;
+                    captureBtn.disabled = false;
+                    captureBtn.style.background = 'var(--accent-color)';
+                }
+                closeCamera();
+                
+            }, 800); // 800ms stabilization delay
         }
     }
     window.captureCameraFrame = captureCameraFrame;
