@@ -7,8 +7,8 @@
         :root { --bg-color: #0b0e14; --card-bg: rgba(18, 22, 31, 0.95); --card-solid: #12161f; --sidebar-bg: #07090c; --accent-color: #fcc200; --text-main: #f0f2f5; --text-muted: #8b949e; --border-color: rgba(255, 255, 255, 0.08); --success-color: #2ea043; --danger-color: #f85149; --nav-hover: rgba(252, 194, 0, 0.1); }
         #cameraModal, .camera-modal, .camera-overlay, [id*="camera"] { z-index: 999999 !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        html { overflow-x: hidden; max-width: 100vw; }
-        body { background-color: var(--bg-color); background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg'); background-size: 55%; background-position: center; background-repeat: no-repeat; background-attachment: fixed; color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; width: 100%; position: relative; font-size: 14px; }
+        html, body { overflow-x: hidden; max-width: 100vw; width: 100%; }
+        body { background-color: var(--bg-color); background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg'); background-size: 55%; background-position: center; background-repeat: no-repeat; background-attachment: fixed; color: var(--text-main); display: flex; min-height: 100vh; position: relative; font-size: 14px; }
         input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
@@ -44,6 +44,8 @@
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
         .main-content { margin-left: 240px; flex-grow: 1; padding: 1.5rem 2rem; width: calc(100% - 240px); position: relative; transition: margin 0.3s, width 0.3s; min-width: 0; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
+        
+        /* RTL & Mobile Overrides */
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
         html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
@@ -54,7 +56,19 @@
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         html[dir="rtl"] #floatingOpenBtn { left: auto; right: 1rem; }
-        @media (max-width: 1200px) { .sidebar { transform: translateX(-100%); } html[dir="rtl"] .sidebar { transform: translateX(100%); } .sidebar.mobile-open { transform: translateX(0); width: 240px; } html[dir="rtl"] .sidebar.mobile-open { transform: translateX(0); } .sidebar-close-btn { display: block !important; } #floatingOpenBtn { display: flex; } .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; } html[dir="rtl"] .main-content { margin-right: 0; } .nav-prev-btn { left: 10px; } html[dir="rtl"] .nav-prev-btn { right: 10px; left: auto; } }
+        @media (max-width: 1200px) { 
+            .sidebar { transform: translateX(-100%); } 
+            html[dir="rtl"] .sidebar { transform: translateX(100%); } 
+            .sidebar.mobile-open { transform: translateX(0); width: 240px; } 
+            html[dir="rtl"] .sidebar.mobile-open { transform: translateX(0); } 
+            .sidebar-close-btn { display: block !important; } 
+            #floatingOpenBtn { display: flex; } 
+            .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; } 
+            html[dir="rtl"] .main-content { margin-right: 0; } 
+            .nav-prev-btn { left: 10px; } 
+            html[dir="rtl"] .nav-prev-btn { right: 10px; left: auto; } 
+        }
+        
         .app-view { display: none; } .app-view.active-view { display: block; }
         .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 2.5rem 1.25rem 2rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; }
         .hero-badges-wrapper { position: absolute; top: 1rem; left: 1.25rem; display: flex; gap: 0.75rem; }
@@ -946,11 +960,12 @@
         const aTables = $id('analyticsGroupedTables'); if (aTables) {
             let groups = {}, aHtml = ''; filtered.forEach(r => { let dDir = String(r.direction || '').split('-')[0].trim().toUpperCase(); groups[dDir] = groups[dDir] || []; groups[dDir].push(r); });
             for (let [dir, items] of Object.entries(groups)) {
+                let badgeCls = getBadgeClass(dir, false);
                 let rows = items.slice(0,20).map(r => {
                     let dCheckIn = parseFlexibleDate(r.checkInTime), dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
                     return `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><strong>${r.dockNumber}</strong></td><td style="font-family:monospace; color:var(--text-muted);" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td><td class="notranslate" translate="no">${!isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime}</td><td class="notranslate" translate="no">${dCheckOut && !isNaN(dCheckOut.getTime()) ? dCheckOut.toLocaleString('en-US') : (r.checkOutTime || 'Inside')}</td><td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td><td>🛡️ ${r.securityName}</td></tr>`;
                 }).join('');
-                aHtml += `<div class="accordion-wrapper"><div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')"><div class="accordion-title"><span class="${getBadgeClass(dir, false)}">${dir}</span></div><div class="accordion-badge">${items.length}</div></div><div class="accordion-content"><div class="table-responsive"><table><thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Seal Number</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead><tbody>${rows}</tbody></table></div></div></div>`;
+                aHtml += `<div class="accordion-wrapper"><div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')"><div class="accordion-title"><span class="${badgeCls}">${dir}</span></div><div class="accordion-badge">${items.length}</div></div><div class="accordion-content"><div class="table-responsive"><table><thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Seal Number</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead><tbody>${rows}</tbody></table></div></div></div>`;
             }
             aTables.innerHTML = aHtml;
         }
@@ -1207,8 +1222,8 @@
         const blob = new Blob(["\uFEFF" + csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `movement-history-${new Date().toISOString().slice(0, 10)}.csv`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     };
 
-    function checkForNewCode() { fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' }).then(r => r.text()).then(html => { if (html.match(/const CURRENT_APP_VERSION = "([^"]+)";/)?.[1] !== "5.0") { const btn = $id('updateAppBtn'); if (btn) btn.style.display = 'flex'; } }).catch(() => { }); }
-    const CURRENT_APP_VERSION = "5.0";
+    function checkForNewCode() { fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' }).then(r => r.text()).then(html => { if (html.match(/const CURRENT_APP_VERSION = "([^"]+)";/)?.[1] !== "5.1") { const btn = $id('updateAppBtn'); if (btn) btn.style.display = 'flex'; } }).catch(() => { }); }
+    const CURRENT_APP_VERSION = "5.1";
 </script>
 </body>
 </html>
