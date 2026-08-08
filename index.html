@@ -265,10 +265,6 @@
         .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
         .corner-br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
 
-        /* Locked Target (Green) */
-        .scanner-target-box.locked .scanner-corner { border-color: var(--success-color); }
-        .scanner-target-box.locked .scanner-laser { background: var(--success-color); box-shadow: 0 0 12px var(--success-color); animation-duration: 3s; }
-        
         .plate-bumper { display:inline-flex; align-items:center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-family: monospace; overflow: hidden;}
         .plate-num { padding: 3px 6px; background: rgba(0,0,0,0.4); font-weight: bold; color: #fff;}
         .plate-let { padding: 3px 6px; color: var(--accent-color); font-weight: bold;}
@@ -738,13 +734,13 @@
     window.hasFetchedLogs = false;
     window.isSavingEdit = false;
     
-    let currentHistoryDateRange = 'all';
-    let currentAnalyticsDateRange = 'weekly';
-    
     let temporaryCapturedImage = null;
     let temporaryCapturedItemImage = null;
     let tempCheckoutTruckPhoto = null;
     let tempCheckoutItemPhoto = null;
+    
+    let currentHistoryDateRange = 'all';
+    let currentAnalyticsDateRange = 'weekly';
     
     let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "👤" };
     let userRole = 'guard';
@@ -2183,30 +2179,18 @@
             if (scanType === 'PLATE') {
                 scannerBox.style.width = '80%';
                 scannerBox.style.height = '35%';
-                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة لوحة الشاحنة داخل الإطار' : 'Align Truck Plate Inside Box';
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة لوحة الشاحنة واضغط التقاط' : 'Align Truck Plate Inside Box & Press Capture';
             } else if (scanType === 'IQAMA') {
                 scannerBox.style.width = '80%';
                 scannerBox.style.height = '50%';
-                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الإقامة داخل الإطار' : 'Align Iqama Inside Box';
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الإقامة واضغط التقاط' : 'Align Iqama Inside Box & Press Capture';
             } else if (scanType === 'OFFICER' || scanType === 'LOGIN_OFFICER') {
                 scannerBox.style.width = '70%';
                 scannerBox.style.height = '60%';
-                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الأمن داخل الإطار' : 'Align Security ID Inside Box';
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الأمن واضغط التقاط' : 'Align Security ID Inside Box & Press Capture';
             } else {
                 scannerBox.style.display = 'none'; // Hide for general item/truck photos
                 if (instruction) instruction.innerText = currentLang === 'ar' ? 'التقط صورة واضحة' : 'Take a Clear Picture';
-            }
-            
-            // Simulate Lock-On Delay (2 seconds)
-            if (window.cameraLockTimeout) clearTimeout(window.cameraLockTimeout);
-            if (scanType === 'PLATE' || scanType === 'IQAMA' || scanType === 'OFFICER' || scanType === 'LOGIN_OFFICER') {
-                window.cameraLockTimeout = setTimeout(() => {
-                    scannerBox.classList.add('locked');
-                    if (instruction) {
-                        instruction.innerText = currentLang === 'ar' ? 'الهدف جاهز - التقط الصورة الآن' : 'Target Aligned - Press Capture';
-                        instruction.style.color = 'var(--success-color)';
-                    }
-                }, 2000);
             }
         }
 
