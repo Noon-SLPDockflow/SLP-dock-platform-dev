@@ -1161,7 +1161,11 @@
                 itemPhoto: temporaryCapturedItemImage || ""
             };
 
-            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
+            fetch(API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload) 
+            }).catch(e => console.error(e));
             
             payload.checkInTime = new Date().toISOString();
             globalLogsCache.unshift(payload);
@@ -1233,7 +1237,11 @@
                 truckPhoto: tempCheckoutTruckPhoto || "", 
                 itemPhoto: tempCheckoutItemPhoto || ""
             };
-            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            fetch(API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload) 
+            });
             
             let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
             if (match) { 
@@ -1789,7 +1797,7 @@
         try {
             await fetch(API_URL, {
                 method: 'POST',
-                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: 'editDriver',
                     oldDriverName: oldName,
@@ -1855,7 +1863,7 @@
         try {
             await fetch(API_URL, {
                 method: 'POST',
-                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: 'editGuard',
                     oldSecurityName: oldName,
@@ -2076,19 +2084,11 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck') {
-                        tempCheckoutTruckPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item') {
-                        tempCheckoutItemPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'ITEM_PHOTO') {
+                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
@@ -2315,7 +2315,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.4";
+    const CURRENT_APP_VERSION = "4.5";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
