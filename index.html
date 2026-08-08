@@ -247,15 +247,19 @@
     </style>
 </head>
 <body>
-    <div id="updateAppBtn" onclick="window.location.reload(true)" style="display:none; position:fixed; top:20px; right:50%; transform:translateX(50%); z-index:2147483647; background:#1a1a1a; color:#fff; border:1px solid #333; padding:10px 24px; border-radius:50px; font-weight:bold; cursor:pointer; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,0.8);"><div style="width:12px; height:12px; background:#ff4444; border-radius:50%; box-shadow:0 0 10px #ff4444; animation: pulse 1s infinite alternate;"></div><span style="font-size:1.1rem; letter-spacing:0.5px;">New Update Available! Click to Refresh</span></div>
+    <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none; position:fixed; top:20px; right:50%; transform:translateX(50%); z-index:2147483647; background:#1a1a1a; color:#fff; border:1px solid #333; padding:10px 24px; border-radius:50px; font-weight:bold; cursor:pointer; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,0.8);"><div style="width:12px; height:12px; background:#ff4444; border-radius:50%; box-shadow:0 0 10px #ff4444; animation: pulse 1s infinite alternate;"></div><span style="font-size:1.1rem; letter-spacing:0.5px;">New Update Available! Click to Refresh</span></div>
     
-    <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu"><span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span></button>
+    <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu">
+        <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
+    </button>
 
     <!-- Login Screen -->
     <div id="introOverlay" class="intro-overlay">
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
-            <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;"><button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button></div>
+            <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;">
+                <button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
+            </div>
             <div class="login-tabs">
                 <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ <span data-i18n="Guard">Guard</span></button>
                 <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
@@ -266,15 +270,19 @@
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
                     <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                 </div>
+                
                 <div id="loginNameWrapper" style="position: relative; width: 100%;">
                     <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'name')">
                     <div id="loginNameSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
                 </div>
+
                 <div id="loginIdWrapper" style="position: relative; width: 100%;">
                     <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'id')">
                     <div id="loginIdSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
                 </div>
+
                 <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Authorized Noon Email">
+                
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
                     <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);">
                 </div>
@@ -286,7 +294,13 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="appSidebar">
-        <div class="brand-section"><div class="brand-text"><h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2><p data-i18n="Dock Security Platform">Dock Security Platform</p></div><button class="sidebar-close-btn" onclick="toggleSidebar()">✕</button></div>
+        <div class="brand-section">
+            <div class="brand-text">
+                <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
+                <p data-i18n="Dock Security Platform">Dock Security Platform</p>
+            </div>
+            <button class="sidebar-close-btn" onclick="toggleSidebar()">✕</button>
+        </div>
         <button type="button" class="sidebar-refresh-btn" onclick="location.reload();">🔄 <span data-i18n="Refresh">Refresh</span></button>
         <ul class="nav-links">
             <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)"><span class="nav-icon">📊</span><span class="nav-text" data-i18n="Dashboard">Dashboard</span></li>
@@ -298,7 +312,10 @@
             <li class="nav-item" id="nav-security" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
         </ul>
         <div class="sidebar-footer">
-            <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:1px;">Operational</div></div><div class="health-dot"></div></div>
+            <div class="system-health">
+                <div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:1px;">Operational</div></div>
+                <div class="health-dot"></div>
+            </div>
             <div class="nav-item" onclick="toggleLang()"><span class="nav-icon">🌐</span><span class="nav-text" data-i18n="Language: EN / AR">Language: EN / AR</span></div>
             <div class="nav-item" onclick="toggleFullscreen()"><span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-i18n="Fullscreen">Fullscreen</span></div>
             <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); font-weight: 700; cursor: pointer;"><span class="nav-icon">🚪</span><span class="nav-text" data-i18n="SIGN OUT">SIGN OUT</span></div>
@@ -310,51 +327,104 @@
         <button class="desktop-nav-btn nav-prev-btn" onclick="swipePrev()">❮</button>
         <button class="desktop-nav-btn nav-next-btn" onclick="swipeNext()">❯</button>
 
+        <!-- DASHBOARD -->
         <div id="view-dashboard" class="app-view active-view">
-            <div class="dashboard-hero"><div class="hero-badges-wrapper"><span class="hero-badge" id="heroTimeBadge" style="color: var(--accent-color);">--:--</span><span class="hero-badge" id="heroDateBadge" style="color: var(--accent-color);">--</span></div><div class="hero-title-box"><h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2><p data-i18n="Dock Security Platform">Dock Security Platform</p></div></div>
+            <div class="dashboard-hero">
+                <div class="hero-badges-wrapper">
+                    <span class="hero-badge" id="heroTimeBadge" style="color: var(--accent-color);">--:--</span>
+                    <span class="hero-badge" id="heroDateBadge" style="color: var(--accent-color);">--</span>
+                </div>
+                <div class="hero-title-box">
+                    <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
+                    <p data-i18n="Dock Security Platform">Dock Security Platform</p>
+                </div>
+            </div>
             <div class="metrics-bar-four">
                 <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div><div class="metric-accent-line" style="background-color: var(--accent-color);"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label" data-i18n="Completed Today">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-i18n="Total Check-Ins">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
-            <div class="card"><div class="card-header-flex"><h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2><span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span></div><div id="occupiedDocksContainer" class="docks-grid-container"><div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div></div></div>
+            <div class="card">
+                <div class="card-header-flex">
+                    <h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2>
+                    <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span>
+                </div>
+                <div id="occupiedDocksContainer" class="docks-grid-container"><div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div></div>
+            </div>
         </div>
 
+        <!-- ANALYTICS -->
         <div id="view-analytics" class="app-view">
-            <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Analytics">Analytics</h1><p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p></div><div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedApplyAnalyticsFilters) window.debouncedApplyAnalyticsFilters()"></div></div>
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Analytics">Analytics</h1><p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedApplyAnalyticsFilters) window.debouncedApplyAnalyticsFilters()"></div>
+            </div>
             <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select>
+                <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()">
+                    <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
+                    <option value="in" data-i18n="Check In Only">Check In Only</option>
+                    <option value="out" data-i18n="Check Out Only">Check Out Only</option>
+                </select>
                 <div class="filter-tabs-container analytics-filter-container">
-                    <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button><button class="tab-filter-item active" data-range="weekly" onclick="setAnalyticsDateFilter('weekly', this)" data-i18n="Weekly">Weekly</button><button class="tab-filter-item" data-range="monthly" onclick="setAnalyticsDateFilter('monthly', this)" data-i18n="Monthly">Monthly</button><button class="tab-filter-item" data-range="6months" onclick="setAnalyticsDateFilter('6months', this)" data-i18n="6 Months">6 Months</button><button class="tab-filter-item" data-range="1year" onclick="setAnalyticsDateFilter('1year', this)" data-i18n="1 Year">1 Year</button><button class="tab-filter-item" data-range="custom" onclick="setAnalyticsDateFilter('custom', this)" data-i18n="Custom">Custom</button>
+                    <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button>
+                    <button class="tab-filter-item active" data-range="weekly" onclick="setAnalyticsDateFilter('weekly', this)" data-i18n="Weekly">Weekly</button>
+                    <button class="tab-filter-item" data-range="monthly" onclick="setAnalyticsDateFilter('monthly', this)" data-i18n="Monthly">Monthly</button>
+                    <button class="tab-filter-item" data-range="6months" onclick="setAnalyticsDateFilter('6months', this)" data-i18n="6 Months">6 Months</button>
+                    <button class="tab-filter-item" data-range="1year" onclick="setAnalyticsDateFilter('1year', this)" data-i18n="1 Year">1 Year</button>
+                    <button class="tab-filter-item" data-range="custom" onclick="setAnalyticsDateFilter('custom', this)" data-i18n="Custom">Custom</button>
                 </div>
             </div>
-            <div class="custom-date-row" id="analyticsCustomDateRow"><input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo"><button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button></div>
+            <div class="custom-date-row" id="analyticsCustomDateRow">
+                <input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo">
+                <button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button>
+            </div>
             <div class="analytics-grid">
                 <div class="chart-card"><h3 data-i18n="Vehicle Processing Growth">Vehicle Processing Growth</h3><div id="chartGrowthLine"></div></div>
                 <div class="chart-card"><h3 data-i18n="Movement Cohorts">Movement Cohorts</h3><div class="bar-chart-container" id="chartCohortsBars"></div></div>
                 <div class="chart-card"><h3 data-i18n="Peak Operating Hours">Peak Operating Hours</h3><div id="chartHoursColumns"></div></div>
-                <div class="chart-card"><h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3><div class="donut-container"><div class="donut-chart" id="chartDocksDonut" style="background: var(--card-solid);"></div><div class="donut-hole"></div></div><ul class="chart-legend" id="chartDocksLegend"></ul></div>
+                <div class="chart-card"><h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3>
+                    <div class="donut-container"><div class="donut-chart" id="chartDocksDonut" style="background: var(--card-solid);"></div><div class="donut-hole"></div></div>
+                    <ul class="chart-legend" id="chartDocksLegend"></ul>
+                </div>
             </div>
             <div id="analyticsGroupedTables" style="margin-top: 2rem;"></div>
         </div>
 
+        <!-- CHECK IN -->
         <div id="view-checkin" class="app-view">
             <div style="max-width: 850px; margin: 0 auto;">
                 <header class="view-header-row" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;"><div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div></header>
+                
                 <div class="scanners-double-row" id="topScannersRow">
-                    <div class="scan-box-dashed" id="scanBoxDriverTop" onclick="document.getElementById('driverPhotoInput').click()"><div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusTop" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div><input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatusTop', 'PLATE')"><div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusTop', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div></div>
-                    <div class="scan-box-dashed" id="scanBoxIqamaTop" onclick="document.getElementById('iqamaScanner').click()"><div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div><input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')"><div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div></div>
+                    <div class="scan-box-dashed" id="scanBoxDriverTop" onclick="document.getElementById('driverPhotoInput').click()">
+                        <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusTop" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
+                        <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatusTop', 'PLATE')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusTop', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                    </div>
+                    <div class="scan-box-dashed" id="scanBoxIqamaTop" onclick="document.getElementById('iqamaScanner').click()">
+                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
+                        <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                    </div>
                 </div>
+
                 <div class="card" style="padding: 2rem 1.5rem; background: #12161f; border-color: rgba(255,255,255,0.03);">
-                    <div class="toggle-container"><button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">👤 <span data-i18n="New Driver">New Driver</span></button><button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">⏱️ <span data-i18n="Existing Driver">Existing Driver</span></button></div>
+                    <div class="toggle-container">
+                        <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">👤 <span data-i18n="New Driver">New Driver</span></button>
+                        <button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">⏱️ <span data-i18n="Existing Driver">Existing Driver</span></button>
+                    </div>
                     <form id="entryForm" autocomplete="off">
                         <div class="form-grid-columns">
                             <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
-                                <label class="badge-style" data-i18n="Search Driver By Name or Plate... *">Search Driver By Name, Plate or ID... *</label><span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span><input type="text" id="driverSearchBox" class="input-box-styled header-search-input" data-i18n="Search records..." placeholder="Type to search drivers..." autocomplete="off" oninput="window.renderDriverSuggestions(this.value)"><div id="driverSuggestionsList" class="suggestions-dropdown"></div>
+                                <label class="badge-style" data-i18n="Search Driver By Name or Plate... *">Search Driver By Name, Plate or ID... *</label>
+                                <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
+                                <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" data-i18n="Search records..." placeholder="Type to search drivers..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" oninput="window.renderDriverSuggestions(this.value)">
+                                <div id="driverSuggestionsList" class="suggestions-dropdown"></div>
                             </div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Driver Name *">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required></div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" required></div>
+                            
                             <div class="form-group new-driver-field">
                                 <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
                                 <div style="display: flex; gap: 8px;">
@@ -362,29 +432,71 @@
                                     <input type="text" id="plateNumberLetters" class="input-box-styled" placeholder="ABC" required style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, ''); runInstantConflictCheck(event);">
                                 </div>
                             </div>
+
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled"></div>
+                            
                             <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
                             <div class="form-group" style="position: relative;">
-                                <label class="badge-style" data-i18n="Security Name *">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required autocomplete="off"><div id="securitySuggestionsList" class="suggestions-dropdown"></div>
+                                <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
+                                <input type="text" id="securityNameField" class="input-box-styled" required autocomplete="off">
+                                <div id="securitySuggestionsList" class="suggestions-dropdown"></div>
                             </div>
                             <div class="form-group"><label class="badge-style" data-i18n="Security ID *">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required></div>
+                            
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
-                                <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value)"><option value="" disabled selected>Select Dock (15 - 90)...</option><option value="Others">Others / آخر</option></select>
+                                <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value)">
+                                    <option value="" disabled selected>Select Dock (15 - 90)...</option>
+                                    <option value="Others">Others / آخر</option>
+                                </select>
                                 <input type="number" id="dockNumberCustom" class="input-box-styled" placeholder="Enter Custom Numeric Dock..." style="display:none; margin-top:0.5rem;" min="1" oninput="this.value = this.value.replace(/[^0-9]/g, '');" autocomplete="off">
                             </div>
+                            
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
-                                <select id="direction" class="input-box-styled" required style="font-size: 0.85rem;" onchange="handlePurposeChange(this)"><option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option><option value="RTV Handover - تسليم مرتجعات">RTV Handover - تسليم مرتجعات</option><option value="ST CFCs - نقل بضائع بين مستودعات نون">ST CFCs - نقل بضائع بين مستودعات نون</option><option value="ST Supermall - نقل بضائع سوبر مول">ST Supermall - نقل بضائع سوبر مول</option><option value="ST Minutes - نقل بضائع منيتس">ST Minutes - نقل بضائع منيتس</option><option value="LQD Handover - تسليم مبيعات التالف">LQD Handover - تسليم مبيعات التالف</option><option value="Fixed Asset Movement - نقل أصول ثابتة">Fixed Asset Movement - نقل أصول ثابتة</option><option value="Dispose/Scrape - المخلفات">Dispose/Scrape - المخلفات</option><option value="Contractor Material In - تنزيل معدات المقاولين">Contractor Material In - تنزيل معدات المقاولين</option><option value="Contractor Material out - تحميل معدات المقاولين">Contractor Material out - تحميل معدات المقاولين</option><option value="BT SuperMall - رجيع سوبر مول">BT SuperMall - رجيع سوبر مول</option><option value="BT Minutes - رجيع مينيتس">BT Minutes - رجيع مينيتس</option><option value="Liquidation - إعادة بيع البضائع التالفة">Liquidation - إعادة بيع البضائع التالفة</option><option value="Others">Others - أخرى</option></select>
+                                <select id="direction" class="input-box-styled" required style="font-size: 0.85rem;" onchange="handlePurposeChange(this)">
+                                    <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
+                                    <option value="RTV Handover - تسليم مرتجعات">RTV Handover - تسليم مرتجعات</option>
+                                    <option value="ST CFCs - نقل بضائع بين مستودعات نون">ST CFCs - نقل بضائع بين مستودعات نون</option>
+                                    <option value="ST Supermall - نقل بضائع سوبر مول">ST Supermall - نقل بضائع سوبر مول</option>
+                                    <option value="ST Minutes - نقل بضائع منيتس">ST Minutes - نقل بضائع منيتس</option>
+                                    <option value="LQD Handover - تسليم مبيعات التالف">LQD Handover - تسليم مبيعات التالف</option>
+                                    <option value="Fixed Asset Movement - نقل أصول ثابتة">Fixed Asset Movement - نقل أصول ثابتة</option>
+                                    <option value="Dispose/Scrape - المخلفات">Dispose/Scrape - المخلفات</option>
+                                    <option value="Contractor Material In - تنزيل معدات المقاولين">Contractor Material In - تنزيل معدات المقاولين</option>
+                                    <option value="Contractor Material out - تحميل معدات المقاولين">Contractor Material out - تحميل معدات المقاولين</option>
+                                    <option value="BT SuperMall - رجيع سوبر مول">BT SuperMall - رجيع سوبر مول</option>
+                                    <option value="BT Minutes - رجيع مينيتس">BT Minutes - رجيع مينيتس</option>
+                                    <option value="Liquidation - إعادة بيع البضائع التالفة">Liquidation - إعادة بيع البضائع التالفة</option>
+                                    <option value="Others">Others - أخرى</option>
+                                </select>
                                 <input type="text" id="directionCustom" class="input-box-styled" placeholder="Please specify purpose..." style="display:none; margin-top:0.75rem;" autocomplete="off">
                             </div>
+                            
                             <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled" required onchange="handleDispatchChange(this)"><option value="" data-i18n="Select...">Select...</option><option value="Dispatching" data-i18n="Dispatching">Dispatching</option><option value="Receiving" data-i18n="Receiving">Receiving</option></select></div>
+                            
+                            <!-- Bottom Scanners Row -->
                             <div class="scanners-double-row" id="bottomScannersRow" style="display:none; grid-column: 1 / -1; margin-bottom: 0;">
-                                <div class="scan-box-dashed" id="bottomScanBoxDriver" onclick="document.getElementById('driverPhotoInputBottom').click()" style="display:none;"><div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusBottom" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div><input type="file" id="driverPhotoInputBottom" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatusBottom', 'TRUCK_PHOTO_ONLY')"><div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusBottom', 'TRUCK_PHOTO_ONLY')">📸 <span data-i18n="Use Camera">Use Camera</span></div></div>
-                                <div class="scan-box-dashed" id="bottomScanBoxItem" onclick="document.getElementById('itemPhotoInput').click()" style="display:none;"><div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus" data-i18n="Item Picture">Item Picture *</span></div><input type="file" id="itemPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'itemPhotoStatus', 'ITEM_PHOTO')"><div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('itemPhotoStatus', 'ITEM_PHOTO')">📸 <span data-i18n="Use Camera">Use Camera</span></div></div>
+                                <div class="scan-box-dashed" id="bottomScanBoxDriver" onclick="document.getElementById('driverPhotoInputBottom').click()" style="display:none;">
+                                    <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusBottom" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
+                                    <input type="file" id="driverPhotoInputBottom" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatusBottom', 'TRUCK_PHOTO_ONLY')">
+                                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusBottom', 'TRUCK_PHOTO_ONLY')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                                </div>
+                                <div class="scan-box-dashed" id="bottomScanBoxItem" onclick="document.getElementById('itemPhotoInput').click()" style="display:none;">
+                                    <div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus" data-i18n="Item Picture">Item Picture *</span></div>
+                                    <input type="file" id="itemPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'itemPhotoStatus', 'ITEM_PHOTO')">
+                                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('itemPhotoStatus', 'ITEM_PHOTO')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                                </div>
                             </div>
+                            
                             <div class="form-group"><label class="badge-style" data-i18n="Noon Employee ID">Noon Employee ID</label><input type="text" id="noonEmployeeId" class="input-box-styled" placeholder="Enter Noon employee ID" autocomplete="off"></div>
-                            <div class="form-group"><label class="badge-style" data-i18n="Quantity (Boxes/Pallets)">Quantity (Boxes/Pallets)</label><div style="display: flex; gap: 8px;"><select id="boxType" class="input-box-styled" style="width: 35%; padding: 0.5rem;"><option value="Boxes" data-i18n="Boxes">Boxes</option><option value="Pallets" data-i18n="Pallets">Pallets</option></select><input type="number" id="boxCount" class="input-box-styled" placeholder="Enter quantity" min="0" autocomplete="off" style="width: 65%;"></div></div>
+                            <div class="form-group">
+                                <label class="badge-style" data-i18n="Quantity (Boxes/Pallets)">Quantity (Boxes/Pallets)</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <select id="boxType" class="input-box-styled" style="width: 35%; padding: 0.5rem;"><option value="Boxes" data-i18n="Boxes">Boxes</option><option value="Pallets" data-i18n="Pallets">Pallets</option></select>
+                                    <input type="number" id="boxCount" class="input-box-styled" placeholder="Enter quantity" min="0" autocomplete="off" style="width: 65%;">
+                                </div>
+                            </div>
                             <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;"><label class="badge-style" style="color:var(--accent-color);" data-i18n="Seal or transction number">Seal or transction number</label><input type="text" id="sealNumber" class="input-box-styled" data-i18n="Seal or transction number" placeholder="Enter seal or transaction number" style="border-color: rgba(252, 194, 0, 0.4);" autocomplete="off"></div>
                         </div>
                         <button type="submit" class="submit-btn-global" data-i18n="Check In Truck">Check In Truck</button>
@@ -393,8 +505,12 @@
             </div>
         </div>
 
+        <!-- ACTIVE TRUCKS -->
         <div id="view-active-trucks" class="app-view">
-            <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Active Trucks in Facility">Active Trucks in Facility</h1><p data-i18n="Currently Checked-In Vehicles">Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ <span data-i18n="Total Inside">Total Inside</span>: <span id="activeYardCounter">0</span></div></div><div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedFilterActiveTrucks) window.debouncedFilterActiveTrucks()"></div></div>
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Active Trucks in Facility">Active Trucks in Facility</h1><p data-i18n="Currently Checked-In Vehicles">Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ <span data-i18n="Total Inside">Total Inside</span>: <span id="activeYardCounter">0</span></div></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedFilterActiveTrucks) window.debouncedFilterActiveTrucks()"></div>
+            </div>
             <div class="card table-responsive" style="padding: 0.5rem; background: transparent; border: none;">
                 <table id="activeYardTable">
                     <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Type">Type</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Dock">Dock</th><th data-i18n="Check-In Time">Check-In Time</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th><th style="text-align: right; padding-right: 1.5rem;" data-i18n="Action">Action</th></tr></thead>
@@ -403,19 +519,33 @@
             </div>
         </div>
 
+        <!-- HISTORY -->
         <div id="view-history" class="app-view">
-            <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div><button class="btn-excel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button></div>
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div>
+                <button class="btn-excel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button>
+            </div>
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="if(window.debouncedApplyHistoryFilters) window.debouncedApplyHistoryFilters()"></div>
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select>
+                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
+                            <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
+                            <option value="in" data-i18n="Check In Only">Check In Only</option>
+                            <option value="out" data-i18n="Check Out Only">Check Out Only</option>
+                        </select>
                         <div class="filter-tabs-container">
-                            <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button><button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button><button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)" data-i18n="Custom">Custom</button><button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)" data-i18n="All Time">All Time</button>
+                            <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
+                            <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
+                            <button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)" data-i18n="Custom">Custom</button>
+                            <button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)" data-i18n="All Time">All Time</button>
                         </div>
                     </div>
                 </div>
-                <div class="custom-date-row" id="customDateRow"><input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo"><button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button></div>
+                <div class="custom-date-row" id="customDateRow">
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
+                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
+                </div>
                 <div class="table-responsive" style="margin-top: 1rem;">
                     <table id="historyLogTable">
                         <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
@@ -425,13 +555,21 @@
             </div>
         </div>
 
+        <!-- DRIVERS DB -->
         <div id="view-drivers" class="app-view">
-            <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Drivers Registry">Drivers Registry</h1><p data-i18n="Centralized database of authorized personnel.">Centralized database of authorized personnel.</p></div><div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" data-i18n="Search name, id, number..." placeholder="Search name, id, plate..." oninput="if(window.debouncedFilterRegistryCards) window.debouncedFilterRegistryCards()"></div></div>
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Drivers Registry">Drivers Registry</h1><p data-i18n="Centralized database of authorized personnel.">Centralized database of authorized personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" data-i18n="Search name, id, number..." placeholder="Search name, id, plate..." oninput="if(window.debouncedFilterRegistryCards) window.debouncedFilterRegistryCards()"></div>
+            </div>
             <div class="drivers-grid" id="driversRegistryContainer"></div>
         </div>
 
+        <!-- SECURITY DB -->
         <div id="view-security" class="app-view">
-            <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Security Guard Database">Security Guard Database</h1><p data-i18n="Centralized registry of security personnel.">Centralized registry of security personnel.</p></div><div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" data-i18n="Search guards..." placeholder="Search name or ID..." oninput="if(window.debouncedFilterSecurityCards) window.debouncedFilterSecurityCards()"></div></div>
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Security Guard Database">Security Guard Database</h1><p data-i18n="Centralized registry of security personnel.">Centralized registry of security personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" data-i18n="Search guards..." placeholder="Search name or ID..." oninput="if(window.debouncedFilterSecurityCards) window.debouncedFilterSecurityCards()"></div>
+            </div>
             <div class="drivers-grid" id="securityRegistryContainer"></div>
         </div>
     </div>
@@ -992,96 +1130,202 @@
             const toggleBtn = document.getElementById('toggleNewDriverBtn');
             const isNew = toggleBtn && toggleBtn.classList.contains('active');
             
+            let dName = document.getElementById('driverName')?.value || '';
+            let iqNum = document.getElementById('iqamaNumber')?.value || '';
             let pDigits = document.getElementById('plateNumberDigits')?.value || '';
             let pLetters = document.getElementById('plateNumberLetters')?.value || '';
             let combinedPlate = (pDigits + ' ' + pLetters).trim();
-            let dName = document.getElementById('driverName')?.value || '';
-            let iqNum = document.getElementById('iqamaNumber')?.value || '';
 
-            if (!isNew && (!pDigits || !pLetters || !dName || !iqNum)) { alert(currentLang === 'ar' ? "يرجى البحث عن السائق واختياره من القائمة أولاً." : "Please search and select a driver from the dropdown list first."); return; }
-            if (!pDigits || !pLetters) { alert(currentLang === 'ar' ? "يرجى ملء كل من أرقام وحروف اللوحة." : "Please fill in both the Numbers and Alphabets for the Truck Plate."); return; }
+            if (!isNew) {
+                if (!pDigits || !pLetters || !dName || !iqNum) {
+                    alert(currentLang === 'ar' ? "يرجى البحث عن السائق واختياره من القائمة أولاً." : "Please search and select a driver from the dropdown list first.");
+                    return;
+                }
+            }
+
+            if (!pDigits || !pLetters) {
+                alert(currentLang === 'ar' ? "يرجى ملء كل من أرقام وحروف اللوحة." : "Please fill in both the Numbers and Alphabets for the Truck Plate.");
+                return;
+            }
 
             if (isNew && driversRegistryList.length > 0) {
                 const iqVal = iqNum.trim().toLowerCase();
                 const plVal = combinedPlate.replace(/\s+/g,'').toLowerCase();
-                if (driversRegistryList.some(d => String(d.id||'').toLowerCase() === iqVal && iqVal !== 'n/a') || driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a')) {
-                    alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode."); return;
+                let iqamaConflicted = driversRegistryList.some(d => String(d.id||'').toLowerCase() === iqVal && iqVal !== 'n/a');
+                let plateConflicted = driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a');
+                
+                if (iqamaConflicted || plateConflicted) {
+                    alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");
+                    return;
                 }
             }
 
-            let dockVal = document.getElementById('dockNumber')?.value || ''; if (dockVal === 'Others') dockVal = document.getElementById('dockNumberCustom')?.value || '';
-            dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim(); if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return; }
-            let directionVal = document.getElementById('direction')?.value || ''; if (directionVal === 'Others') directionVal = document.getElementById('directionCustom')?.value.trim() || '';
+            let dockVal = document.getElementById('dockNumber')?.value || '';
+            if (dockVal === 'Others') {
+                const dCust = document.getElementById('dockNumberCustom');
+                if (dCust) dockVal = dCust.value;
+            }
+            dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
+            if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return; }
             
-            if (window.isCheckInLocked) return; window.isCheckInLocked = true; setTimeout(() => { window.isCheckInLocked = false; }, 5000);
+            let directionVal = document.getElementById('direction')?.value || '';
+            if (directionVal === 'Others') {
+                const customDir = document.getElementById('directionCustom');
+                if(customDir) directionVal = customDir.value.trim();
+            }
+            
+            if (window.isCheckInLocked) return;
+            window.isCheckInLocked = true; setTimeout(() => { window.isCheckInLocked = false; }, 5000);
 
-            const btn = document.querySelector('.submit-btn-global'); if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
+            const btn = document.querySelector('.submit-btn-global');
+            if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
             
             let countVal = document.getElementById('boxCount')?.value || "0";
             let typeVal = document.getElementById('boxType')?.value || "Boxes";
             let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
+            let finalBoxCountStr = countVal + " " + displayUnit;
+            
             const payload = {
-                action: 'checkin', driverName: dName, iqamaNumber: iqNum, plateNumber: combinedPlate, mobileNumber: document.getElementById('mobileNumber')?.value || "N/A", securityName: document.getElementById('securityNameField')?.value || '', dockNumber: dockVal, direction: directionVal,
-                dispatchType: document.getElementById('dispatchSelect')?.value || '', noonEmployeeId: document.getElementById('noonEmployeeId')?.value || "N/A", boxCount: countVal + " " + displayUnit, sealNumber: document.getElementById('sealNumber')?.value || "--", securityId: document.getElementById('securityNameId')?.value || '', truckPhoto: temporaryCapturedImage || "", itemPhoto: temporaryCapturedItemImage || ""
+                action: 'checkin', 
+                driverName: dName, 
+                iqamaNumber: iqNum,
+                plateNumber: combinedPlate, 
+                mobileNumber: document.getElementById('mobileNumber')?.value || "N/A",
+                securityName: document.getElementById('securityNameField')?.value || '', 
+                dockNumber: dockVal, 
+                direction: directionVal,
+                dispatchType: document.getElementById('dispatchSelect')?.value || '', 
+                noonEmployeeId: document.getElementById('noonEmployeeId')?.value || "N/A",
+                boxCount: finalBoxCountStr, 
+                sealNumber: document.getElementById('sealNumber')?.value || "--",
+                securityId: document.getElementById('securityNameId')?.value || '', 
+                truckPhoto: temporaryCapturedImage || "", 
+                itemPhoto: temporaryCapturedItemImage || ""
             };
 
-            fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(e => console.error(e));
-            payload.checkInTime = new Date().toISOString(); globalLogsCache.unshift(payload); window.handleLogsResponse({logs: globalLogsCache});
+            fetch(API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload) 
+            }).catch(e => console.error(e));
+            
+            payload.checkInTime = new Date().toISOString();
+            globalLogsCache.unshift(payload);
+            window.handleLogsResponse({logs: globalLogsCache});
             
             entryForm.reset();
-            if (document.getElementById('securityNameField')) document.getElementById('securityNameField').value = loggedInUser.name;
-            if (document.getElementById('securityNameId')) document.getElementById('securityNameId').value = loggedInUser.noonId || '';
-            temporaryCapturedImage = null; temporaryCapturedItemImage = null; updateScannerVisibility();
+            const secNameField = document.getElementById('securityNameField');
+            const secIdField = document.getElementById('securityNameId');
+            if (secNameField) secNameField.value = loggedInUser.name;
+            if (secIdField) secIdField.value = loggedInUser.noonId || '';
+            temporaryCapturedImage = null; temporaryCapturedItemImage = null;
+            updateScannerVisibility();
+            
             if (btn) { btn.innerText = "CHECK IN TRUCK"; btn.disabled = false; }
-            switchView('active-trucks', Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick')?.includes('active-trucks')));
+            
+            let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes('active-trucks'));
+            switchView('active-trucks', navItem);
         });
     }
 
-    window.promptSignOut = function(driverName, plateNumber, securityName, dockNumber, dispatchType) {
+    // --- CHECK OUT ---
+    function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
         currentSignOutContext = { driverName, plateNumber, dockNumber, dispatchType };
-        if (document.getElementById('signOutModalSubtext')) document.getElementById('signOutModalSubtext').innerText = "Vehicle: " + plateNumber;
-        if (document.getElementById('checkoutScanners')) document.getElementById('checkoutScanners').style.display = dispatchType === 'Receiving' ? 'none' : 'grid';
-        if (document.getElementById('signOutModal')) document.getElementById('signOutModal').classList.add('modal-active');
-    };
+        const subtext = document.getElementById('signOutModalSubtext');
+        if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
+        const sc = document.getElementById('checkoutScanners');
+        if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
+        const modal = document.getElementById('signOutModal');
+        if (modal) modal.classList.add('modal-active');
+    }
+    window.promptSignOut = promptSignOut;
 
-    window.closeSignOutModal = function() {
-        if (document.getElementById('signOutModal')) document.getElementById('signOutModal').classList.remove('modal-active');
-        tempCheckoutTruckPhoto = null; tempCheckoutItemPhoto = null;
-        if (document.getElementById('checkoutTruckStatus')) { document.getElementById('checkoutTruckStatus').innerHTML = "Truck Picture (with plate) *"; document.getElementById('checkoutTruckStatus').style.color = ""; }
-        if (document.getElementById('checkoutItemStatus')) { document.getElementById('checkoutItemStatus').innerHTML = "Item Picture *"; document.getElementById('checkoutItemStatus').style.color = ""; }
-        if (document.getElementById('signOutSeal')) document.getElementById('signOutSeal').value = '';
-    };
+    function closeSignOutModal() {
+        const modal = document.getElementById('signOutModal');
+        if (modal) modal.classList.remove('modal-active');
+        
+        tempCheckoutTruckPhoto = null;
+        tempCheckoutItemPhoto = null;
+        const ts = document.getElementById('checkoutTruckStatus');
+        if (ts) { ts.innerHTML = "Truck Picture (with plate) *"; ts.style.color = ""; }
+        const is = document.getElementById('checkoutItemStatus');
+        if (is) { is.innerHTML = "Item Picture *"; is.style.color = ""; }
+        const seal = document.getElementById('signOutSeal');
+        if (seal) seal.value = '';
+    }
+    window.closeSignOutModal = closeSignOutModal;
 
-    if (document.getElementById('btnConfirmSignOut')) {
-        document.getElementById('btnConfirmSignOut').addEventListener('click', () => {
-            if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving' && (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto)) { alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first."); return; }
-            document.getElementById('btnConfirmSignOut').innerText = "⏳..."; document.getElementById('btnConfirmSignOut').disabled = true;
-            const seal = document.getElementById('signOutSeal') ? document.getElementById('signOutSeal').value.trim() : '';
-            fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "checkout", driverName: currentSignOutContext.driverName, plateNumber: currentSignOutContext.plateNumber, sealNumber: seal, truckPhoto: tempCheckoutTruckPhoto || "", itemPhoto: tempCheckoutItemPhoto || "" }) });
+    const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
+    if (btnConfirmSignOut) {
+        btnConfirmSignOut.addEventListener('click', () => {
+            if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
+                if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
+                    alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
+                    return;
+                }
+            }
+
+            btnConfirmSignOut.innerText = "⏳..."; btnConfirmSignOut.disabled = true;
+            const sealInput = document.getElementById('signOutSeal');
+            const seal = sealInput ? sealInput.value.trim() : '';
+            const payload = {
+                action: "checkout", 
+                driverName: currentSignOutContext.driverName, 
+                plateNumber: currentSignOutContext.plateNumber,
+                sealNumber: seal, 
+                truckPhoto: tempCheckoutTruckPhoto || "", 
+                itemPhoto: tempCheckoutItemPhoto || ""
+            };
+            fetch(API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload) 
+            });
+            
             let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
-            if (match) { match.checkOutTime = new Date().toISOString(); if (seal) match.sealNumber = seal; }
-            window.handleLogsResponse({logs: globalLogsCache}); closeSignOutModal(); 
-            document.getElementById('btnConfirmSignOut').innerText = "CONFIRM CHECK OUT"; document.getElementById('btnConfirmSignOut').disabled = false;
+            if (match) { 
+                match.checkOutTime = new Date().toISOString(); 
+                if (seal) match.sealNumber = seal; 
+            }
+            
+            window.handleLogsResponse({logs: globalLogsCache});
+            closeSignOutModal(); 
+            btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
         });
     }
 
+    // --- DATA HANDLING ---
     let isFetchingLogs = false;
     function fetchLogs() {
-        if (isFetchingLogs || window.isSavingEdit) return; isFetchingLogs = true;
+        if (isFetchingLogs || window.isSavingEdit) return; 
+        isFetchingLogs = true;
         const old = document.getElementById('jsonp-fetcher'); if (old) old.remove();
         const s = document.createElement('script'); s.id = 'jsonp-fetcher';
         s.src = API_URL + "?callback=handleLogsResponseWrapper&prefix=handleLogsResponse&_" + new Date().getTime();
-        s.onerror = function() { isFetchingLogs = false; }; document.body.appendChild(s);
+        s.onerror = function() { isFetchingLogs = false; };
+        document.body.appendChild(s);
     }
-    window.handleLogsResponseWrapper = function(data) { isFetchingLogs = false; if (typeof window.handleLogsResponse === 'function') window.handleLogsResponse(data); };
+
+    window.handleLogsResponseWrapper = function(data) {
+        isFetchingLogs = false;
+        if (typeof window.handleLogsResponse === 'function') window.handleLogsResponse(data);
+    };
 
     function calculateDurationStr(t1, t2) {
-        if (!t1) return "--"; let start = parseFlexibleDate(t1).getTime(), diff = (t2 ? parseFlexibleDate(t2).getTime() : Date.now()) - start;
-        if (diff < 0 || isNaN(diff)) return "0h 0m"; let mins = Math.floor(diff / 60000); return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+        if (!t1) return "--";
+        let start = parseFlexibleDate(t1).getTime();
+        let end = t2 ? parseFlexibleDate(t2).getTime() : Date.now();
+        let diff = end - start;
+        if (diff < 0 || isNaN(diff)) return "0h 0m";
+        let mins = Math.floor(diff / 60000);
+        let h = Math.floor(mins / 60);
+        let m = mins % 60;
+        return `${h}h ${m}m`;
     }
 
     function generatePlateBumperUI(plateStr) {
-        plateStr = String(plateStr || "").trim(); if (!plateStr || plateStr === "--" || plateStr === "N/A") return `<span style="color:#a0a0a0;">N/A</span>`;
+        plateStr = String(plateStr || "").trim();
+        if (!plateStr || plateStr === "--" || plateStr === "N/A") { return `<span style="color:#a0a0a0;">N/A</span>`; }
         const parts = plateStr.split(' '), numbers = parts[0] || '', letters = parts.slice(1).join(' ') || '';
         return `<div class="plate-bumper notranslate" translate="no"><span class="plate-num">${numbers}</span><span class="plate-let">${letters}</span></div>`;
     }
@@ -1095,134 +1339,333 @@
 
     window.handleLogsResponse = function(responsePayload) {
         window.hasFetchedLogs = true;
-        globalLogsCache = (responsePayload.logs || []).sort((a,b) => parseFlexibleDate(b.checkInTime) - parseFlexibleDate(a.checkInTime));
-        const activeList = globalLogsCache.filter(r => !r.checkOutTime);
+        let rawLogs = responsePayload.logs || [];
+        globalLogsCache = rawLogs.sort((a,b) => parseFlexibleDate(b.checkInTime) - parseFlexibleDate(a.checkInTime));
         
-        if (document.getElementById('metric-total-checkins')) document.getElementById('metric-total-checkins').innerText = globalLogsCache.length;
-        if (document.getElementById('metric-active-now')) document.getElementById('metric-active-now').innerText = activeList.length;
-        if (document.getElementById('activeYardCounter')) document.getElementById('activeYardCounter').innerText = activeList.length;
-        if (document.getElementById('metric-completed-today')) document.getElementById('metric-completed-today').innerText = globalLogsCache.filter(r => r.checkOutTime && parseFlexibleDate(r.checkOutTime).toDateString() === new Date().toDateString()).length;
+        const activeList = globalLogsCache.filter(r => !r.checkOutTime);
+        const mTotal = document.getElementById('metric-total-checkins');
+        const mActive = document.getElementById('metric-active-now');
+        const mCompleted = document.getElementById('metric-completed-today');
+        const yardCounter = document.getElementById('activeYardCounter');
+        
+        if (mTotal) mTotal.innerText = globalLogsCache.length;
+        if (mActive) mActive.innerText = activeList.length;
+        if (yardCounter) yardCounter.innerText = activeList.length;
+        
+        const todayStr = new Date().toDateString();
+        if (mCompleted) mCompleted.innerText = globalLogsCache.filter(r => r.checkOutTime && parseFlexibleDate(r.checkOutTime).toDateString() === todayStr).length;
 
-        if (document.getElementById('occupiedDocksContainer')) {
-            document.getElementById('occupiedDocksContainer').innerHTML = '';
-            let activeDocksSet = new Set(activeList.map(r => String(r.dockNumber).trim()).filter(Boolean));
-            if (document.getElementById('occupiedDocksCount')) document.getElementById('occupiedDocksCount').innerText = `${activeDocksSet.size} Docks In Use`;
-            let allDocksToRender = new Set(); for (let i = 15; i <= 90; i++) allDocksToRender.add(String(i)); activeDocksSet.forEach(d => allDocksToRender.add(d));
-            [...allDocksToRender].sort((a, b) => (parseInt(a.replace(/\D/g, '')) || 0) - (parseInt(b.replace(/\D/g, '')) || 0) || a.localeCompare(b)).forEach(dockStr => {
-                let badge = document.createElement('div'); badge.className = activeDocksSet.has(dockStr) ? 'dock-badge-active' : 'dock-badge-inactive'; badge.innerText = dockStr; document.getElementById('occupiedDocksContainer').appendChild(badge);
+        const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
+        const occupiedDocksCount = document.getElementById('occupiedDocksCount');
+        if (occupiedDocksContainer) {
+            occupiedDocksContainer.innerHTML = '';
+            let activeDocksRaw = activeList.map(r => String(r.dockNumber).trim()).filter(Boolean);
+            let activeDocksSet = new Set(activeDocksRaw);
+            if (occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} Docks In Use`;
+            
+            let allDocksToRender = new Set();
+            for (let i = 15; i <= 90; i++) allDocksToRender.add(String(i));
+            activeDocksRaw.forEach(d => allDocksToRender.add(d));
+            let sortedDocks = [...allDocksToRender].sort((a, b) => {
+                let numA = parseInt(a.replace(/\D/g, '')) || 0, numB = parseInt(b.replace(/\D/g, '')) || 0;
+                if (numA === numB) return a.localeCompare(b); return numA - numB;
+            });
+            
+            sortedDocks.forEach(dockStr => {
+                let badge = document.createElement('div');
+                if (activeDocksSet.has(dockStr)) { badge.className = 'dock-badge-active'; badge.innerText = dockStr; }
+                else { badge.className = 'dock-badge-inactive'; badge.innerText = dockStr; }
+                occupiedDocksContainer.appendChild(badge);
             });
         }
         
         let activeHtml = '';
         activeList.forEach(r => {
-            const dir = String(r.direction || '').split('-')[0].trim().toUpperCase(), dCheckIn = parseFlexibleDate(r.checkInTime);
+            const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
+            const badgeClass = getBadgeClass(dir, false);
+            const durStr = calculateDurationStr(r.checkInTime, null);
+            let dCheckIn = parseFlexibleDate(r.checkInTime);
+            
             let isoCheckIn = !isNaN(dCheckIn.getTime()) ? dCheckIn.toISOString() : r.checkInTime;
             let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
-            activeHtml += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${getBadgeClass(dir, false)}">${dir}</span></td><td><span style="color:var(--accent-color); font-weight:700;">${r.dispatchType || '--'}</span></td><td style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</td><td>${r.boxCount||'--'}</td><td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber||'--'}</td><td><strong>${r.dockNumber}</strong></td><td class="notranslate" translate="no">${safeCheckInStr}</td><td class="live-duration notranslate" translate="no" data-timein="${isoCheckIn}" style="color:var(--accent-color); font-weight:bold;">${calculateDurationStr(r.checkInTime, null)}</td><td>🛡️ ${r.securityName}</td><td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button></td></tr>`;
+            
+            activeHtml += `<tr>
+                <td><strong>${r.driverName}</strong></td>
+                <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                <td><span class="${badgeClass}">${dir}</span></td>
+                <td><span style="color:var(--accent-color); font-weight:700;">${r.dispatchType || '--'}</span></td>
+                <td style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</td>
+                <td>${r.boxCount||'--'}</td>
+                <td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber||'--'}</td>
+                <td><strong>${r.dockNumber}</strong></td>
+                <td class="notranslate" translate="no">${safeCheckInStr}</td>
+                <td class="live-duration notranslate" translate="no" data-timein="${isoCheckIn}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
+                <td>🛡️ ${r.securityName}</td>
+                <td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button></td>
+            </tr>`;
         });
-        if (document.getElementById('activeYardTableBody')) document.getElementById('activeYardTableBody').innerHTML = activeHtml || `<tr><td colspan="12" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
+        const yardTable = document.getElementById('activeYardTableBody');
+        if (yardTable) yardTable.innerHTML = activeHtml || `<tr><td colspan="12" style="text-align:center;">NO ACTIVE TRUCKS</td></tr>`;
         
-        applyHistoryFilters(); applyAnalyticsFilters(); compileDriversRegistryCards(globalLogsCache); compileSecurityRegistryCards(globalLogsCache);
+        applyHistoryFilters();
+        applyAnalyticsFilters();
+        compileDriversRegistryCards(globalLogsCache);
+        compileSecurityRegistryCards(globalLogsCache);
     };
 
-    const debouncedApplyAnalyticsFilters = debounce(applyAnalyticsFilters, 300); window.debouncedFilterActiveTrucks = debounce(filterActiveTrucks, 300); window.debouncedApplyHistoryFilters = debounce(applyHistoryFilters, 300); window.debouncedFilterRegistryCards = debounce(filterRegistryCards, 300); window.debouncedFilterSecurityCards = debounce(filterSecurityCards, 300);
+    const debouncedApplyAnalyticsFilters = debounce(applyAnalyticsFilters, 300);
+    const debouncedFilterActiveTrucks = debounce(filterActiveTrucks, 300);
+    const debouncedApplyHistoryFilters = debounce(applyHistoryFilters, 300);
+    const debouncedFilterRegistryCards = debounce(filterRegistryCards, 300);
+    const debouncedFilterSecurityCards = debounce(filterSecurityCards, 300);
+
+    window.debouncedApplyAnalyticsFilters = debouncedApplyAnalyticsFilters;
+    window.debouncedFilterActiveTrucks = debouncedFilterActiveTrucks;
+    window.debouncedApplyHistoryFilters = debouncedApplyHistoryFilters;
+    window.debouncedFilterRegistryCards = debouncedFilterRegistryCards;
+    window.debouncedFilterSecurityCards = debouncedFilterSecurityCards;
 
     function isDateInRange(dateValue, range, now, fromStr, toStr) {
         if (!dateValue) return false; const refDate = parseFlexibleDate(dateValue); if (isNaN(refDate.getTime())) return false;
         if (range === 'all') return true;
-        if (range === 'today') return refDate.toDateString() === now.toDateString();
+        if (range === 'today') { return refDate.toDateString() === now.toDateString(); }
         if (range === '7days' || range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); d.setHours(0, 0, 0, 0); return refDate >= d; }
         if (range === 'monthly') { const d = new Date(now); d.setMonth(now.getMonth() - 1); d.setHours(0, 0, 0, 0); return refDate >= d; }
         if (range === '6months') { const d = new Date(now); d.setMonth(now.getMonth() - 6); d.setHours(0, 0, 0, 0); return refDate >= d; }
         if (range === '1year') { const d = new Date(now); d.setFullYear(now.getFullYear() - 1); d.setHours(0, 0, 0, 0); return refDate >= d; }
-        if (range === 'custom') { let isValid = true; if (fromStr) { const from = new Date(fromStr); from.setHours(0, 0, 0, 0); isValid = isValid && (refDate >= from); } if (toStr) { const to = new Date(toStr); to.setHours(23, 59, 59, 999); isValid = isValid && (refDate <= to); } return isValid; }
+        if (range === 'custom') { if (!fromStr && !toStr) return true; let isValid = true; if (fromStr) { const from = new Date(fromStr); from.setHours(0, 0, 0, 0); isValid = isValid && (refDate >= from); } if (toStr) { const to = new Date(toStr); to.setHours(23, 59, 59, 999); isValid = isValid && (refDate <= to); } return isValid; }
         return true;
     }
 
-    window.setAnalyticsDateFilter = function(range, btnEl) { currentAnalyticsDateRange = range; document.querySelectorAll('.analytics-filter-container .tab-filter-item').forEach(b => b.classList.remove('active')); if (btnEl) btnEl.classList.add('active'); if (document.getElementById('analyticsCustomDateRow')) document.getElementById('analyticsCustomDateRow').style.display = range === 'custom' ? 'flex' : 'none'; applyAnalyticsFilters(); };
-    window.setHistoryDateFilter = function(range, btnEl) { currentHistoryDateRange = range; document.querySelectorAll('#view-history .filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active')); if (btnEl) btnEl.classList.add('active'); if (document.getElementById('customDateRow')) document.getElementById('customDateRow').style.display = range === 'custom' ? 'flex' : 'none'; applyHistoryFilters(); };
+    function setAnalyticsDateFilter(range, btnEl) {
+        currentAnalyticsDateRange = range;
+        document.querySelectorAll('.analytics-filter-container .tab-filter-item').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        const customRow = document.getElementById('analyticsCustomDateRow');
+        if (customRow) {
+            if (range === 'custom') customRow.style.display = 'flex'; 
+            else customRow.style.display = 'none';
+        }
+        applyAnalyticsFilters();
+    }
+    window.setAnalyticsDateFilter = setAnalyticsDateFilter;
+
+    function setHistoryDateFilter(range, btnEl) {
+        currentHistoryDateRange = range;
+        document.querySelectorAll('#view-history .filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        const customRow = document.getElementById('customDateRow');
+        if (customRow) {
+            if (range === 'custom') customRow.style.display = 'flex'; 
+            else customRow.style.display = 'none';
+        }
+        applyHistoryFilters();
+    }
+    window.setHistoryDateFilter = setHistoryDateFilter;
 
     function applyHistoryFilters() {
-        const fromStr = document.getElementById('customDateFrom')?.value || '', toStr = document.getElementById('customDateTo')?.value || '', query = document.getElementById('historySearchQuery')?.value.toLowerCase().trim() || '', timeFilter = document.getElementById('historyTimeFilter')?.value || 'both', now = new Date();
-        let filtered = globalLogsCache.filter(r => { const cIn = isDateInRange(r.checkInTime, currentHistoryDateRange, now, fromStr, toStr), cOut = r.checkOutTime ? isDateInRange(r.checkOutTime, currentHistoryDateRange, now, fromStr, toStr) : false; return timeFilter === 'in' ? cIn : (timeFilter === 'out' ? cOut : (cIn || cOut)); });
-        let html = '', count = 0;
-        for (let i = 0; i < filtered.length && count < 500; i++) {
-            let r = filtered[i]; if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
-            const dir = String(r.direction || '').split('-')[0].trim().toUpperCase(), dCheckIn = parseFlexibleDate(r.checkInTime), dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
+        let range = currentHistoryDateRange;
+        const fromEl = document.getElementById('customDateFrom'); const fromStr = fromEl ? fromEl.value : '';
+        const toEl = document.getElementById('customDateTo'); const toStr = toEl ? toEl.value : '';
+        const input = document.getElementById('historySearchQuery'); let query = input ? input.value.toLowerCase().trim() : '';
+        const timeFilterEl = document.getElementById('historyTimeFilter'); let timeFilter = timeFilterEl ? timeFilterEl.value : 'both';
+        const now = new Date();
+
+        let filtered = globalLogsCache.filter(r => {
+            const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
+            const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
+            if (timeFilter === 'in') return checkInMatch;
+            if (timeFilter === 'out') return checkOutMatch;
+            return checkInMatch || checkOutMatch;
+        });
+
+        let html = ''; let count = 0;
+        for (let i = 0; i < filtered.length; i++) {
+            if (count >= 500) break;
+            let r = filtered[i];
+            if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
+            
+            const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
+            const badgeClass = getBadgeClass(dir, r.checkOutTime !== "");
+            const durStr = calculateDurationStr(r.checkInTime, r.checkOutTime);
+            
+            let dCheckIn = parseFlexibleDate(r.checkInTime);
             let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
+            let dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
             let safeCheckOutStr = dCheckOut && !isNaN(dCheckOut.getTime()) ? dCheckOut.toLocaleString('en-US') : (r.checkOutTime || '<span style="color:var(--accent-color); font-weight:700;">Inside</span>');
-            html += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${getBadgeClass(dir, r.checkOutTime !== "")}">${dir}</span></td><td><strong>${r.dockNumber}</strong></td><td><span style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</span></td><td>${r.boxCount||'--'}</td><td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td><td class="notranslate" translate="no">${safeCheckInStr}</td><td class="notranslate" translate="no">${safeCheckOutStr}</td><td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td><td>🛡️ ${r.securityName}</td></tr>`; count++;
+            
+            html += `<tr>
+                <td><strong>${r.driverName}</strong></td>
+                <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                <td><span class="${badgeClass}">${dir}</span></td>
+                <td><strong>${r.dockNumber}</strong></td>
+                <td><span style="font-family:monospace; color:var(--text-muted);">${r.noonEmployeeId||'--'}</span></td>
+                <td>${r.boxCount||'--'}</td>
+                <td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
+                <td class="notranslate" translate="no">${safeCheckInStr}</td>
+                <td class="notranslate" translate="no">${safeCheckOutStr}</td>
+                <td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${durStr}</td>
+                <td>🛡️ ${r.securityName}</td>
+            </tr>`;
+            count++;
         }
-        if (document.getElementById('historyLogTableBody')) document.getElementById('historyLogTableBody').innerHTML = html || `<tr><td colspan="11" style="text-align:center;">No records match</td></tr>`;
+        const hTable = document.getElementById('historyLogTableBody');
+        if (hTable) hTable.innerHTML = html || `<tr><td colspan="11" style="text-align:center;">No records match</td></tr>`;
     }
     window.applyHistoryFilters = applyHistoryFilters;
 
     function filterActiveTrucks() {
-        const query = document.getElementById('yardSearchQuery')?.value.toLowerCase().trim() || '';
-        document.querySelectorAll('#activeYardTableBody tr').forEach(row => row.style.display = String(row.innerText).toLowerCase().includes(query) ? '' : 'none');
+        const input = document.getElementById('yardSearchQuery');
+        let query = input ? input.value.toLowerCase().trim() : '';
+        document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
+            row.style.display = String(row.innerText).toLowerCase().includes(query) ? '' : 'none';
+        });
     }
     window.filterActiveTrucks = filterActiveTrucks;
 
     function applyAnalyticsFilters() {
-        const fromStr = document.getElementById('analyticsCustomDateFrom')?.value || '', toStr = document.getElementById('analyticsCustomDateTo')?.value || '', query = document.getElementById('analyticsSearchQuery')?.value.toLowerCase().trim() || '', timeFilter = document.getElementById('analyticsTimeFilter')?.value || 'both', now = new Date();
-        let filtered = globalLogsCache.filter(r => { const cIn = isDateInRange(r.checkInTime, currentAnalyticsDateRange, now, fromStr, toStr), cOut = r.checkOutTime ? isDateInRange(r.checkOutTime, currentAnalyticsDateRange, now, fromStr, toStr) : false; return timeFilter === 'in' ? cIn : (timeFilter === 'out' ? cOut : (cIn || cOut)); });
-        let growthMap = {}, hourMap = {}, cohortMap = {}, dockMap = {};
+        let range = currentAnalyticsDateRange;
+        const fromEl = document.getElementById('analyticsCustomDateFrom'); const fromStr = fromEl ? fromEl.value : '';
+        const toEl = document.getElementById('analyticsCustomDateTo'); const toStr = toEl ? toEl.value : '';
+        const input = document.getElementById('analyticsSearchQuery'); let query = input ? input.value.toLowerCase().trim() : '';
+        const timeFilterEl = document.getElementById('analyticsTimeFilter'); let timeFilter = timeFilterEl ? timeFilterEl.value : 'both';
+        const now = new Date();
+
+        let filtered = globalLogsCache.filter(r => {
+            const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
+            const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
+            if (timeFilter === 'in') return checkInMatch;
+            if (timeFilter === 'out') return checkOutMatch;
+            return checkInMatch || checkOutMatch;
+        });
+
+        let growthMap = {};
         filtered.forEach(log => {
             let time = parseFlexibleDate(log.checkInTime);
             if (!isNaN(time.getTime())) {
-                let dLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); growthMap[dLabel] = growthMap[dLabel] || { count: 0, ts: time.getTime() }; growthMap[dLabel].count++;
-                let hourLabel = `${time.getHours() % 12 || 12} ${time.getHours() >= 12 ? 'PM' : 'AM'}`; hourMap[hourLabel] = hourMap[hourLabel] || { count: 0, rawHr: time.getHours() }; hourMap[hourLabel].count++;
+                let dLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                if (!growthMap[dLabel]) growthMap[dLabel] = { count: 0, ts: time.getTime() };
+                growthMap[dLabel].count++;
             }
-            let dir = String(log.direction || "Unknown").split('-')[0].trim().toUpperCase(); cohortMap[dir] = (cohortMap[dir] || 0) + 1;
-            if (log.dockNumber) dockMap[log.dockNumber] = (dockMap[log.dockNumber] || 0) + 1;
         });
-
-        const lineCont = document.getElementById('chartGrowthLine'); if (lineCont) {
-            let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a, b) => a.ts - b.ts);
+        let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a, b) => a.ts - b.ts);
+        const lineCont = document.getElementById('chartGrowthLine');
+        if (lineCont) {
             if(growthData.length === 0) { lineCont.innerHTML = "<div style='color:var(--text-muted);text-align:center;'>No Data</div>"; } else {
-                let max = Math.max(...growthData.map(i=>i.count)) || 1, svgPoints = growthData.map((item, i) => `${growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500},${140 - ((item.count / max) * 90)}`).join(' ');
+                let max = Math.max(...growthData.map(i=>i.count)); if(max===0) max=1;
+                let svgPoints = growthData.map((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500; let y = 140 - ((item.count / max) * 90); return `${x},${y}`; }).join(' ');
                 let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;"><svg viewBox="0 0 1000 180" style="width:100%; height:100%; overflow:visible;"><line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" /><polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
-                growthData.forEach((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500, y = 140 - ((item.count / max) * 90); html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" /><text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text><text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle">${item.label}</text>`; });
-                lineCont.innerHTML = html + `</svg></div>`;
+                growthData.forEach((item, i) => { let x = growthData.length > 1 ? (i / (growthData.length - 1)) * 900 + 50 : 500; let y = 140 - ((item.count / max) * 90); html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" /><text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text><text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle">${item.label}</text>`; });
+                html += `</svg></div>`;
+                lineCont.innerHTML = html;
             }
         }
 
-        const hoursCont = document.getElementById('chartHoursColumns'); if (hoursCont) {
-            let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k].count, rawHr: hourMap[k].rawHr })).sort((a, b) => a.rawHr - b.rawHr);
-            if (hourData.length === 0) { hoursCont.innerHTML = "<div style='color:var(--text-muted);text-align:center;'>No Data</div>"; } else {
-                let maxH = Math.max(...hourData.map(item => item.count)) || 1, hHtml = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
-                hourData.slice(0, 7).forEach((item, idx) => { hHtml += `<div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:40px; position:relative;"><div style="font-size:0.9rem; color:#fff; font-weight:800; margin-bottom:8px;">${item.count}</div><div style="width:100%; background:${chartColors[idx % chartColors.length]}; height:${(item.count / maxH) * 100}%; border-radius:4px 4px 0 0;"></div><div style="position:absolute; bottom:-25px; font-size:0.7rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${item.label}</div></div>`; });
-                hoursCont.innerHTML = hHtml + `</div>`;
+        let hourMap = {};
+        filtered.forEach(log => {
+            let time = parseFlexibleDate(log.checkInTime);
+            if (!isNaN(time.getTime())) {
+                let hour = time.getHours(), ampm = hour >= 12 ? 'PM' : 'AM', hourLabel = `${hour % 12 || 12} ${ampm}`;
+                if (!hourMap[hourLabel]) hourMap[hourLabel] = { count: 0, rawHr: hour };
+                hourMap[hourLabel].count++;
+            }
+        });
+        let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k].count, rawHr: hourMap[k].rawHr })).sort((a, b) => a.rawHr - b.rawHr);
+        const hoursCont = document.getElementById('chartHoursColumns');
+        if (hoursCont) {
+            if (hourData.length === 0) { hoursCont.innerHTML = "<div style='color:var(--text-muted);text-align:center;'>No Data</div>"; }
+            else {
+                let maxH = Math.max(...hourData.map(item => item.count)); if(maxH === 0) maxH = 1;
+                let hHtml = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
+                hourData.slice(0, 7).forEach((item, idx) => {
+                    let c = chartColors[idx % chartColors.length];
+                    let heightPct = (item.count / maxH) * 100;
+                    hHtml += `<div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:40px; position:relative;">
+                        <div style="font-size:0.9rem; color:#fff; font-weight:800; margin-bottom:8px;">${item.count}</div>
+                        <div style="width:100%; background:${c}; height:${heightPct}%; border-radius:4px 4px 0 0;"></div>
+                        <div style="position:absolute; bottom:-25px; font-size:0.7rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${item.label}</div>
+                    </div>`;
+                });
+                hHtml += `</div>`;
+                hoursCont.innerHTML = hHtml;
             }
         }
 
-        const barsCont = document.getElementById('chartCohortsBars'); if (barsCont) {
-            let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k] })).sort((a,b) => b.count - a.count);
+        let cohortMap = {};
+        filtered.forEach(log => {
+            let dir = String(log.direction || "Unknown").split('-')[0].trim().toUpperCase();
+            cohortMap[dir] = (cohortMap[dir] || 0) + 1;
+        });
+        let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k] })).sort((a,b) => b.count - a.count);
+        const barsCont = document.getElementById('chartCohortsBars');
+        if (barsCont) {
             if(cohortData.length === 0) { barsCont.innerHTML = "<div style='color:var(--text-muted);text-align:center;'>No Data</div>"; } else {
-                let maxC = Math.max(...cohortData.map(d=>d.count)) || 1, bHtml = '';
-                cohortData.slice(0,5).forEach((d, idx) => { bHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="width:85px; font-size:0.65rem; font-weight:700; color:var(--text-muted); text-align:right;">${d.label}</div><div style="flex-grow:1; background:rgba(255,255,255,0.05); height:20px; border-radius:4px; margin:0 10px; overflow:hidden;"><div style="width:${(d.count/maxC)*100}%; background:${chartColors[idx % chartColors.length]}; height:100%;"></div></div><div style="font-size:0.75rem; font-weight:bold; color:#fff;">${d.count}</div></div>`; });
+                let maxC = Math.max(...cohortData.map(d=>d.count)); if(maxC===0) maxC=1;
+                let bHtml = '';
+                cohortData.slice(0,5).forEach((d, idx) => {
+                    let c = chartColors[idx % chartColors.length];
+                    bHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="width:85px; font-size:0.65rem; font-weight:700; color:var(--text-muted); text-align:right;">${d.label}</div><div style="flex-grow:1; background:rgba(255,255,255,0.05); height:20px; border-radius:4px; margin:0 10px; overflow:hidden;"><div style="width:${(d.count/maxC)*100}%; background:${c}; height:100%;"></div></div><div style="font-size:0.75rem; font-weight:bold; color:#fff;">${d.count}</div></div>`;
+                });
                 barsCont.innerHTML = bHtml;
             }
         }
 
-        let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k] })).sort((a,b) => b.count - a.count), total = dockData.reduce((sum, item) => sum + item.count, 0); 
+        let dockMap = {};
+        filtered.forEach(log => { let dock = log.dockNumber; if (dock) dockMap[dock] = (dockMap[dock] || 0) + 1; });
+        let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k] })).sort((a,b) => b.count - a.count);
+        let total = dockData.reduce((sum, item) => sum + item.count, 0); 
         let donutEl = document.getElementById('chartDocksDonut'), legendEl = document.getElementById('chartDocksLegend');
         if (total > 0) {
             let gradientParts = [], currentPct = 0, legendHTML = '';
-            dockData.slice(0, 5).forEach((item, index) => { let color = chartColors[index % chartColors.length], nextPct = currentPct + ((item.count / total) * 100); gradientParts.push(`${color} ${currentPct}% ${nextPct}%`); currentPct = nextPct; legendHTML += `<li><div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:3px; background: ${color};"></span>${item.label}</div><span>${item.count} Uses</span></li>`; });
+            dockData.slice(0, 5).forEach((item, index) => { let color = chartColors[index % chartColors.length], pct = (item.count / total) * 100, nextPct = currentPct + pct; gradientParts.push(`${color} ${currentPct}% ${nextPct}%`); currentPct = nextPct; legendHTML += `<li><div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:3px; background: ${color};"></span>${item.label}</div><span>${item.count} Uses</span></li>`; });
             if (donutEl) donutEl.style.background = `conic-gradient(${gradientParts.join(', ')})`; if (legendEl) legendEl.innerHTML = legendHTML;
-        } else { if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`; }
+        } else {
+            if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
+        }
 
-        const aTables = document.getElementById('analyticsGroupedTables'); if (aTables) {
-            let groups = {}, aHtml = ''; filtered.forEach(r => { let dDir = String(r.direction || '').split('-')[0].trim().toUpperCase(); groups[dDir] = groups[dDir] || []; groups[dDir].push(r); });
+        const aTables = document.getElementById('analyticsGroupedTables');
+        if (aTables) {
+            let groups = {};
+            filtered.forEach(r => {
+                let dDir = String(r.direction || '').split('-')[0].trim().toUpperCase();
+                if (!groups[dDir]) groups[dDir] = [];
+                groups[dDir].push(r);
+            });
+            let aHtml = '';
             for (let [dir, items] of Object.entries(groups)) {
+                let badgeCls = getBadgeClass(dir, false);
                 let rows = items.slice(0,20).map(r => {
-                    let dCheckIn = parseFlexibleDate(r.checkInTime), dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
+                    let dCheckIn = parseFlexibleDate(r.checkInTime);
                     let safeCheckInStr = !isNaN(dCheckIn.getTime()) ? dCheckIn.toLocaleString('en-US') : r.checkInTime;
+                    let dCheckOut = r.checkOutTime ? parseFlexibleDate(r.checkOutTime) : null;
                     let safeCheckOutStr = dCheckOut && !isNaN(dCheckOut.getTime()) ? dCheckOut.toLocaleString('en-US') : (r.checkOutTime || 'Inside');
-                    return `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><strong>${r.dockNumber}</strong></td><td style="font-family:monospace; color:var(--text-muted);" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td><td class="notranslate" translate="no">${safeCheckInStr}</td><td class="notranslate" translate="no">${safeCheckOutStr}</td><td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td><td>🛡️ ${r.securityName}</td></tr>`;
+
+                    return `<tr>
+                        <td><strong>${r.driverName}</strong></td>
+                        <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                        <td><strong>${r.dockNumber}</strong></td>
+                        <td style="font-family:monospace; color:var(--text-muted);" class="notranslate" translate="no">${r.sealNumber && r.sealNumber !== "" ? r.sealNumber : '--'}</td>
+                        <td class="notranslate" translate="no">${safeCheckInStr}</td>
+                        <td class="notranslate" translate="no">${safeCheckOutStr}</td>
+                        <td style="color:var(--accent-color); font-weight:bold;" class="notranslate" translate="no">${calculateDurationStr(r.checkInTime, r.checkOutTime)}</td>
+                        <td>🛡️ ${r.securityName}</td>
+                    </tr>`;
                 }).join('');
-                aHtml += `<div class="accordion-wrapper"><div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')"><div class="accordion-title"><span class="${getBadgeClass(dir, false)}">${dir}</span></div><div class="accordion-badge">${items.length}</div></div><div class="accordion-content"><div class="table-responsive"><table><thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Seal Number</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead><tbody>${rows}</tbody></table></div></div></div>`;
+                
+                aHtml += `<div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <div class="accordion-title"><span class="${badgeCls}">${dir}</span></div>
+                        <div class="accordion-badge">${items.length}</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Seal Number</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
             }
             aTables.innerHTML = aHtml;
         }
@@ -1230,174 +1673,508 @@
     window.applyAnalyticsFilters = applyAnalyticsFilters;
 
     function compileDriversRegistryCards(data) {
-        let uniqueMap = {}; data.forEach(item => { if (item.driverName && !uniqueMap[item.driverName]) uniqueMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "--", id: item.iqamaNumber || "--", phone: item.mobileNumber || "--", checkOutTime: item.checkOutTime, dock: item.dockNumber || "--" }; });
-        driversRegistryList = Object.values(uniqueMap);
-        const container = document.getElementById('driversRegistryContainer'); if (!container) return;
-        let html = ''; const isAdmin = (userRole === 'admin');
-        driversRegistryList.forEach(d => {
-            const searchName = String(d.name || "").toLowerCase(), searchPlate = String(d.plate || "").toLowerCase(), searchIqama = String(d.id || "").toLowerCase();
-            const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
-            html += `<div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}"><div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${d.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span></div></div></div><div class="driver-card-info-grid"><div><p class="info-block">Driver Name</p><p>${d.name}</p></div><div><p class="info-block">Plate Number</p><p>${generatePlateBumperUI(d.plate)}</p></div><div><p class="info-block">Iqama Number</p><p>${d.id}</p></div><div><p class="info-block">Phone Number</p><p>${d.phone}</p></div></div><div class="card-actions-wrapper"><button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="View Records">View Records</button>${editBtnHtml}</div></div>`;
+        let uniqueMap = {};
+        data.forEach(item => {
+            if (item.driverName && !uniqueMap[item.driverName]) {
+                uniqueMap[item.driverName] = {
+                    name: item.driverName, plate: item.plateNumber || "--",
+                    id: item.iqamaNumber || "--", phone: item.mobileNumber || "--",
+                    checkOutTime: item.checkOutTime, dock: item.dockNumber || "--"
+                };
+            }
         });
-        container.innerHTML = html; if (document.getElementById('metric-drivers-count')) document.getElementById('metric-drivers-count').innerText = driversRegistryList.length;
+        driversRegistryList = Object.values(uniqueMap);
+        const container = document.getElementById('driversRegistryContainer');
+        if (!container) return;
+        let html = '';
+        const isAdmin = (userRole === 'admin');
+
+        driversRegistryList.forEach(d => {
+            const searchName = String(d.name || "").toLowerCase();
+            const searchPlate = String(d.plate || "").toLowerCase();
+            const searchIqama = String(d.id || "").toLowerCase();
+            
+            const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
+
+            html += `
+            <div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}">
+                <div class="driver-card-header">
+                    <div class="driver-avatar-img">👤</div>
+                    <div class="driver-meta">
+                        <h3>${d.name}</h3>
+                        <div class="driver-badges"><span class="tag-badge verified">Verified</span></div>
+                    </div>
+                </div>
+                <div class="driver-card-info-grid">
+                    <div><p class="info-block">Driver Name</p><p>${d.name}</p></div>
+                    <div><p class="info-block">Plate Number</p><p>${generatePlateBumperUI(d.plate)}</p></div>
+                    <div><p class="info-block">Iqama Number</p><p>${d.id}</p></div>
+                    <div><p class="info-block">Phone Number</p><p>${d.phone}</p></div>
+                </div>
+                <div class="card-actions-wrapper">
+                    <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="View Records">View Records</button>
+                    ${editBtnHtml}
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+        const mDrv = document.getElementById('metric-drivers-count');
+        if (mDrv) mDrv.innerText = driversRegistryList.length;
     }
 
-    window.filterRegistryCards = function() {
-        const query = document.getElementById('driverRegistrySearch')?.value.toLowerCase().trim() || '';
-        document.querySelectorAll('.driver-card').forEach(card => card.style.display = (String(card.getAttribute('data-name')).includes(query) || String(card.getAttribute('data-plate')).includes(query) || String(card.getAttribute('data-iqama')).includes(query)) ? 'flex' : 'none');
-    };
+    function filterRegistryCards() {
+        const input = document.getElementById('driverRegistrySearch');
+        let query = input ? input.value.toLowerCase().trim() : '';
+        document.querySelectorAll('.driver-card').forEach(card => {
+            let name = String(card.getAttribute('data-name') || '');
+            let plate = String(card.getAttribute('data-plate') || '');
+            let iqama = String(card.getAttribute('data-iqama') || '');
+            card.style.display = (name.includes(query) || plate.includes(query) || iqama.includes(query)) ? 'flex' : 'none';
+        });
+    }
+    window.filterRegistryCards = filterRegistryCards;
 
     function compileSecurityRegistryCards(data) {
-        let uniqueMap = {}; data.forEach(item => { if (item.securityName && !uniqueMap[item.securityName]) uniqueMap[item.securityName] = item; });
+        let uniqueMap = {};
+        data.forEach(item => {
+            if (item.securityName && !uniqueMap[item.securityName]) uniqueMap[item.securityName] = item;
+        });
         securityRegistryList = Object.values(uniqueMap);
-        const container = document.getElementById('securityRegistryContainer'); if (!container) return;
-        let html = ''; const isAdmin = (userRole === 'admin');
+        const container = document.getElementById('securityRegistryContainer');
+        if (!container) return;
+        let html = '';
+        const isAdmin = (userRole === 'admin');
+
         securityRegistryList.forEach(g => {
             const searchName = String(g.securityName || "").toLowerCase();
             const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditGuardModal('${g.securityName.replace(/'/g, "\\'")}', '${String(g.securityId || '').replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
-            html += `<div class="driver-registry-card security-card" data-name="${searchName}"><div class="driver-card-header"><div class="driver-avatar-img" style="color:#79c0ff;">🛡️</div><div class="driver-meta"><h3>${g.securityName}</h3><div class="driver-badges"><span class="tag-badge carrier">Guard</span></div></div></div><div class="driver-card-info-grid"><div><p class="info-block">Security ID</p><data>${g.securityId || '--'}</data></div></div><div class="card-actions-wrapper">${editBtnHtml}</div></div>`;
+
+            html += `
+            <div class="driver-registry-card security-card" data-name="${searchName}">
+                <div class="driver-card-header">
+                    <div class="driver-avatar-img" style="color:#79c0ff;">🛡️</div>
+                    <div class="driver-meta">
+                        <h3>${g.securityName}</h3>
+                        <div class="driver-badges"><span class="tag-badge carrier">Guard</span></div>
+                    </div>
+                </div>
+                <div class="driver-card-info-grid">
+                    <div><p class="info-block">Security ID</p><data>${g.securityId || '--'}</data></div>
+                </div>
+                <div class="card-actions-wrapper">
+                    ${editBtnHtml}
+                </div>
+            </div>`;
         });
         container.innerHTML = html;
     }
 
-    window.filterSecurityCards = function() {
-        const query = document.getElementById('securityRegistrySearch')?.value.toLowerCase().trim() || '';
-        document.querySelectorAll('.security-card').forEach(card => card.style.display = String(card.getAttribute('data-name')).includes(query) ? 'flex' : 'none');
-    };
+    function filterSecurityCards() {
+        const input = document.getElementById('securityRegistrySearch');
+        let query = input ? input.value.toLowerCase().trim() : '';
+        document.querySelectorAll('.security-card').forEach(card => {
+            let name = String(card.getAttribute('data-name') || '');
+            card.style.display = name.includes(query) ? 'flex' : 'none';
+        });
+    }
+    window.filterSecurityCards = filterSecurityCards;
 
-    window.openEditDriverModal = function(name, iqama, plate, mobile) {
-        document.getElementById('editDriverOldName').value = name; document.getElementById('editDriverName').value = name; document.getElementById('editDriverIqama').value = iqama !== '--' ? iqama : '';
-        let plateStr = plate !== '--' ? plate.trim() : '', numMatch = plateStr.match(/\d+/), letMatch = plateStr.match(/[A-Za-z]+/g);
-        document.getElementById('editDriverPlateNumbers').value = numMatch ? numMatch[0] : ''; document.getElementById('editDriverPlateLetters').value = letMatch ? letMatch.join('') : '';
-        document.getElementById('editDriverMobile').value = mobile !== '--' ? mobile : ''; document.getElementById('editDriverModal').classList.add('modal-active');
-    };
-    window.closeEditDriverModal = function() { document.getElementById('editDriverModal').classList.remove('modal-active'); };
+    // --- ADMIN EDIT MODAL HANDLERS ---
+    function openEditDriverModal(name, iqama, plate, mobile) {
+        document.getElementById('editDriverOldName').value = name;
+        document.getElementById('editDriverName').value = name;
+        document.getElementById('editDriverIqama').value = iqama !== '--' ? iqama : '';
+        
+        let plateStr = plate !== '--' ? plate.trim() : '';
+        let numMatch = plateStr.match(/\d+/);
+        let letMatch = plateStr.match(/[A-Za-z]+/g);
+        
+        document.getElementById('editDriverPlateNumbers').value = numMatch ? numMatch[0] : '';
+        document.getElementById('editDriverPlateLetters').value = letMatch ? letMatch.join('') : '';
+        
+        document.getElementById('editDriverMobile').value = mobile !== '--' ? mobile : '';
+        document.getElementById('editDriverModal').classList.add('modal-active');
+    }
+    window.openEditDriverModal = openEditDriverModal;
 
-    window.saveDriverEdit = async function() {
-        const oldName = document.getElementById('editDriverOldName').value, newName = document.getElementById('editDriverName').value.trim(), newIqama = document.getElementById('editDriverIqama').value.trim(), numPart = document.getElementById('editDriverPlateNumbers').value.trim(), letPart = document.getElementById('editDriverPlateLetters').value.trim(), newPlate = numPart + (letPart ? ' ' + letPart : ''), newMobile = document.getElementById('editDriverMobile').value.trim();
-        if (!newName || !newIqama || !numPart || !letPart) { alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields."); return; }
-        window.isSavingEdit = true; const btn = document.querySelector('#editDriverModal .submit-btn-global'); const originalText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+    function closeEditDriverModal() {
+        document.getElementById('editDriverModal').classList.remove('modal-active');
+    }
+    window.closeEditDriverModal = closeEditDriverModal;
+
+    async function saveDriverEdit() {
+        const oldName = document.getElementById('editDriverOldName').value;
+        const newName = document.getElementById('editDriverName').value.trim();
+        const newIqama = document.getElementById('editDriverIqama').value.trim();
+        
+        const numPart = document.getElementById('editDriverPlateNumbers').value.trim();
+        const letPart = document.getElementById('editDriverPlateLetters').value.trim();
+        const newPlate = numPart + (letPart ? ' ' + letPart : '');
+        
+        const newMobile = document.getElementById('editDriverMobile').value.trim();
+
+        if (!newName || !newIqama || !numPart || !letPart) {
+            alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields.");
+            return;
+        }
+
+        window.isSavingEdit = true;
+        const btn = document.querySelector('#editDriverModal .submit-btn-global');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳...";
+        btn.disabled = true;
+
         try {
-            await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'editDriver', oldDriverName: oldName, driverName: newName, iqamaNumber: newIqama, plateNumber: newPlate, mobileNumber: newMobile || "N/A" }) });
-            globalLogsCache.forEach(r => { if (r.driverName === oldName) { r.driverName = newName; r.iqamaNumber = newIqama; r.plateNumber = newPlate; r.mobileNumber = newMobile || "N/A"; } });
-            closeEditDriverModal(); window.handleLogsResponse({ logs: globalLogsCache });
-        } catch (e) { console.error(e); } finally { btn.innerText = originalText; btn.disabled = false; setTimeout(() => { window.isSavingEdit = false; }, 5000); }
-    };
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'editDriver',
+                    oldDriverName: oldName,
+                    driverName: newName,
+                    iqamaNumber: newIqama,
+                    plateNumber: newPlate,
+                    mobileNumber: newMobile || "N/A"
+                })
+            });
 
-    window.openEditGuardModal = function(name, guardId) { document.getElementById('editGuardOldName').value = name; document.getElementById('editGuardName').value = name; document.getElementById('editGuardId').value = guardId !== '--' ? guardId : ''; document.getElementById('editGuardModal').classList.add('modal-active'); };
-    window.closeEditGuardModal = function() { document.getElementById('editGuardModal').classList.remove('modal-active'); };
+            globalLogsCache.forEach(r => {
+                if (r.driverName === oldName) {
+                    r.driverName = newName;
+                    r.iqamaNumber = newIqama;
+                    r.plateNumber = newPlate;
+                    r.mobileNumber = newMobile || "N/A";
+                }
+            });
 
-    window.saveGuardEdit = async function() {
-        const oldName = document.getElementById('editGuardOldName').value, newName = document.getElementById('editGuardName').value.trim(), newGuardId = document.getElementById('editGuardId').value.trim();
-        if (!newName || !newGuardId) { alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields."); return; }
-        window.isSavingEdit = true; const btn = document.querySelector('#editGuardModal .submit-btn-global'); const originalText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            closeEditDriverModal();
+            window.handleLogsResponse({ logs: globalLogsCache });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            setTimeout(() => { window.isSavingEdit = false; }, 5000);
+        }
+    }
+    window.saveDriverEdit = saveDriverEdit;
+
+    function openEditGuardModal(name, guardId) {
+        document.getElementById('editGuardOldName').value = name;
+        document.getElementById('editGuardName').value = name;
+        document.getElementById('editGuardId').value = guardId !== '--' ? guardId : '';
+        document.getElementById('editGuardModal').classList.add('modal-active');
+    }
+    window.openEditGuardModal = openEditGuardModal;
+
+    function closeEditGuardModal() {
+        document.getElementById('editGuardModal').classList.remove('modal-active');
+    }
+    window.closeEditGuardModal = closeEditGuardModal;
+
+    async function saveGuardEdit() {
+        const oldName = document.getElementById('editGuardOldName').value;
+        const newName = document.getElementById('editGuardName').value.trim();
+        const newGuardId = document.getElementById('editGuardId').value.trim();
+
+        if (!newName || !newGuardId) {
+            alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields.");
+            return;
+        }
+
+        window.isSavingEdit = true;
+        const btn = document.querySelector('#editGuardModal .submit-btn-global');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳...";
+        btn.disabled = true;
+
         try {
-            await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'editGuard', oldSecurityName: oldName, securityName: newName, securityId: newGuardId }) });
-            globalLogsCache.forEach(r => { if (r.securityName === oldName) { r.securityName = newName; r.securityId = newGuardId; } });
-            closeEditGuardModal(); window.handleLogsResponse({ logs: globalLogsCache });
-        } catch (e) { console.error(e); } finally { btn.innerText = originalText; btn.disabled = false; setTimeout(() => { window.isSavingEdit = false; }, 5000); }
-    };
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'editGuard',
+                    oldSecurityName: oldName,
+                    securityName: newName,
+                    securityId: newGuardId
+                })
+            });
+
+            globalLogsCache.forEach(r => {
+                if (r.securityName === oldName) {
+                    r.securityName = newName;
+                    r.securityId = newGuardId;
+                }
+            });
+
+            closeEditGuardModal();
+            window.handleLogsResponse({ logs: globalLogsCache });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            setTimeout(() => { window.isSavingEdit = false; }, 5000);
+        }
+    }
+    window.saveGuardEdit = saveGuardEdit;
 
     window.renderLoginGuardSuggestions = debounce(function(value, type) {
-        const listName = document.getElementById('loginNameSuggestions'), listId = document.getElementById('loginIdSuggestions');
-        if (listName) listName.classList.remove('open'); if (listId) listId.classList.remove('open');
-        if (!value) return; const listEl = type === 'name' ? listName : listId; if (!listEl) return; listEl.innerHTML = '';
-        let combinedGuards = [...JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]')];
-        securityRegistryList.forEach(g => { if (!combinedGuards.some(lg => lg.securityId === g.securityId && lg.securityName === g.securityName)) combinedGuards.push(g); });
-        let matches = combinedGuards.filter(g => type === 'name' ? String(g.securityName||'').toUpperCase().includes(value.toUpperCase()) : String(g.securityId||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        const listName = document.getElementById('loginNameSuggestions');
+        const listId = document.getElementById('loginIdSuggestions');
+        if (listName) listName.classList.remove('open');
+        if (listId) listId.classList.remove('open');
+
+        if (!value) return;
+
+        const listEl = type === 'name' ? listName : listId;
+        if (!listEl) return;
+        listEl.innerHTML = '';
+
+        let localGuards = JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]');
+        let combinedGuards = [...localGuards];
+
+        securityRegistryList.forEach(g => {
+            if (!combinedGuards.some(lg => lg.securityId === g.securityId && lg.securityName === g.securityName)) {
+                combinedGuards.push(g);
+            }
+        });
+
+        let matches = combinedGuards.filter(g => {
+            if (type === 'name') return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());
+            if (type === 'id') return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());
+            return false;
+        }).slice(0, 5);
+
         if (matches.length === 0) return;
+
         matches.forEach(g => {
-            const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;
+            const item = document.createElement('div'); 
+            item.className = 'suggestion-item'; 
+            item.innerHTML = `<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;
             item.addEventListener('click', () => {
-                if (document.getElementById('loginName')) document.getElementById('loginName').value = g.securityName; if (document.getElementById('loginNoonId')) document.getElementById('loginNoonId').value = g.securityId || ''; listEl.classList.remove('open');
-            }); listEl.appendChild(item);
-        }); listEl.classList.add('open');
+                const nameEl = document.getElementById('loginName');
+                const idEl = document.getElementById('loginNoonId');
+                if (nameEl) nameEl.value = g.securityName;
+                if (idEl) idEl.value = g.securityId || '';
+                listEl.classList.remove('open');
+            });
+            listEl.appendChild(item);
+        });
+        listEl.classList.add('open');
     }, 250);
 
     window.renderDriverSuggestions = debounce(function(value) {
-        const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return; listEl.innerHTML = ''; if (!value) { listEl.classList.remove('open'); return; }
-        let matches = driversRegistryList.filter(d => String(d.name||'').toUpperCase().includes(value.toUpperCase()) || String(d.plate||'').toUpperCase().includes(value.toUpperCase()) || String(d.id||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
+        const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
+        listEl.innerHTML = '';
+        if (!value) { listEl.classList.remove('open'); return; }
+        let matches = driversRegistryList.filter(d => 
+            String(d.name||'').toUpperCase().includes(value.toUpperCase()) ||
+            String(d.plate||'').toUpperCase().includes(value.toUpperCase()) ||
+            String(d.id||'').toUpperCase().includes(value.toUpperCase())
+        ).slice(0, 5);
         if (matches.length === 0) { listEl.classList.remove('open'); return; }
         matches.forEach(d => {
-            const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `<strong>${d.name}</strong><br><small>Plate: ${d.plate} | ID: ${d.id}</small>`;
+            const item = document.createElement('div'); item.className = 'suggestion-item'; 
+            item.innerHTML = `<strong>${d.name}</strong><br><small>Plate: ${d.plate} | ID: ${d.id}</small>`;
             item.addEventListener('click', () => {
-                if(document.getElementById('driverSearchBox')) document.getElementById('driverSearchBox').value = d.name; if(document.getElementById('driverName')) document.getElementById('driverName').value = d.name;
-                let plateStr = d.plate !== '--' ? d.plate : '', numMatch = plateStr.match(/\d+/), letMatch = plateStr.match(/[A-Za-z]+/g);
-                if (document.getElementById('plateNumberDigits')) document.getElementById('plateNumberDigits').value = numMatch ? numMatch[0] : ''; if (document.getElementById('plateNumberLetters')) document.getElementById('plateNumberLetters').value = letMatch ? letMatch.join('') : '';
-                if(document.getElementById('iqamaNumber')) document.getElementById('iqamaNumber').value = d.id !== '--' ? d.id : ''; if(document.getElementById('mobileNumber')) document.getElementById('mobileNumber').value = d.phone !== '--' ? d.phone : '';
+                const searchBox = document.getElementById('driverSearchBox'); if(searchBox) searchBox.value = d.name;
+                const dName = document.getElementById('driverName'); if(dName) dName.value = d.name;
+                
+                let plateStr = d.plate !== '--' ? d.plate : '';
+                let numMatch = plateStr.match(/\d+/);
+                let letMatch = plateStr.match(/[A-Za-z]+/g);
+                const pNumD = document.getElementById('plateNumberDigits');
+                const pNumL = document.getElementById('plateNumberLetters');
+                if (pNumD) pNumD.value = numMatch ? numMatch[0] : '';
+                if (pNumL) pNumL.value = letMatch ? letMatch.join('') : '';
+                
+                const iqNum = document.getElementById('iqamaNumber'); if(iqNum) iqNum.value = d.id !== '--' ? d.id : '';
+                const mobNum = document.getElementById('mobileNumber'); if(mobNum) mobNum.value = d.phone !== '--' ? d.phone : '';
                 listEl.classList.remove('open');
-            }); listEl.appendChild(item);
-        }); listEl.classList.add('open');
+            });
+            listEl.appendChild(item);
+        });
+        listEl.classList.add('open');
     }, 250);
 
     window.renderSecuritySuggestions = debounce(function(value) {
-        const listEl = document.getElementById('securitySuggestionsList'); if (!listEl) return; listEl.innerHTML = ''; if (!value) { listEl.classList.remove('open'); return; }
+        const listEl = document.getElementById('securitySuggestionsList'); if (!listEl) return;
+        listEl.innerHTML = '';
+        if (!value) { listEl.classList.remove('open'); return; }
         let matches = securityRegistryList.filter(g => String(g.securityName||'').toUpperCase().includes(value.toUpperCase())).slice(0, 5);
         if (matches.length === 0) { listEl.classList.remove('open'); return; }
         matches.forEach(g => {
             const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `${g.securityName}`;
-            item.addEventListener('click', () => { if(document.getElementById('securityNameField')) document.getElementById('securityNameField').value = g.securityName; if(document.getElementById('securityNameId')) document.getElementById('securityNameId').value = g.securityId || ''; listEl.classList.remove('open'); });
+            item.addEventListener('click', () => {
+                const secName = document.getElementById('securityNameField'); if(secName) secName.value = g.securityName;
+                const secId = document.getElementById('securityNameId'); if(secId) secId.value = g.securityId || '';
+                listEl.classList.remove('open');
+            });
             listEl.appendChild(item);
-        }); listEl.classList.add('open');
+        });
+        listEl.classList.add('open');
     }, 250);
 
-    window.runInstantConflictCheck = function(e) {
-        const isNew = document.getElementById('toggleNewDriverBtn')?.classList.contains('active'); if (!isNew || !driversRegistryList.length) return;
-        const target = e.target; target.setCustomValidity(''); const val = target.value.trim().toLowerCase(); if (!val) return;
+    function runInstantConflictCheck(e) {
+        const toggleBtn = document.getElementById('toggleNewDriverBtn');
+        const isNew = toggleBtn && toggleBtn.classList.contains('active');
+        if (!isNew || !driversRegistryList.length) return;
+        
+        const target = e.target; 
+        target.setCustomValidity('');
+        const val = target.value.trim().toLowerCase();
+        if (!val) return;
+        
         if (target.id === 'iqamaNumber') {
-            if (driversRegistryList.some(d => String(d.id||'').toLowerCase() === val && val !== 'n/a' && val !== '--')) { target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.'); target.reportValidity(); }
+            let match = driversRegistryList.find(d => String(d.id||'').toLowerCase() === val && val !== 'n/a' && val !== '--');
+            if (match) {
+                target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.');
+                target.reportValidity();
+            }
         }
+        
         if (target.id === 'plateNumberDigits' || target.id === 'plateNumberLetters') {
-            let cleanVal = ((document.getElementById('plateNumberDigits')?.value || '') + (document.getElementById('plateNumberLetters')?.value || '')).replace(/\s+/g,'').toLowerCase();
-            if (driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === cleanVal && cleanVal !== 'n/a' && cleanVal !== '--' && cleanVal !== '')) {
-                target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.'); target.reportValidity();
-            } else { document.getElementById('plateNumberDigits')?.setCustomValidity(''); document.getElementById('plateNumberLetters')?.setCustomValidity(''); }
+            let pD = document.getElementById('plateNumberDigits')?.value || '';
+            let pL = document.getElementById('plateNumberLetters')?.value || '';
+            let cleanVal = (pD + pL).replace(/\s+/g,'').toLowerCase();
+            
+            let match = driversRegistryList.find(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === cleanVal && cleanVal !== 'n/a' && cleanVal !== '--' && cleanVal !== '');
+            if (match) {
+                target.setCustomValidity(currentLang==='ar' ? 'مسجل مسبقاً. الرجاء استخدام السائق الحالي.' : 'Duplicate Found. Please use Existing Driver.');
+                target.reportValidity();
+            } else {
+                document.getElementById('plateNumberDigits')?.setCustomValidity('');
+                document.getElementById('plateNumberLetters')?.setCustomValidity('');
+            }
         }
-    };
-
-    window.openDriverProfileModal = function(name, iqama, plate, date, phone) {
-        document.getElementById('modalDataName').innerText = name; document.getElementById('modalDataIqama').innerText = iqama; document.getElementById('modalDataDate').innerText = date; document.getElementById('modalDataMobile').innerText = phone || 'N/A';
-        let plateBox = document.getElementById('modalDataPlate'); if(plateBox) { plateBox.innerHTML = ''; (plate ? plate.split(' ') : ['--']).forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); }); }
-        document.getElementById('driverProfileModal').classList.add('modal-active');
-    };
-    window.closeDriverProfileModal = function() { document.getElementById('driverProfileModal').classList.remove('modal-active'); };
-
-    function convertArabicNumeralsToDigits(str) { const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'}; return str.replace(/[٠-٩]/g, m => map[m]); }
-    function loadImageRobust(file) { return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(new Error('Image failed to load')); img.src = URL.createObjectURL(file); }); }
-    async function preprocessImageForOcr(file, scanType, forceFullFrame = false) {
-        const img = await loadImageRobust(file), canvas = document.createElement('canvas'), ctx = canvas.getContext('2d', { alpha: false });
-        if (scanType === 'PLATE' && !forceFullFrame && ((img.width / img.height) <= 1.8)) {
-            canvas.width = Math.min(800, Math.round(img.width * 0.80)); canvas.height = Math.round(((img.height * 0.60) / (img.width * 0.80)) * canvas.width);
-            ctx.drawImage(img, img.width * 0.10, img.height * 0.35, img.width * 0.80, img.height * 0.60, 0, 0, canvas.width, canvas.height);
-        } else {
-            const scale = img.width > 800 ? 800 / img.width : 1; canvas.width = Math.round(img.width * scale); canvas.height = Math.round(img.height * scale); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        }
-        return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.50));
     }
-    function blobToBase64(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]); reader.onerror = () => reject(new Error('Blob to Base64 failed')); reader.readAsDataURL(blob); }); }
+    window.runInstantConflictCheck = runInstantConflictCheck;
 
-    window.openCamera = async function(statusLabelId, scanType) {
-        cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType; const overlay = document.getElementById('cameraOverlay'); if (overlay) overlay.classList.add('open');
-        try { cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1024 }, height: { ideal: 768 }, frameRate: { ideal: 15 } } }); if (document.getElementById('cameraVideo')) document.getElementById('cameraVideo').srcObject = cameraStream; } catch (err) { alert('Camera access failed.'); closeCamera(); }
-    };
-    window.openCheckoutCamera = function(statusLabelId, scanType) { window.openCamera(statusLabelId, scanType); };
-    window.closeCamera = function() { const overlay = document.getElementById('cameraOverlay'); if (overlay) overlay.classList.remove('open'); if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; } };
-    window.captureCameraFrame = function() {
+    function openDriverProfileModal(name, iqama, plate, date, phone) {
+        document.getElementById('modalDataName').innerText = name;
+        document.getElementById('modalDataIqama').innerText = iqama;
+        document.getElementById('modalDataDate').innerText = date;
+        document.getElementById('modalDataMobile').innerText = phone || 'N/A';
+        
+        let plateBox = document.getElementById('modalDataPlate');
+        if(plateBox) {
+            plateBox.innerHTML = '';
+            let segments = plate ? plate.split(' ') : ['--'];
+            segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
+        }
+        document.getElementById('driverProfileModal').classList.add('modal-active');
+    }
+    window.openDriverProfileModal = openDriverProfileModal;
+    
+    function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
+    window.closeDriverProfileModal = closeDriverProfileModal;
+
+    function convertArabicNumeralsToDigits(str) {
+        const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+        return str.replace(/[٠-٩]/g, m => map[m]);
+    }
+
+    function loadImageRobust(file) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Image failed to load'));
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    async function preprocessImageForOcr(file, scanType, forceFullFrame = false) {
+        const img = await loadImageRobust(file);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        const isAlreadyCropped = (img.width / img.height) > 1.8;
+
+        if (scanType === 'PLATE' && !forceFullFrame && !isAlreadyCropped) {
+            const cropX = img.width * 0.10;
+            const cropY = img.height * 0.35;
+            const cropW = img.width * 0.80;
+            const cropH = img.height * 0.60;
+
+            canvas.width = Math.min(800, Math.round(cropW));
+            canvas.height = Math.round((cropH / cropW) * canvas.width);
+            ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+        } else {
+            const targetWidth = 800;
+            const scale = img.width > targetWidth ? targetWidth / img.width : 1;
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.50);
+        });
+    }
+
+    function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = () => reject(new Error('Blob to Base64 failed'));
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    async function openCamera(statusLabelId, scanType) {
+        cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
+        const overlay = document.getElementById('cameraOverlay');
+        if (overlay) overlay.classList.add('open');
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1024 }, height: { ideal: 768 }, frameRate: { ideal: 15 } } });
+            const video = document.getElementById('cameraVideo');
+            if (video) video.srcObject = cameraStream;
+        } catch (err) { alert('Camera access failed.'); closeCamera(); }
+    }
+    window.openCamera = openCamera;
+
+    function openCheckoutCamera(statusLabelId, scanType) { openCamera(statusLabelId, scanType); }
+    window.openCheckoutCamera = openCheckoutCamera;
+
+    function closeCamera() {
+        const overlay = document.getElementById('cameraOverlay');
+        if (overlay) overlay.classList.remove('open');
+        if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+    }
+    window.closeCamera = closeCamera;
+
+    function captureCameraFrame() {
         const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
         if (video && !video.paused) {
-            canvas.width = video.videoWidth * 0.75; canvas.height = video.videoHeight; canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            canvas.width = video.videoWidth * 0.75; canvas.height = video.videoHeight;
+            canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
             const currentStatusId = cameraTargetStatusId, currentScanType = cameraTargetScanType;
+            
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') { temporaryCapturedImage = reader.result; if (document.getElementById(currentStatusId)) document.getElementById(currentStatusId).innerText = "✅ Attached"; }
-                    else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') { temporaryCapturedItemImage = reader.result; if (document.getElementById(currentStatusId)) document.getElementById(currentStatusId).innerText = "✅ Attached"; }
-                    else { temporaryCapturedImage = reader.result; runLocalOcrEngine(blob, currentStatusId, currentScanType); }
+                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
+                        temporaryCapturedImage = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
+                        temporaryCapturedItemImage = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) statusEl.innerText = "✅ Attached";
+                    } else {
+                        temporaryCapturedImage = reader.result; 
+                        runLocalOcrEngine(blob, currentStatusId, currentScanType); 
+                    }
                 };
-            }, 'image/jpeg', 0.6); window.closeCamera();
+            }, 'image/jpeg', 0.6); 
+            closeCamera();
         }
-    };
-    window.handleCameraCancel = function() { window.closeCamera(); };
+    }
+    window.captureCameraFrame = captureCameraFrame;
+
+    function handleCameraCancel() { closeCamera(); }
+    window.handleCameraCancel = handleCameraCancel;
 
     let ocrCallbackId = 0;
     function processOcrRequestJSONP(base64Data, scanType) {
@@ -1607,7 +2384,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "5.5";
+    const CURRENT_APP_VERSION = "4.8";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
