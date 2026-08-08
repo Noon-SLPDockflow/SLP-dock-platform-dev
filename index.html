@@ -276,11 +276,6 @@
                 <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
             </div>
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 0.85rem; width: 100%;">
-                <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 0.85rem; margin-bottom: 0.25rem;">
-                    <div><span class="icon" style="font-size:1.3rem; margin-bottom:0.2rem;">🪪</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
-                    <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
-                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
-                </div>
                 
                 <div id="loginNameWrapper" style="position: relative; width: 100%;">
                     <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'name')">
@@ -288,7 +283,7 @@
                 </div>
 
                 <div id="loginIdWrapper" style="position: relative; width: 100%;">
-                    <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'id')">
+                    <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'id')">
                     <div id="loginIdSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
                 </div>
 
@@ -319,7 +314,7 @@
             <li class="nav-item" id="nav-checkin" onclick="switchView('checkin', this)"><span class="nav-icon">🚛</span><span class="nav-text" data-i18n="Check-in Truck">Check-in Truck</span></li>
             <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)"><span class="nav-icon">⏱️</span><span class="nav-text" data-i18n="Active Trucks">Active Trucks</span></li>
             <li class="nav-item" id="nav-history" onclick="switchView('history', this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
-            <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)"><span class="nav-icon">🪪</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
+            <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
             <li class="nav-item" id="nav-security" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
         </ul>
         <div class="sidebar-footer">
@@ -354,7 +349,7 @@
                 <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div><div class="metric-accent-line" style="background-color: var(--accent-color);"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label" data-i18n="Completed Today">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-i18n="Total Check-Ins">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
-                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">💳</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
             <div class="card">
                 <div class="card-header-flex">
@@ -414,7 +409,7 @@
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatusTop', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                     <div class="scan-box-dashed" id="scanBoxIqamaTop" onclick="document.getElementById('iqamaScanner').click()">
-                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
+                        <div><span class="icon">💳</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
@@ -899,7 +894,6 @@
         
         const setDisp = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
         
-        setDisp('loginScanBox', (mode === 'admin') ? 'none' : 'block');
         setDisp('loginNoonId', (mode === 'admin') ? 'none' : 'block');
         setDisp('loginIdWrapper', (mode === 'admin') ? 'none' : 'block');
         setDisp('adminPasswordContainer', (mode === 'admin') ? 'block' : 'none');
