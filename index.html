@@ -247,7 +247,7 @@
         .camera-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; }
         .camera-overlay.open { display: flex; }
         .camera-controls { display: flex; gap: 1rem; z-index: 100010; margin-top: 1rem; }
-        .camera-controls button { padding: 0.7rem 1.25rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.75rem; min-width: 110px; }
+        .camera-controls button { padding: 0.7rem 1.25rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.75rem; min-width: 110px; transition: background 0.2s, color 0.2s; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-torch { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid var(--border-color); }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
@@ -2388,17 +2388,27 @@
         
         try {
             let result = await processOcrRequest(file, scanType, false);
-            let cleanText = convertArabicNumeralsToDigits((result && result.text) || "").toUpperCase();
+            let rawText = (result && result.text) || "";
+            let cleanText = convertArabicNumeralsToDigits(rawText).toUpperCase();
             let matched = false;
 
             if (scanType === "PLATE" && !cleanText.match(/\b\d{3,4}\b/)) {
                 result = await processOcrRequest(file, scanType, true);
-                cleanText = convertArabicNumeralsToDigits((result && result.text) || "").toUpperCase();
+                rawText = (result && result.text) || "";
+                cleanText = convertArabicNumeralsToDigits(rawText).toUpperCase();
             }
 
             if (scanType === "IQAMA") {
-                let idMatch = cleanText.match(/[12]\d{9}/);
-                let idNum = idMatch ? idMatch[0] : "";
+                // 1. Try to find the English printed Iqama number (raw digits)
+                let englishIdMatch = rawText.match(/[12]\d{9}/);
+                let idNum = englishIdMatch ? englishIdMatch[0] : "";
+
+                // 2. Fallback: If not found (cut off/blurry), try the Arabic printed one (converted to digits)
+                if (!idNum) {
+                    let arabicIdMatch = cleanText.match(/[12]\d{9}/);
+                    idNum = arabicIdMatch ? arabicIdMatch[0] : "";
+                }
+
                 if (idNum) {
                     const iqEl = document.getElementById('iqamaNumber');
                     if (iqEl) { iqEl.value = idNum; iqEl.dispatchEvent(new Event('input')); }
