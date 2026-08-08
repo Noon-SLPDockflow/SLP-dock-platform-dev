@@ -24,6 +24,13 @@
             font-size: 14px;
         }
         
+        /* Remove Number Spinners for Plate Inputs */
+        #plateNumberDigits::-webkit-outer-spin-button, #plateNumberDigits::-webkit-inner-spin-button,
+        #editDriverPlateNumbers::-webkit-outer-spin-button, #editDriverPlateNumbers::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0;
+        }
+        #plateNumberDigits, #editDriverPlateNumbers { -moz-appearance: textfield; }
+
         /* Intro Overlay & Login */
         .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .intro-overlay.hidden { opacity: 0; pointer-events: none; }
@@ -263,9 +270,19 @@
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
                     <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                 </div>
-                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name">
-                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID">
+                
+                <div id="loginNameWrapper" style="position: relative; width: 100%;">
+                    <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'name')">
+                    <div id="loginNameSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
+                </div>
+
+                <div id="loginIdWrapper" style="position: relative; width: 100%;">
+                    <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'id')">
+                    <div id="loginIdSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
+                </div>
+
                 <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Authorized Noon Email">
+                
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
                     <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);">
                 </div>
@@ -875,6 +892,7 @@
         
         setDisp('loginScanBox', (mode === 'admin') ? 'none' : 'block');
         setDisp('loginNoonId', (mode === 'admin') ? 'none' : 'block');
+        setDisp('loginIdWrapper', (mode === 'admin') ? 'none' : 'block');
         setDisp('adminPasswordContainer', (mode === 'admin') ? 'block' : 'none');
     }
     window.switchLoginMode = switchLoginMode;
@@ -971,6 +989,12 @@
                     if (pass === 'NoonCCTVSLP#2026') executeLogin(name, email, '', 'admin', false);
                     else alert("Incorrect Password");
                 } else {
+                    // Save to local storage on fresh guard login
+                    let localGuards = JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]');
+                    if (name && noonId && !localGuards.some(g => g.securityId === noonId && g.securityName === name)) {
+                        localGuards.push({ securityName: name, securityId: noonId });
+                        localStorage.setItem('noonSlpLocalGuards', JSON.stringify(localGuards));
+                    }
                     executeLogin(name, email, noonId, 'guard', false);
                 }
             });
@@ -989,9 +1013,15 @@
         if (secField) secField.addEventListener('input', function() { renderSecuritySuggestions(this.value); });
         
         document.addEventListener('click', function(e) {
-            const driverList = document.getElementById('driverSuggestionsList'), secList = document.getElementById('securitySuggestionsList');
+            const driverList = document.getElementById('driverSuggestionsList');
+            const secList = document.getElementById('securitySuggestionsList');
+            const loginNameList = document.getElementById('loginNameSuggestions');
+            const loginIdList = document.getElementById('loginIdSuggestions');
+            
             if (driverList && !e.target.closest('.search-input-wrapper')) driverList.classList.remove('open');
-            if (secList && !e.target.closest('#securityDropdownWrapper')) secList.classList.remove('open');
+            if (secList && !e.target.closest('.form-group')) secList.classList.remove('open');
+            if (loginNameList && !e.target.closest('#loginNameWrapper')) loginNameList.classList.remove('open');
+            if (loginIdList && !e.target.closest('#loginIdWrapper')) loginIdList.classList.remove('open');
         });
 
         // Time updates
@@ -1441,7 +1471,7 @@
 
         let html = ''; let count = 0;
         for (let i = 0; i < filtered.length; i++) {
-            if (count >= 500) break;
+            if (count >= 500) break; // Extended to 500
             let r = filtered[i];
             if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
             
@@ -1655,6 +1685,7 @@
         let html = '';
         const isAdmin = (userRole === 'admin');
 
+        // Removed the .slice(0, 50) restriction to allow searching all drivers
         driversRegistryList.forEach(d => {
             const searchName = String(d.name || "").toLowerCase();
             const searchPlate = String(d.plate || "").toLowerCase();
@@ -1886,6 +1917,52 @@
         }
     }
     window.saveGuardEdit = saveGuardEdit;
+
+    window.renderLoginGuardSuggestions = debounce(function(value, type) {
+        const listName = document.getElementById('loginNameSuggestions');
+        const listId = document.getElementById('loginIdSuggestions');
+        if (listName) listName.classList.remove('open');
+        if (listId) listId.classList.remove('open');
+
+        if (!value) return;
+
+        const listEl = type === 'name' ? listName : listId;
+        if (!listEl) return;
+        listEl.innerHTML = '';
+
+        let localGuards = JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]');
+        let combinedGuards = [...localGuards];
+
+        // Merge from global securityRegistryList without duplicates
+        securityRegistryList.forEach(g => {
+            if (!combinedGuards.some(lg => lg.securityId === g.securityId && lg.securityName === g.securityName)) {
+                combinedGuards.push(g);
+            }
+        });
+
+        let matches = combinedGuards.filter(g => {
+            if (type === 'name') return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());
+            if (type === 'id') return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());
+            return false;
+        }).slice(0, 5);
+
+        if (matches.length === 0) return;
+
+        matches.forEach(g => {
+            const item = document.createElement('div'); 
+            item.className = 'suggestion-item'; 
+            item.innerHTML = `<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;
+            item.addEventListener('click', () => {
+                const nameEl = document.getElementById('loginName');
+                const idEl = document.getElementById('loginNoonId');
+                if (nameEl) nameEl.value = g.securityName;
+                if (idEl) idEl.value = g.securityId || '';
+                listEl.classList.remove('open');
+            });
+            listEl.appendChild(item);
+        });
+        listEl.classList.add('open');
+    }, 250);
 
     window.renderDriverSuggestions = debounce(function(value) {
         const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
@@ -2311,7 +2388,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.6";
+    const CURRENT_APP_VERSION = "4.7";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
