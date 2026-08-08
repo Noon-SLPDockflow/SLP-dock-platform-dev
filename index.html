@@ -246,11 +246,22 @@
         
         .camera-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; }
         .camera-overlay.open { display: flex; }
-        .camera-overlay video { max-width: 100%; max-height: 60vh; border-radius: 8px; border: 2px solid var(--accent-color); }
-        .camera-controls { display: flex; gap: 1rem; z-index: 100010; }
+        .camera-controls { display: flex; gap: 1rem; z-index: 100010; margin-top: 1rem; }
         .camera-controls button { padding: 0.7rem 1.25rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.75rem; min-width: 120px; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
+        
+        /* Laser Sniper Scanner CSS */
+        .camera-video-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 600px; height: 60vh; border-radius: 8px; overflow: hidden; border: 2px solid var(--accent-color); background: #000; }
+        .camera-video-wrapper video { width: 100%; height: 100%; object-fit: cover; border: none; }
+        .scanner-target-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 2px solid transparent; box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.65); z-index: 100005; pointer-events: none; display: none; }
+        .scanner-laser { width: 100%; height: 2px; background: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); position: absolute; top: 0; animation: laserScan 2s infinite ease-in-out; }
+        @keyframes laserScan { 0% { top: 5%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 95%; opacity: 0; } }
+        .scanner-corner { position: absolute; width: 25px; height: 25px; border-color: var(--accent-color); border-style: solid; }
+        .corner-tl { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-top-left-radius: 8px; }
+        .corner-tr { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-top-right-radius: 8px; }
+        .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
+        .corner-br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
         
         .plate-bumper { display:inline-flex; align-items:center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-family: monospace; overflow: hidden;}
         .plate-num { padding: 3px 6px; background: rgba(0,0,0,0.4); font-weight: bold; color: #fff;}
@@ -503,7 +514,7 @@
                                     <input type="number" id="boxCount" class="input-box-styled" placeholder="Enter quantity" min="0" autocomplete="off" style="width: 65%;">
                                 </div>
                             </div>
-                            <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;"><label class="badge-style" style="color:var(--accent-color);" data-i18n="Seal or transction number">Seal or transction number</label><input type="text" id="sealNumber" class="input-box-styled" data-i18n="Seal or transction number" placeholder="Enter seal or transaction number" style="border-color: rgba(252, 194, 0, 0.4);" autocomplete="off"></div>
+                            <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;"><label class="badge-style" style="color:var(--accent-color);" data-i18n="Seal/Transaction">Seal/Transaction</label><input type="text" id="sealNumber" class="input-box-styled" data-i18n="Seal/Transaction" placeholder="Enter seal or transaction number" style="border-color: rgba(252, 194, 0, 0.4);" autocomplete="off"></div>
                         </div>
                         <button type="submit" class="submit-btn-global" data-i18n="Check In Truck">Check In Truck</button>
                     </form>
@@ -691,9 +702,18 @@
     <div class="camera-overlay" id="cameraFlash" style="display:none;"></div>
     <div class="camera-overlay" id="cameraOverlay">
         <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px; z-index:100010; text-align:center;"></h3>
-        <video id="cameraVideo" autoplay playsinline muted></video>
+        <div class="camera-video-wrapper" style="width: 100%; max-width: 600px; height: 60vh; position: relative; border-radius: 8px; border: 2px solid var(--accent-color); overflow: hidden; background: #000;">
+            <video id="cameraVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div id="scannerTarget" class="scanner-target-box">
+                <div class="scanner-corner corner-tl"></div>
+                <div class="scanner-corner corner-tr"></div>
+                <div class="scanner-corner corner-bl"></div>
+                <div class="scanner-corner corner-br"></div>
+                <div class="scanner-laser"></div>
+            </div>
+        </div>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
-        <div class="camera-controls">
+        <div class="camera-controls" style="margin-top: 1rem;">
             <button class="btn-capture" onclick="captureCameraFrame()">📸 <span data-i18n="Capture">Capture</span></button>
             <button class="btn-cancel-cam" onclick="handleCameraCancel()" data-i18n="Cancel">Cancel</button>
         </div>
@@ -2145,11 +2165,38 @@
         cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
         const overlay = document.getElementById('cameraOverlay');
         if (overlay) overlay.classList.add('open');
+
+        // Configure Scanner Overlay Box
+        const scannerBox = document.getElementById('scannerTarget');
+        const instruction = document.getElementById('cameraInstructionLabel');
+        if (scannerBox) {
+            scannerBox.style.display = 'block';
+            if (scanType === 'PLATE') {
+                scannerBox.style.width = '80%';
+                scannerBox.style.height = '35%';
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة لوحة الشاحنة داخل الإطار' : 'Align Truck Plate Inside Box';
+            } else if (scanType === 'IQAMA') {
+                scannerBox.style.width = '80%';
+                scannerBox.style.height = '50%';
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الإقامة داخل الإطار' : 'Align Iqama Inside Box';
+            } else if (scanType === 'OFFICER' || scanType === 'LOGIN_OFFICER') {
+                scannerBox.style.width = '70%';
+                scannerBox.style.height = '60%';
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الأمن داخل الإطار' : 'Align Security ID Inside Box';
+            } else {
+                scannerBox.style.display = 'none'; // Hide for general item/truck photos
+                if (instruction) instruction.innerText = currentLang === 'ar' ? 'التقط صورة واضحة' : 'Take a Clear Picture';
+            }
+        }
+
         try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1024 }, height: { ideal: 768 }, frameRate: { ideal: 15 } } });
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
             const video = document.getElementById('cameraVideo');
-            if (video) video.srcObject = cameraStream;
-        } catch (err) { alert('Camera access failed.'); closeCamera(); }
+            if (video) {
+                video.srcObject = cameraStream;
+                video.setAttribute("playsinline", true);
+            }
+        } catch (err) { alert('Camera access failed. Please check permissions.'); closeCamera(); }
     }
     window.openCamera = openCamera;
 
@@ -2166,8 +2213,8 @@
     function captureCameraFrame() {
         const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
         if (video && !video.paused) {
-            canvas.width = video.videoWidth * 0.75; canvas.height = video.videoHeight;
-            canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height);
             const currentStatusId = cameraTargetStatusId, currentScanType = cameraTargetScanType;
             
             canvas.toBlob(blob => {
@@ -2410,7 +2457,7 @@
     
     function exportHistoryToExcel() {
         if (!globalLogsCache || globalLogsCache.length === 0) { alert('No data to export.'); return; }
-        const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Noon Employee ID', 'Boxes/Pallets', 'Seal/Transaction', 'Check In Truck', 'Check Out', 'Security'];
+        const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Noon Employee ID', 'Boxes/Pallets', 'Seal Number', 'Check In Truck', 'Check Out', 'Security'];
         const csvLines = [headers.join(',')];
         globalLogsCache.forEach(r => {
             let dCheckIn = parseFlexibleDate(r.checkInTime);
