@@ -24,12 +24,12 @@
             font-size: 14px;
         }
         
-        /* Remove Number Spinners for Plate Inputs */
-        #plateNumberDigits::-webkit-outer-spin-button, #plateNumberDigits::-webkit-inner-spin-button,
-        #editDriverPlateNumbers::-webkit-outer-spin-button, #editDriverPlateNumbers::-webkit-inner-spin-button {
+        /* Remove Number Spinners globally */
+        input[type=number]::-webkit-outer-spin-button, 
+        input[type=number]::-webkit-inner-spin-button {
             -webkit-appearance: none; margin: 0;
         }
-        #plateNumberDigits, #editDriverPlateNumbers { -moz-appearance: textfield; }
+        input[type=number] { -moz-appearance: textfield; }
 
         /* Intro Overlay & Login */
         .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
@@ -429,7 +429,7 @@
                                 <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
                                 <div style="display: flex; gap: 8px;">
                                     <input type="number" id="plateNumberDigits" class="input-box-styled" placeholder="1234" required style="width: 50%; font-family: monospace;" oninput="this.value = this.value.replace(/[^0-9]/g, ''); runInstantConflictCheck(event);">
-                                    <input type="text" id="plateNumberLetters" class="input-box-styled" placeholder="ABC" style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, ''); runInstantConflictCheck(event);">
+                                    <input type="text" id="plateNumberLetters" class="input-box-styled" placeholder="ABC" required style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, ''); runInstantConflictCheck(event);">
                                 </div>
                             </div>
 
@@ -454,7 +454,7 @@
                             
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
-                                <select id="direction" class="input-box-styled" style="font-size: 0.85rem;" onchange="handlePurposeChange(this)">
+                                <select id="direction" class="input-box-styled" required style="font-size: 0.85rem;" onchange="handlePurposeChange(this)">
                                     <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
                                     <option value="RTV Handover - تسليم مرتجعات">RTV Handover - تسليم مرتجعات</option>
                                     <option value="ST CFCs - نقل بضائع بين مستودعات نون">ST CFCs - نقل بضائع بين مستودعات نون</option>
@@ -613,7 +613,7 @@
                     <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="number" id="editDriverPlateNumbers" class="input-box-styled" placeholder="1234" required style="width: 50%; font-family: monospace;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        <input type="text" id="editDriverPlateLetters" class="input-box-styled" placeholder="ABC" style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '')">
+                        <input type="text" id="editDriverPlateLetters" class="input-box-styled" placeholder="ABC" required style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '')">
                     </div>
                 </div>
                 <div class="form-group">
@@ -682,9 +682,8 @@
         </div>
     </div>
 
+    <div class="camera-overlay" id="cameraFlash" style="display:none;"></div>
     <div class="camera-overlay" id="cameraOverlay">
-        <div id="cameraFlash" class="camera-flash"></div>
-        <div id="focusRing" class="focus-ring"></div>
         <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px; z-index:100010; text-align:center;"></h3>
         <video id="cameraVideo" autoplay playsinline muted></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
@@ -736,7 +735,6 @@
         };
     }
 
-    // Smart Date Parser to bypass Arabic locale glitches
     function parseFlexibleDate(val) {
         if (!val) return new Date(NaN);
         let s = String(val).trim();
@@ -989,7 +987,6 @@
                     if (pass === 'NoonCCTVSLP#2026') executeLogin(name, email, '', 'admin', false);
                     else alert("Incorrect Password");
                 } else {
-                    // Save to local storage on fresh guard login
                     let localGuards = JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]');
                     if (name && noonId && !localGuards.some(g => g.securityId === noonId && g.securityName === name)) {
                         localGuards.push({ securityName: name, securityId: noonId });
@@ -1089,7 +1086,6 @@
             if (bottomDriver) bottomDriver.style.display = 'none';
             if (bottomItem) bottomItem.style.display = isReceiving ? 'block' : 'none';
         } else {
-            // Existing Driver: Only show scanners on check-in IF Receiving
             if (topScanners) topScanners.style.display = 'none';
             if (bottomScanners) {
                 bottomScanners.style.display = isReceiving ? 'grid' : 'none';
@@ -1110,12 +1106,18 @@
         btn.style.background = 'var(--accent-color)'; btn.style.color = '#000'; btn.classList.add('active');
         
         const lookup = document.getElementById('driverLookupGroup');
+        const reqFields = ['driverName', 'iqamaNumber', 'plateNumberDigits', 'plateNumberLetters'];
+
         if (mode === 'existing') {
             if(lookup) lookup.style.display = 'block';
-            document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = 'none'; const i = f.querySelector('input'); if(i) i.required = false; });
+            document.getElementById('driverSearchBox').required = true;
+            document.querySelectorAll('.new-driver-field').forEach(f => f.style.display = 'none');
+            reqFields.forEach(id => { const el = document.getElementById(id); if (el) el.required = false; });
         } else {
             if(lookup) lookup.style.display = 'none';
-            document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = 'block'; const i = f.querySelector('input'); if(i) i.required = true; });
+            document.getElementById('driverSearchBox').required = false;
+            document.querySelectorAll('.new-driver-field').forEach(f => f.style.display = 'block');
+            reqFields.forEach(id => { const el = document.getElementById(id); if (el) el.required = true; });
         }
         updateScannerVisibility();
     }
@@ -1128,12 +1130,26 @@
             const toggleBtn = document.getElementById('toggleNewDriverBtn');
             const isNew = toggleBtn && toggleBtn.classList.contains('active');
             
+            let dName = document.getElementById('driverName')?.value || '';
+            let iqNum = document.getElementById('iqamaNumber')?.value || '';
             let pDigits = document.getElementById('plateNumberDigits')?.value || '';
             let pLetters = document.getElementById('plateNumberLetters')?.value || '';
             let combinedPlate = (pDigits + ' ' + pLetters).trim();
 
+            if (!isNew) {
+                if (!pDigits || !pLetters || !dName || !iqNum) {
+                    alert(currentLang === 'ar' ? "يرجى البحث عن السائق واختياره من القائمة أولاً." : "Please search and select a driver from the dropdown list first.");
+                    return;
+                }
+            }
+
+            if (!pDigits || !pLetters) {
+                alert(currentLang === 'ar' ? "يرجى ملء كل من أرقام وحروف اللوحة." : "Please fill in both the Numbers and Alphabets for the Truck Plate.");
+                return;
+            }
+
             if (isNew && driversRegistryList.length > 0) {
-                const iqVal = (document.getElementById('iqamaNumber')?.value || '').trim().toLowerCase();
+                const iqVal = iqNum.trim().toLowerCase();
                 const plVal = combinedPlate.replace(/\s+/g,'').toLowerCase();
                 let iqamaConflicted = driversRegistryList.some(d => String(d.id||'').toLowerCase() === iqVal && iqVal !== 'n/a');
                 let plateConflicted = driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a');
@@ -1171,8 +1187,8 @@
             
             const payload = {
                 action: 'checkin', 
-                driverName: document.getElementById('driverName')?.value || '', 
-                iqamaNumber: document.getElementById('iqamaNumber')?.value || '',
+                driverName: dName, 
+                iqamaNumber: iqNum,
                 plateNumber: combinedPlate, 
                 mobileNumber: document.getElementById('mobileNumber')?.value || "N/A",
                 securityName: document.getElementById('securityNameField')?.value || '', 
@@ -1218,7 +1234,6 @@
         const subtext = document.getElementById('signOutModalSubtext');
         if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
         const sc = document.getElementById('checkoutScanners');
-        // Dispatching asks for photos at checkout. Receiving does not.
         if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.add('modal-active');
@@ -1229,7 +1244,6 @@
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.remove('modal-active');
         
-        // Reset variables and labels to prevent carrying over to next truck
         tempCheckoutTruckPhoto = null;
         tempCheckoutItemPhoto = null;
         const ts = document.getElementById('checkoutTruckStatus');
@@ -1244,7 +1258,6 @@
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
         btnConfirmSignOut.addEventListener('click', () => {
-            // Validate required checkout photos for non-Receiving (e.g. Dispatching)
             if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
                 if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
                     alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
@@ -1342,7 +1355,6 @@
         const todayStr = new Date().toDateString();
         if (mCompleted) mCompleted.innerText = globalLogsCache.filter(r => r.checkOutTime && parseFlexibleDate(r.checkOutTime).toDateString() === todayStr).length;
 
-        // Docks Container
         const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
         const occupiedDocksCount = document.getElementById('occupiedDocksCount');
         if (occupiedDocksContainer) {
@@ -1367,7 +1379,6 @@
             });
         }
         
-        // Active Yard Table
         let activeHtml = '';
         activeList.forEach(r => {
             const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
@@ -1402,7 +1413,6 @@
         compileSecurityRegistryCards(globalLogsCache);
     };
 
-    // --- FILTERS & CHARTS ---
     const debouncedApplyAnalyticsFilters = debounce(applyAnalyticsFilters, 300);
     const debouncedFilterActiveTrucks = debounce(filterActiveTrucks, 300);
     const debouncedApplyHistoryFilters = debounce(applyHistoryFilters, 300);
@@ -1471,7 +1481,7 @@
 
         let html = ''; let count = 0;
         for (let i = 0; i < filtered.length; i++) {
-            if (count >= 500) break; // Extended to 500
+            if (count >= 500) break;
             let r = filtered[i];
             if (query && !String(r.driverName).toLowerCase().includes(query) && !String(r.plateNumber).toLowerCase().includes(query)) continue;
             
@@ -1529,7 +1539,6 @@
             return checkInMatch || checkOutMatch;
         });
 
-        // Growth Line
         let growthMap = {};
         filtered.forEach(log => {
             let time = parseFlexibleDate(log.checkInTime);
@@ -1552,7 +1561,6 @@
             }
         }
 
-        // Peak Hours Column Chart (Vertical Bars)
         let hourMap = {};
         filtered.forEach(log => {
             let time = parseFlexibleDate(log.checkInTime);
@@ -1583,7 +1591,6 @@
             }
         }
 
-        // Cohorts (Horizontal Bars)
         let cohortMap = {};
         filtered.forEach(log => {
             let dir = String(log.direction || "Unknown").split('-')[0].trim().toUpperCase();
@@ -1603,7 +1610,6 @@
             }
         }
 
-        // Docks Ranking (Donut)
         let dockMap = {};
         filtered.forEach(log => { let dock = log.dockNumber; if (dock) dockMap[dock] = (dockMap[dock] || 0) + 1; });
         let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k] })).sort((a,b) => b.count - a.count);
@@ -1617,7 +1623,6 @@
             if (donutEl) donutEl.style.background = 'var(--card-solid)'; if (legendEl) legendEl.innerHTML = `<li>No Data</li>`;
         }
 
-        // Build Accordion Grouped Tables
         const aTables = document.getElementById('analyticsGroupedTables');
         if (aTables) {
             let groups = {};
@@ -1667,7 +1672,6 @@
     }
     window.applyAnalyticsFilters = applyAnalyticsFilters;
 
-    // --- REGISTRY COMPILATION ---
     function compileDriversRegistryCards(data) {
         let uniqueMap = {};
         data.forEach(item => {
@@ -1685,7 +1689,6 @@
         let html = '';
         const isAdmin = (userRole === 'admin');
 
-        // Removed the .slice(0, 50) restriction to allow searching all drivers
         driversRegistryList.forEach(d => {
             const searchName = String(d.name || "").toLowerCase();
             const searchPlate = String(d.plate || "").toLowerCase();
@@ -1810,7 +1813,7 @@
         
         const newMobile = document.getElementById('editDriverMobile').value.trim();
 
-        if (!newName || !newIqama || !numPart) {
+        if (!newName || !newIqama || !numPart || !letPart) {
             alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields.");
             return;
         }
@@ -1835,7 +1838,6 @@
                 })
             });
 
-            // Update local cache across all matching logs
             globalLogsCache.forEach(r => {
                 if (r.driverName === oldName) {
                     r.driverName = newName;
@@ -1852,7 +1854,6 @@
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;
-            // Extend lock to prevent immediate background refresh from pulling un-updated sheet data
             setTimeout(() => { window.isSavingEdit = false; }, 5000);
         }
     }
@@ -1933,7 +1934,6 @@
         let localGuards = JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]');
         let combinedGuards = [...localGuards];
 
-        // Merge from global securityRegistryList without duplicates
         securityRegistryList.forEach(g => {
             if (!combinedGuards.some(lg => lg.securityId === g.securityId && lg.securityName === g.securityName)) {
                 combinedGuards.push(g);
@@ -2016,7 +2016,6 @@
         listEl.classList.add('open');
     }, 250);
 
-    // --- Live Duplicate Checking ---
     function runInstantConflictCheck(e) {
         const toggleBtn = document.getElementById('toggleNewDriverBtn');
         const isNew = toggleBtn && toggleBtn.classList.contains('active');
@@ -2052,7 +2051,6 @@
     }
     window.runInstantConflictCheck = runInstantConflictCheck;
 
-    // --- Profile Modals ---
     function openDriverProfileModal(name, iqama, plate, date, phone) {
         document.getElementById('modalDataName').innerText = name;
         document.getElementById('modalDataIqama').innerText = iqama;
@@ -2072,7 +2070,6 @@
     function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
     window.closeDriverProfileModal = closeDriverProfileModal;
 
-    // --- CAMERA & JSONP ULTRA FAST OCR ---
     function convertArabicNumeralsToDigits(str) {
         const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
         return str.replace(/[٠-٩]/g, m => map[m]);
@@ -2179,7 +2176,6 @@
     function handleCameraCancel() { closeCamera(); }
     window.handleCameraCancel = handleCameraCancel;
 
-    // Fast JSONP Bridge for Google Apps Script OCR
     let ocrCallbackId = 0;
     function processOcrRequestJSONP(base64Data, scanType) {
         return new Promise((resolve, reject) => {
@@ -2388,7 +2384,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.7";
+    const CURRENT_APP_VERSION = "4.8";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
