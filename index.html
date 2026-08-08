@@ -766,7 +766,7 @@
         "Dashboard": "لوحة القيادة", "Analytics": "التحليلات", "Check-in Truck": "تسجيل دخول شاحنة", "Active Trucks": "الشاحنات النشطة",
         "History Log": "سجل الحركة", "Drivers Database": "قاعدة بيانات السائقين", "Security Guard Database": "قاعدة بيانات حراس الأمن",
         "Centralized registry of security personnel.": "سجل مركزي لموظفي الأمن.", "Search guards...": "البحث عن حراس...", "Noon ID": "هوية نون",
-        "Scan Security ID": "مسح هوية الأمن", "Name": "الاسم", "Guard": "حارس", "Admin": "مسؤول", "Weekly": "أسبوعياً", "Monthly": "شهرياً", 
+        "Name": "الاسم", "Guard": "حارس", "Admin": "مسؤول", "Weekly": "أسبوعياً", "Monthly": "شهرياً", 
         "6 Months": "6 أشهر", "1 Year": "سنة واحدة", "Vehicle Processing Growth": "نمو معالجة المركبات", "Noon": "نون",
         "Dock Security Platform": "منصة أمن الأرصفة", "Guest User": "مستخدم ضيف", "Not signed in": "غير مسجل الدخول", "System Health": "صحة النظام",
         "Operational": "قيد التشغيل", "Fullscreen": "ملء الشاشة", "Exit Fullscreen": "إنهاء ملء الشاشة", "Menu": "القائمة",
@@ -2254,10 +2254,9 @@
                 
                 let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
                 let nameMatch = lines.find(line => {
-                    let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|RESIDENCE|PERMIT|LICENSE|DRIVING|SPECIAL|VERSION|ISSUE|NUMBER|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
-                    let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ|رخصة|إقامة/.test(line);
-                    if (idNum.startsWith('1')) return isArabicName;
-                    if (idNum.startsWith('2')) return isEnglishName;
+                    let isEnglishName = line.length >= 6 && /^[A-Z]{1,}(?:\s+[A-Z.'-]{1,})+$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|IDENTITY|PERMIT|LICENSE|DRIVING|SPECIAL|VERSION|ISSUE|NUMBER|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION|ISLAM|MUSLIM|CHRISTIAN|SERVICES/.test(line);
+                    let isArabicName = line.length >= 8 && /^[\u0600-\u06FF]{2,}(?:\s+[\u0600-\u06FF]{2,})+$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ|رخصة|إقامة|مقيم|هوية|عامل|سائق|الجنسية|المهنة|الديانة|صاحب|العمل|مؤسسة|شركة|للتجارة|للمقاولات|خدمات|الكترونية|الالكترونية/.test(line);
+                    
                     return isEnglishName || isArabicName;
                 });
                 
