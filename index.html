@@ -2244,25 +2244,47 @@
             }
 
             if (scanType === "IQAMA") {
-                let idMatch = cleanText.match(/\b[12]\d{9}\b/);
+                let idMatch = cleanText.match(/[12]\d{9}/);
                 let idNum = idMatch ? idMatch[0] : "";
-                if (idMatch) {
+                if (idNum) {
                     const iqEl = document.getElementById('iqamaNumber');
                     if (iqEl) { iqEl.value = idNum; iqEl.dispatchEvent(new Event('input')); }
                     matched = true;
                 }
                 
                 let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-                let nameMatch = lines.find(line => {
-                    let isEnglishName = line.length >= 6 && /^[A-Z]{1,}(?:\s+[A-Z.'-]{1,})+$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|IDENTITY|PERMIT|LICENSE|DRIVING|SPECIAL|VERSION|ISSUE|NUMBER|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION|ISLAM|MUSLIM|CHRISTIAN|SERVICES/.test(line);
-                    let isArabicName = line.length >= 8 && /^[\u0600-\u06FF]{2,}(?:\s+[\u0600-\u06FF]{2,})+$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ|رخصة|إقامة|مقيم|هوية|عامل|سائق|الجنسية|المهنة|الديانة|صاحب|العمل|مؤسسة|شركة|للتجارة|للمقاولات|خدمات|الكترونية|الالكترونية/.test(line);
-                    
-                    return isEnglishName || isArabicName;
-                });
                 
-                if (nameMatch) {
+                const englishExcludes = /KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENT|IDENTITY|NATIONALITY|DRIVING|LICENSE|PERMIT|SPECIAL|VERSION|ISSUE|NUMBER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION|ISLAM|MUSLIM|CHRISTIAN|SERVICES|COPY|REPUBLIC|CARD|OFFICER|ASSOCIATE/i;
+                const arabicExcludes = /المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ|رخصة|إقامة|مقيم|هوية|عامل|سائق|الجنسية|المهنة|الديانة|صاحب|العمل|مؤسسة|شركة|للتجارة|للمقاولات|خدمات|الكترونية|الالكترونية|الاسلام|بنجلاديش|باكستان|الهند|مصر|سودان|يمن/;
+
+                let selectedName = "";
+
+                let foundEnglishName = lines.find(line => {
+                    let cleanLine = line.replace(/[^A-Z\s.'-]/gi, '').trim();
+                    if (cleanLine.length < 4) return false;
+                    if (englishExcludes.test(cleanLine)) return false;
+                    let words = cleanLine.split(/\s+/).filter(w => w.length >= 2);
+                    return words.length >= 1 && /^[A-Z\s.'-]+$/i.test(cleanLine);
+                });
+
+                if (foundEnglishName) {
+                    selectedName = foundEnglishName.replace(/[^A-Z\s.'-]/gi, '').trim().toUpperCase();
+                } else {
+                    let foundArabicName = lines.find(line => {
+                        let cleanLine = line.trim();
+                        if (cleanLine.length < 6) return false;
+                        if (arabicExcludes.test(cleanLine)) return false;
+                        let arabicWords = cleanLine.split(/\s+/).filter(w => w.length >= 2);
+                        return arabicWords.length >= 2 && /^[\u0600-\u06FF\s]+$/.test(cleanLine);
+                    });
+                    if (foundArabicName) {
+                        selectedName = foundArabicName.trim();
+                    }
+                }
+
+                if (selectedName) {
                     const dNameEl = document.getElementById('driverName');
-                    if (dNameEl) dNameEl.value = nameMatch;
+                    if (dNameEl) dNameEl.value = selectedName;
                     matched = true;
                 }
             } else if (scanType === "PLATE") {
