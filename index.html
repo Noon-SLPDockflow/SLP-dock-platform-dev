@@ -589,7 +589,10 @@
                 </div>
                 <div class="form-group">
                     <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
-                    <input type="text" id="editDriverPlate" class="input-box-styled" required>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" id="editDriverPlateNumbers" class="input-box-styled" placeholder="1234" required style="width: 50%; font-family: monospace;">
+                        <input type="text" id="editDriverPlateLetters" class="input-box-styled" placeholder="ABC" style="width: 50%; font-family: monospace;" maxlength="3" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '')">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="badge-style" data-i18n="Mobile Number">Mobile Number</label>
@@ -680,6 +683,7 @@
     let securityRegistryList = [];
     window.globalSystemLogs = [];
     window.hasFetchedLogs = false;
+    window.isSavingEdit = false;
     
     let currentHistoryDateRange = 'all';
     let currentAnalyticsDateRange = 'weekly';
@@ -1167,6 +1171,7 @@
         const subtext = document.getElementById('signOutModalSubtext');
         if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
         const sc = document.getElementById('checkoutScanners');
+        // Dispatching asks for photos at checkout. Receiving does not.
         if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
         const modal = document.getElementById('signOutModal');
         if (modal) modal.classList.add('modal-active');
@@ -1226,7 +1231,8 @@
     // --- DATA HANDLING ---
     let isFetchingLogs = false;
     function fetchLogs() {
-        if (isFetchingLogs) return; isFetchingLogs = true;
+        if (isFetchingLogs || window.isSavingEdit) return; 
+        isFetchingLogs = true;
         const old = document.getElementById('jsonp-fetcher'); if (old) old.remove();
         const s = document.createElement('script'); s.id = 'jsonp-fetcher';
         s.src = API_URL + "?callback=handleLogsResponseWrapper&prefix=handleLogsResponse&_" + new Date().getTime();
@@ -1721,7 +1727,14 @@
         document.getElementById('editDriverOldName').value = name;
         document.getElementById('editDriverName').value = name;
         document.getElementById('editDriverIqama').value = iqama !== '--' ? iqama : '';
-        document.getElementById('editDriverPlate').value = plate !== '--' ? plate : '';
+        
+        let plateStr = plate !== '--' ? plate.trim() : '';
+        let numMatch = plateStr.match(/\d+/);
+        let letMatch = plateStr.match(/[A-Za-z]+/g);
+        
+        document.getElementById('editDriverPlateNumbers').value = numMatch ? numMatch[0] : '';
+        document.getElementById('editDriverPlateLetters').value = letMatch ? letMatch.join('') : '';
+        
         document.getElementById('editDriverMobile').value = mobile !== '--' ? mobile : '';
         document.getElementById('editDriverModal').classList.add('modal-active');
     }
@@ -1732,43 +1745,61 @@
     }
     window.closeEditDriverModal = closeEditDriverModal;
 
-    function saveDriverEdit() {
+    async function saveDriverEdit() {
         const oldName = document.getElementById('editDriverOldName').value;
         const newName = document.getElementById('editDriverName').value.trim();
         const newIqama = document.getElementById('editDriverIqama').value.trim();
-        const newPlate = document.getElementById('editDriverPlate').value.trim();
+        
+        const numPart = document.getElementById('editDriverPlateNumbers').value.trim();
+        const letPart = document.getElementById('editDriverPlateLetters').value.trim();
+        const newPlate = numPart + (letPart ? ' ' + letPart : '');
+        
         const newMobile = document.getElementById('editDriverMobile').value.trim();
 
-        if (!newName || !newIqama || !newPlate) {
-            alert("Please fill in all required fields (Driver Name, Iqama Number, and Plate Number).");
+        if (!newName || !newIqama || !numPart) {
+            alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields.");
             return;
         }
 
-        // Update local cache across all matching logs
-        globalLogsCache.forEach(r => {
-            if (r.driverName === oldName) {
-                r.driverName = newName;
-                r.iqamaNumber = newIqama;
-                r.plateNumber = newPlate;
-                r.mobileNumber = newMobile || "N/A";
-            }
-        });
+        window.isSavingEdit = true;
+        const btn = document.querySelector('#editDriverModal .submit-btn-global');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳...";
+        btn.disabled = true;
 
-        // Trigger Google Sheets update
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'editDriver',
-                oldDriverName: oldName,
-                driverName: newName,
-                iqamaNumber: newIqama,
-                plateNumber: newPlate,
-                mobileNumber: newMobile || "N/A"
-            })
-        }).catch(e => console.error(e));
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'editDriver',
+                    oldDriverName: oldName,
+                    driverName: newName,
+                    iqamaNumber: newIqama,
+                    plateNumber: newPlate,
+                    mobileNumber: newMobile || "N/A"
+                })
+            });
 
-        closeEditDriverModal();
-        window.handleLogsResponse({ logs: globalLogsCache });
+            // Update local cache across all matching logs
+            globalLogsCache.forEach(r => {
+                if (r.driverName === oldName) {
+                    r.driverName = newName;
+                    r.iqamaNumber = newIqama;
+                    r.plateNumber = newPlate;
+                    r.mobileNumber = newMobile || "N/A";
+                }
+            });
+
+            closeEditDriverModal();
+            window.handleLogsResponse({ logs: globalLogsCache });
+        } catch (e) {
+            console.error(e);
+            alert("Error saving update.");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            setTimeout(() => { window.isSavingEdit = false; }, 2000);
+        }
     }
     window.saveDriverEdit = saveDriverEdit;
 
@@ -1785,35 +1816,50 @@
     }
     window.closeEditGuardModal = closeEditGuardModal;
 
-    function saveGuardEdit() {
+    async function saveGuardEdit() {
         const oldName = document.getElementById('editGuardOldName').value;
         const newName = document.getElementById('editGuardName').value.trim();
         const newGuardId = document.getElementById('editGuardId').value.trim();
 
         if (!newName || !newGuardId) {
-            alert("Please fill in all required fields (Security Name and Security ID).");
+            alert(currentLang === 'ar' ? "يرجى ملء جميع الحقول المطلوبة." : "Please fill in all required fields.");
             return;
         }
 
-        globalLogsCache.forEach(r => {
-            if (r.securityName === oldName) {
-                r.securityName = newName;
-                r.securityId = newGuardId;
-            }
-        });
+        window.isSavingEdit = true;
+        const btn = document.querySelector('#editGuardModal .submit-btn-global');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳...";
+        btn.disabled = true;
 
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'editGuard',
-                oldSecurityName: oldName,
-                securityName: newName,
-                securityId: newGuardId
-            })
-        }).catch(e => console.error(e));
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'editGuard',
+                    oldSecurityName: oldName,
+                    securityName: newName,
+                    securityId: newGuardId
+                })
+            });
 
-        closeEditGuardModal();
-        window.handleLogsResponse({ logs: globalLogsCache });
+            globalLogsCache.forEach(r => {
+                if (r.securityName === oldName) {
+                    r.securityName = newName;
+                    r.securityId = newGuardId;
+                }
+            });
+
+            closeEditGuardModal();
+            window.handleLogsResponse({ logs: globalLogsCache });
+        } catch (e) {
+            console.error(e);
+            alert("Error saving update.");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            setTimeout(() => { window.isSavingEdit = false; }, 2000);
+        }
     }
     window.saveGuardEdit = saveGuardEdit;
 
@@ -1994,19 +2040,11 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck') {
-                        tempCheckoutTruckPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item') {
-                        tempCheckoutItemPhoto = reader.result;
-                        const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'ITEM_PHOTO') {
+                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
                         if (statusEl) statusEl.innerText = "✅ Attached";
@@ -2231,7 +2269,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.2";
+    const CURRENT_APP_VERSION = "4.3";
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
