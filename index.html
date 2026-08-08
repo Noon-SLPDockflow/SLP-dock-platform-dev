@@ -2159,14 +2159,22 @@
             canvas.toBlob(blob => {
                 let reader = new FileReader(); reader.readAsDataURL(blob);
                 reader.onloadend = () => { 
-                    if (currentScanType === 'truck' || currentScanType === 'TRUCK_PHOTO_ONLY') {
+                    if (currentScanType === 'truck') {
+                        tempCheckoutTruckPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                    } else if (currentScanType === 'TRUCK_PHOTO_ONLY') {
                         temporaryCapturedImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
-                    } else if (currentScanType === 'item' || currentScanType === 'ITEM_PHOTO') {
+                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                    } else if (currentScanType === 'item') {
+                        tempCheckoutItemPhoto = reader.result;
+                        const statusEl = document.getElementById(currentStatusId);
+                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
+                    } else if (currentScanType === 'ITEM_PHOTO') {
                         temporaryCapturedItemImage = reader.result;
                         const statusEl = document.getElementById(currentStatusId);
-                        if (statusEl) statusEl.innerText = "✅ Attached";
+                        if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
                     } else {
                         temporaryCapturedImage = reader.result; 
                         runLocalOcrEngine(blob, currentStatusId, currentScanType); 
