@@ -1743,6 +1743,7 @@
             const searchIqama = String(d.id || "").toLowerCase();
             
             const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
+            const deleteBtnHtml = isAdmin ? `<button class="btn-card-action" style="border-color: rgba(248, 81, 73, 0.4); color: var(--danger-color);" onclick="deleteDriver('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', this)" data-i18n="Delete">Delete</button>` : '';
 
             html += `
             <div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}">
@@ -1762,6 +1763,7 @@
                 <div class="card-actions-wrapper">
                     <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="View Records">View Records</button>
                     ${editBtnHtml}
+                    ${deleteBtnHtml}
                 </div>
             </div>`;
         });
@@ -1906,6 +1908,35 @@
         }
     }
     window.saveDriverEdit = saveDriverEdit;
+
+    async function deleteDriver(driverName, iqama, btn) {
+        if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا السائق؟ سيتم مسح جميع سجلاته.' : 'Are you sure you want to delete this driver? All of their records will be removed.')) return;
+        
+        const originalText = btn.innerText;
+        btn.innerText = "⏳...";
+        btn.disabled = true;
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'deleteDriver',
+                    driverName: driverName,
+                    iqamaNumber: iqama
+                })
+            });
+
+            globalLogsCache = globalLogsCache.filter(r => !(r.driverName === driverName && (r.iqamaNumber === iqama || r.iqamaNumber === "--")));
+            window.handleLogsResponse({ logs: globalLogsCache });
+        } catch (e) {
+            console.error(e);
+            alert("Error deleting driver.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+    window.deleteDriver = deleteDriver;
 
     function openEditGuardModal(name, guardId) {
         document.getElementById('editGuardOldName').value = name;
