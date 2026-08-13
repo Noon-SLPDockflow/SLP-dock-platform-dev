@@ -981,7 +981,7 @@
         }
         
         if (window.hasFetchedLogs && globalLogsCache) {
-            compileDriversRegistryCards(globalLogsCache);
+            compileDriversRegistryCards();
             compileSecurityRegistryCards();
         }
     }
@@ -1234,6 +1234,28 @@
             let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
             let finalBoxCountStr = countVal + " " + displayUnit;
             
+            if (isNew) {
+                fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ 
+                        action: 'addDriver', 
+                        driverName: dName, 
+                        iqamaNumber: iqNum, 
+                        plateNumber: combinedPlate, 
+                        mobileNumber: document.getElementById('mobileNumber')?.value || "N/A" 
+                    }) 
+                }).catch(e => console.error(e));
+                
+                driversRegistryList.push({
+                    name: dName,
+                    id: iqNum,
+                    plate: combinedPlate,
+                    phone: document.getElementById('mobileNumber')?.value || "N/A"
+                });
+                compileDriversRegistryCards();
+            }
+
             const payload = {
                 action: 'checkin', 
                 driverName: dName, 
@@ -1400,6 +1422,15 @@
         if (responsePayload.guards) {
             securityRegistryList = responsePayload.guards;
         }
+        
+        if (responsePayload.drivers) {
+            driversRegistryList = responsePayload.drivers.map(d => ({
+                name: d.driverName,
+                id: d.iqamaNumber || "--",
+                plate: d.plateNumber || "--",
+                phone: d.mobileNumber || "--"
+            }));
+        }
 
         const activeList = globalLogsCache.filter(r => !r.checkOutTime);
         const mTotal = document.getElementById('metric-total-checkins');
@@ -1468,7 +1499,7 @@
         
         applyHistoryFilters();
         applyAnalyticsFilters();
-        compileDriversRegistryCards(globalLogsCache);
+        compileDriversRegistryCards();
         compileSecurityRegistryCards();
     };
 
@@ -1731,18 +1762,7 @@
     }
     window.applyAnalyticsFilters = applyAnalyticsFilters;
 
-    function compileDriversRegistryCards(data) {
-        let uniqueMap = {};
-        data.forEach(item => {
-            if (item.driverName && !uniqueMap[item.driverName]) {
-                uniqueMap[item.driverName] = {
-                    name: item.driverName, plate: item.plateNumber || "--",
-                    id: item.iqamaNumber || "--", phone: item.mobileNumber || "--",
-                    checkOutTime: item.checkOutTime, dock: item.dockNumber || "--"
-                };
-            }
-        });
-        driversRegistryList = Object.values(uniqueMap);
+    function compileDriversRegistryCards() {
         const container = document.getElementById('driversRegistryContainer');
         if (!container) return;
         let html = '';
@@ -1896,17 +1916,17 @@
                 })
             });
 
-            globalLogsCache.forEach(r => {
-                if (r.driverName === oldName) {
-                    r.driverName = newName;
-                    r.iqamaNumber = newIqama;
-                    r.plateNumber = newPlate;
-                    r.mobileNumber = newMobile || "N/A";
+            driversRegistryList.forEach(d => {
+                if (d.name.toLowerCase() === oldName.toLowerCase()) {
+                    d.name = newName;
+                    d.id = newIqama;
+                    d.plate = newPlate;
+                    d.phone = newMobile || "N/A";
                 }
             });
 
             closeEditDriverModal();
-            window.handleLogsResponse({ logs: globalLogsCache });
+            compileDriversRegistryCards();
         } catch (e) {
             console.error(e);
         } finally {
@@ -1918,7 +1938,7 @@
     window.saveDriverEdit = saveDriverEdit;
 
     async function deleteDriver(driverName, iqama, btn) {
-        if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا السائق؟ سيتم مسح جميع سجلاته.' : 'Are you sure you want to delete this driver? All of their records will be removed.')) return;
+        if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا السائق؟ سيتم مسح جميع سجلاته.' : 'Are you sure you want to delete this driver?')) return;
         
         const originalText = btn.innerText;
         btn.innerText = "⏳...";
@@ -1935,8 +1955,8 @@
                 })
             });
 
-            globalLogsCache = globalLogsCache.filter(r => !(r.driverName === driverName && (r.iqamaNumber === iqama || r.iqamaNumber === "--")));
-            window.handleLogsResponse({ logs: globalLogsCache });
+            driversRegistryList = driversRegistryList.filter(d => !(d.name === driverName && (d.id === iqama || d.id === "--")));
+            compileDriversRegistryCards();
         } catch (e) {
             console.error(e);
             alert("Error deleting driver.");
