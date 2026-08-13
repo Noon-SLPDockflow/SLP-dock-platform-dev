@@ -1754,6 +1754,7 @@
             const searchIqama = String(d.id || "").toLowerCase();
             
             const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
+            const deleteBtnHtml = isAdmin ? `<button class="btn-card-action" style="border-color: rgba(248, 81, 73, 0.4); color: var(--danger-color);" onclick="deleteDriver('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', this)" data-i18n="Delete">Delete</button>` : '';
 
             html += `
             <div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}">
@@ -1773,6 +1774,7 @@
                 <div class="card-actions-wrapper">
                     <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="View Records">View Records</button>
                     ${editBtnHtml}
+                    ${deleteBtnHtml}
                 </div>
             </div>`;
         });
