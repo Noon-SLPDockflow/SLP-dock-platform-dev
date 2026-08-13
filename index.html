@@ -982,7 +982,7 @@
         
         if (window.hasFetchedLogs && globalLogsCache) {
             compileDriversRegistryCards(globalLogsCache);
-            compileSecurityRegistryCards(globalLogsCache);
+            compileSecurityRegistryCards();
         }
     }
 
@@ -1027,6 +1027,13 @@
                         localGuards.push({ securityName: name, securityId: noonId });
                         localStorage.setItem('noonSlpLocalGuards', JSON.stringify(localGuards));
                     }
+                    // Auto-add guard to separate sheet on backend if they log in
+                    fetch(API_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'addGuard', securityName: name, securityId: noonId }) 
+                    }).catch(e => console.error(e));
+
                     executeLogin(name, email, noonId, 'guard', false);
                 }
             });
@@ -1390,6 +1397,10 @@
         let rawLogs = responsePayload.logs || [];
         globalLogsCache = rawLogs.sort((a,b) => parseFlexibleDate(b.checkInTime) - parseFlexibleDate(a.checkInTime));
         
+        if (responsePayload.guards) {
+            securityRegistryList = responsePayload.guards;
+        }
+
         const activeList = globalLogsCache.filter(r => !r.checkOutTime);
         const mTotal = document.getElementById('metric-total-checkins');
         const mActive = document.getElementById('metric-active-now');
@@ -1458,7 +1469,7 @@
         applyHistoryFilters();
         applyAnalyticsFilters();
         compileDriversRegistryCards(globalLogsCache);
-        compileSecurityRegistryCards(globalLogsCache);
+        compileSecurityRegistryCards();
     };
 
     const debouncedApplyAnalyticsFilters = debounce(applyAnalyticsFilters, 300);
@@ -1743,7 +1754,6 @@
             const searchIqama = String(d.id || "").toLowerCase();
             
             const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
-            const deleteBtnHtml = isAdmin ? `<button class="btn-card-action" style="border-color: rgba(248, 81, 73, 0.4); color: var(--danger-color);" onclick="deleteDriver('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', this)" data-i18n="Delete">Delete</button>` : '';
 
             html += `
             <div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}">
@@ -1763,7 +1773,6 @@
                 <div class="card-actions-wrapper">
                     <button class="btn-card-action" onclick="openDriverProfileModal('${d.name.replace(/'/g, "\\'")}', '${String(d.id).replace(/'/g, "\\'")}', '${String(d.plate).replace(/'/g, "\\'")}', '--', '${String(d.phone).replace(/'/g, "\\'")}')" data-i18n="View Records">View Records</button>
                     ${editBtnHtml}
-                    ${deleteBtnHtml}
                 </div>
             </div>`;
         });
@@ -1784,12 +1793,7 @@
     }
     window.filterRegistryCards = filterRegistryCards;
 
-    function compileSecurityRegistryCards(data) {
-        let uniqueMap = {};
-        data.forEach(item => {
-            if (item.securityName && !uniqueMap[item.securityName]) uniqueMap[item.securityName] = item;
-        });
-        securityRegistryList = Object.values(uniqueMap);
+    function compileSecurityRegistryCards() {
         const container = document.getElementById('securityRegistryContainer');
         if (!container) return;
         let html = '';
@@ -1798,6 +1802,7 @@
         securityRegistryList.forEach(g => {
             const searchName = String(g.securityName || "").toLowerCase();
             const editBtnHtml = isAdmin ? `<button class="btn-card-action edit-btn" onclick="openEditGuardModal('${g.securityName.replace(/'/g, "\\'")}', '${String(g.securityId || '').replace(/'/g, "\\'")}')" data-i18n="Edit">Edit</button>` : '';
+            const deleteBtnHtml = isAdmin ? `<button class="btn-card-action" style="border-color: rgba(248, 81, 73, 0.4); color: var(--danger-color);" onclick="deleteGuard('${g.securityName.replace(/'/g, "\\'")}', '${String(g.securityId || '').replace(/'/g, "\\'")}', this)" data-i18n="Delete">Delete</button>` : '';
 
             html += `
             <div class="driver-registry-card security-card" data-name="${searchName}">
@@ -1813,6 +1818,7 @@
                 </div>
                 <div class="card-actions-wrapper">
                     ${editBtnHtml}
+                    ${deleteBtnHtml}
                 </div>
             </div>`;
         });
@@ -1979,15 +1985,15 @@
                 })
             });
 
-            globalLogsCache.forEach(r => {
-                if (r.securityName === oldName) {
-                    r.securityName = newName;
-                    r.securityId = newGuardId;
+            securityRegistryList.forEach(g => {
+                if (g.securityName.toLowerCase() === oldName.toLowerCase()) {
+                    g.securityName = newName;
+                    g.securityId = newGuardId;
                 }
             });
 
             closeEditGuardModal();
-            window.handleLogsResponse({ logs: globalLogsCache });
+            compileSecurityRegistryCards();
         } catch (e) {
             console.error(e);
         } finally {
@@ -1997,6 +2003,35 @@
         }
     }
     window.saveGuardEdit = saveGuardEdit;
+
+    async function deleteGuard(guardName, guardId, btn) {
+        if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا الحارس؟' : 'Are you sure you want to delete this guard?')) return;
+        
+        const originalText = btn.innerText;
+        btn.innerText = "⏳...";
+        btn.disabled = true;
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'deleteGuard',
+                    securityName: guardName,
+                    securityId: guardId
+                })
+            });
+
+            securityRegistryList = securityRegistryList.filter(g => !(g.securityName === guardName && g.securityId === guardId));
+            compileSecurityRegistryCards();
+        } catch (e) {
+            console.error(e);
+            alert("Error deleting guard.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+    window.deleteGuard = deleteGuard;
 
     window.renderLoginGuardSuggestions = debounce(function(value, type) {
         const listName = document.getElementById('loginNameSuggestions');
