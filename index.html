@@ -2544,24 +2544,18 @@
                 // Extract all numbers (3 or 4 digits)
                 let digitMatches = cleanText.match(/\b\d{3,4}\b/g);
                 if (digitMatches && digitMatches.length > 0) {
-                    finalDigits = digitMatches[digitMatches.length - 1];
+                    finalDigits = digitMatches[digitMatches.length - 1]; // English digits are at the bottom
                 }
 
-                // Extract all 3-letter combinations, strictly ignoring "KSA"
-                let letterMatches = cleanText.match(/\b[A-Z]{3}\b/g);
-                if (letterMatches) {
-                    letterMatches = letterMatches.filter(l => l !== 'KSA');
-                    if (letterMatches.length > 0) {
-                        finalLetters = letterMatches[0]; // Take the actual plate letters (e.g. XHU)
-                    }
-                }
-
-                // Secondary fallback for spaced-out letters like "X H U"
-                if (!finalLetters) {
-                    let spacedMatch = cleanText.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/g);
-                    if (spacedMatch) {
-                        let combined = spacedMatch[0].replace(/\s+/g, '');
-                        if (combined !== 'KSA') finalLetters = combined;
+                // Extract all 3-letter combinations (handles both "ABC" and "A B C")
+                let allLetterMatches = cleanText.match(/\b[A-Z]\s*[A-Z]\s*[A-Z]\b/g);
+                if (allLetterMatches) {
+                    let cleanedMatches = allLetterMatches
+                        .map(m => m.replace(/\s+/g, '')) // Remove spaces
+                        .filter(m => m !== 'KSA' && m !== 'CAR'); // Ignore KSA and common watermark words
+                    
+                    if (cleanedMatches.length > 0) {
+                        finalLetters = cleanedMatches[cleanedMatches.length - 1]; // English letters are at the bottom
                     }
                 }
 
