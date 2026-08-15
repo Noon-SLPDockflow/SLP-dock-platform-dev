@@ -2349,16 +2349,16 @@
         const isAlreadyCropped = (img.width / img.height) > 1.8;
 
         if (scanType === 'PLATE' && !forceFullFrame && !isAlreadyCropped) {
-            const cropX = img.width * 0.10;
-            const cropY = img.height * 0.35;
-            const cropW = img.width * 0.80;
-            const cropH = img.height * 0.60;
+            const cropX = img.width * 0.05; 
+            const cropY = img.height * 0.25; 
+            const cropW = img.width * 0.90; 
+            const cropH = img.height * 0.75; 
 
-            canvas.width = Math.min(1200, Math.round(cropW));
+            canvas.width = Math.min(1600, Math.round(cropW)); 
             canvas.height = Math.round((cropH / cropW) * canvas.width);
             ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
         } else {
-            const targetWidth = 1200;
+            const targetWidth = 1600; 
             const scale = img.width > targetWidth ? targetWidth / img.width : 1;
             canvas.width = Math.round(img.width * scale);
             canvas.height = Math.round(img.height * scale);
@@ -2366,7 +2366,7 @@
         }
 
         return new Promise((resolve, reject) => {
-            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.85);
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.95);
         });
     }
 
@@ -2377,11 +2377,11 @@
         canvas.width = img.width;
         canvas.height = img.height;
         
-        ctx.filter = 'grayscale(100%) contrast(150%) brightness(110%)';
+        ctx.filter = 'contrast(110%) brightness(105%)';
         ctx.drawImage(img, 0, 0);
 
         return new Promise(resolve => {
-            canvas.toBlob(blob => resolve(blob || fileBlob), 'image/jpeg', 0.85);
+            canvas.toBlob(blob => resolve(blob || fileBlob), 'image/jpeg', 0.95);
         });
     }
 
@@ -2520,7 +2520,7 @@
                             runLocalOcrEngine(blob, currentStatusId, currentScanType); 
                         }
                     };
-                }, 'image/jpeg', 0.85); 
+                }, 'image/jpeg', 0.95); 
                 
                 if (captureBtn) {
                     captureBtn.innerHTML = `📸 <span data-i18n="Capture">${tr('Capture')}</span>`;
@@ -2594,22 +2594,19 @@
             let result = await processOcrRequest(file, scanType, false);
             let rawText = (result && result.text) || "";
             let cleanText = convertArabicNumeralsToDigits(rawText).toUpperCase();
+            let cleanTextNoSpaces = cleanText.replace(/\s+/g, '');
             let matched = false;
 
             if (scanType === "PLATE" && !cleanText.match(/\b\d{3,4}\b/)) {
                 result = await processOcrRequest(file, scanType, true);
                 rawText = (result && result.text) || "";
                 cleanText = convertArabicNumeralsToDigits(rawText).toUpperCase();
+                cleanTextNoSpaces = cleanText.replace(/\s+/g, '');
             }
 
             if (scanType === "IQAMA") {
-                let englishIdMatch = rawText.match(/[12]\d{9}/);
-                let idNum = englishIdMatch ? englishIdMatch[0] : "";
-
-                if (!idNum) {
-                    let arabicIdMatch = cleanText.match(/[12]\d{9}/);
-                    idNum = arabicIdMatch ? arabicIdMatch[0] : "";
-                }
+                let idMatch = cleanTextNoSpaces.match(/[12]\d{9}/);
+                let idNum = idMatch ? idMatch[0] : "";
 
                 if (idNum) {
                     const iqEl = document.getElementById('iqamaNumber');
@@ -2660,7 +2657,7 @@
                     finalDigits = digitMatches[digitMatches.length - 1];
                 }
 
-                let allLetterMatches = cleanText.match(/\b[A-Z]\s*[A-Z]\s*[A-Z]\b/g);
+                let allLetterMatches = cleanText.match(/[A-Z]\s*[A-Z]\s*[A-Z]/g);
                 if (allLetterMatches) {
                     let cleanedMatches = allLetterMatches
                         .map(m => m.replace(/\s+/g, ''))
