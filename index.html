@@ -1638,34 +1638,58 @@
             return checkInMatch || checkOutMatch;
         });
 
-        // 1. Group data strictly by Month (YYYY-MM-01 format required for Chart.js)
+        // --- VEHICLE PROCESSING GROWTH AGGREGATION RULES ---
+        let unit = 'month';
+        let step = 1;
+
+        if (range === 'today') {
+            unit = 'hour';
+            step = 1;
+        } else if (range === 'weekly' || range === '7days') {
+            unit = 'day';
+            step = 1;
+        } else if (range === 'monthly') {
+            unit = 'week';
+            step = 1;
+        } else if (range === '6months') {
+            unit = 'month';
+            step = 2; // Every 2 Months
+        } else if (range === '1year') {
+            unit = 'month';
+            step = 3; // Every 3 Months
+        }
+
         let growthMap = {};
         filtered.forEach(log => {
             let time = parseFlexibleDate(log.checkInTime);
             if (!isNaN(time.getTime())) {
-                let monthLabel = `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-01`;
-                if (!growthMap[monthLabel]) growthMap[monthLabel] = 0;
-                growthMap[monthLabel]++;
+                let key;
+                if (unit === 'hour') {
+                    key = `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-${String(time.getDate()).padStart(2, '0')}T${String(time.getHours()).padStart(2, '0')}:00:00`;
+                } else if (unit === 'day') {
+                    key = `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-${String(time.getDate()).padStart(2, '0')}`;
+                } else if (unit === 'week') {
+                    let d = new Date(time);
+                    let day = d.getDay();
+                    d.setDate(d.getDate() - day); // Start of Week (Sunday)
+                    key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                } else {
+                    key = `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-01`;
+                }
+                if (!growthMap[key]) growthMap[key] = 0;
+                growthMap[key]++;
             }
         });
         
-        // 2. Format Data for Chart.js
+        // Format Data for Chart.js
         let growthData = Object.keys(growthMap).map(k => ({ x: k, y: growthMap[k] })).sort((a, b) => new Date(a.x) - new Date(b.x));
 
         const lineCont = document.getElementById('chartGrowthLine');
         if (lineCont) {
-            // Ensure the canvas container enforces strict box boundaries
             lineCont.innerHTML = '<div style="position: relative; height: 220px; width: 100%;"><canvas id="growthChartCanvas"></canvas></div>';
             
-            // 3. Dynamic Interval Logic
-            let step = 1; // Default to 1 month
-            if (range === '6months') step = 3;
-            else if (range === '1year') step = 6;
-            
-            // Destroy previous chart instance to prevent overlapping glitches
             if (window.myGrowthChart) window.myGrowthChart.destroy();
             
-            // 4. Render the Chart
             const ctx = document.getElementById('growthChartCanvas').getContext('2d');
             window.myGrowthChart = new Chart(ctx, {
                 type: 'line',
@@ -1700,7 +1724,16 @@
                     scales: {
                         x: {
                             type: 'time',
-                            time: { unit: 'month', stepSize: step },
+                            time: { 
+                                unit: unit, 
+                                stepSize: step,
+                                displayFormats: {
+                                    hour: 'HH:mm',
+                                    day: 'MMM d',
+                                    week: 'MMM d',
+                                    month: 'MMM yyyy'
+                                }
+                            },
                             grid: { display: false, drawBorder: false },
                             ticks: { color: '#888', font: { size: 11 } }
                         },
@@ -1774,7 +1807,6 @@
 
         const aTables = document.getElementById('analyticsGroupedTables');
         if (aTables) {
-            // 1. SAVE THE STATE OF OPEN ACCORDIONS (NEW)
             let openAccordions = [];
             aTables.querySelectorAll('.accordion-wrapper').forEach(wrapper => {
                 const content = wrapper.querySelector('.accordion-content');
@@ -1811,7 +1843,6 @@
                     </tr>`;
                 }).join('');
                 
-                // 2. CHECK MEMORY TO SEE IF IT SHOULD BE OPEN (NEW)
                 let isOpenClass = openAccordions.includes(dir) ? 'open' : '';
                 
                 aHtml += `<div class="accordion-wrapper">
@@ -2292,7 +2323,6 @@
         });
     }
 
-    // RESOLUTION BUMP: High Quality Preprocessing for Color Storage & High Res Base
     async function preprocessImageForOcr(file, scanType, forceFullFrame = false) {
         const img = await loadImageRobust(file);
         const canvas = document.createElement('canvas');
@@ -2310,7 +2340,7 @@
             canvas.height = Math.round((cropH / cropW) * canvas.width);
             ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
         } else {
-            const targetWidth = 1200; // Increased resolution from 800 to 1200
+            const targetWidth = 1200;
             const scale = img.width > targetWidth ? targetWidth / img.width : 1;
             canvas.width = Math.round(img.width * scale);
             canvas.height = Math.round(img.height * scale);
@@ -2318,11 +2348,10 @@
         }
 
         return new Promise((resolve, reject) => {
-            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.85); // Quality bumped to 85%
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas compression failed')), 'image/jpeg', 0.85);
         });
     }
 
-    // INVISIBLE PREPROCESSING: Creates a B&W high-contrast copy ONLY for OCR, keeping color photo saved
     async function createContrastEnhancedOcrBlob(fileBlob) {
         const img = await loadImageRobust(fileBlob);
         const canvas = document.createElement('canvas');
@@ -2363,7 +2392,6 @@
             captureBtn.style.background = 'var(--accent-color)';
         }
 
-        // Configure Scanner Overlay Box
         const scannerBox = document.getElementById('scannerTarget');
         const instruction = document.getElementById('cameraInstructionLabel');
         if (scannerBox) {
@@ -2384,7 +2412,7 @@
                 scannerBox.style.height = '60%';
                 if (instruction) instruction.innerText = currentLang === 'ar' ? 'قم بمحاذاة بطاقة الأمن واضغط التقاط' : 'Align Security ID Inside Box & Press Capture';
             } else {
-                scannerBox.style.display = 'none'; // Hide for general item/truck photos
+                scannerBox.style.display = 'none';
                 if (instruction) instruction.innerText = currentLang === 'ar' ? 'التقط صورة واضحة' : 'Take a Clear Picture';
             }
         }
@@ -2437,7 +2465,6 @@
         const captureBtn = document.getElementById('mainCaptureBtn');
         
         if (video && !video.paused) {
-            // Anti-shake feature: Wait for tap-shake to subside before capturing
             if (captureBtn) {
                 captureBtn.innerHTML = `⏳ ${tr('Hold Still...')}`;
                 captureBtn.disabled = true;
@@ -2484,7 +2511,7 @@
                 }
                 closeCamera();
                 
-            }, 800); // 800ms stabilization delay
+            }, 800);
         }
     }
     window.captureCameraFrame = captureCameraFrame;
@@ -2527,7 +2554,6 @@
 
     async function processOcrRequest(file, scanType, forceFull = false) {
         const processedBlob = await preprocessImageForOcr(file, scanType, forceFull);
-        // Create invisible B&W high-contrast copy ONLY for OCR processing
         const enhancedOcrBlob = await createContrastEnhancedOcrBlob(processedBlob);
         const base64Data = await blobToBase64(enhancedOcrBlob);
         try {
@@ -2559,11 +2585,9 @@
             }
 
             if (scanType === "IQAMA") {
-                // 1. Try to find the English printed Iqama number (raw digits)
                 let englishIdMatch = rawText.match(/[12]\d{9}/);
                 let idNum = englishIdMatch ? englishIdMatch[0] : "";
 
-                // 2. Fallback: If not found (cut off/blurry), try the Arabic printed one (converted to digits)
                 if (!idNum) {
                     let arabicIdMatch = cleanText.match(/[12]\d{9}/);
                     idNum = arabicIdMatch ? arabicIdMatch[0] : "";
@@ -2613,21 +2637,19 @@
             } else if (scanType === "PLATE") {
                 let finalDigits = null, finalLetters = null;
                 
-                // Extract all numbers (3 or 4 digits)
                 let digitMatches = cleanText.match(/\b\d{3,4}\b/g);
                 if (digitMatches && digitMatches.length > 0) {
-                    finalDigits = digitMatches[digitMatches.length - 1]; // English digits are at the bottom
+                    finalDigits = digitMatches[digitMatches.length - 1];
                 }
 
-                // Extract all 3-letter combinations (handles both "ABC" and "A B C")
                 let allLetterMatches = cleanText.match(/\b[A-Z]\s*[A-Z]\s*[A-Z]\b/g);
                 if (allLetterMatches) {
                     let cleanedMatches = allLetterMatches
-                        .map(m => m.replace(/\s+/g, '')) // Remove spaces
-                        .filter(m => m !== 'KSA' && m !== 'CAR'); // Ignore KSA and common watermark words
+                        .map(m => m.replace(/\s+/g, ''))
+                        .filter(m => m !== 'KSA' && m !== 'CAR');
                     
                     if (cleanedMatches.length > 0) {
-                        finalLetters = cleanedMatches[cleanedMatches.length - 1]; // English letters are at the bottom
+                        finalLetters = cleanedMatches[cleanedMatches.length - 1];
                     }
                 }
 
@@ -2635,7 +2657,6 @@
                     const plNumD = document.getElementById('plateNumberDigits');
                     const plNumL = document.getElementById('plateNumberLetters');
                     if (plNumD) plNumD.value = finalDigits;
-                    // FIX: Do NOT fallback to 'KSA'. Keep it blank if OCR missed XHU so user can type it.
                     if (plNumL) plNumL.value = finalLetters || ''; 
                     if (plNumD) plNumD.dispatchEvent(new Event('input'));
                     matched = true;
@@ -2739,4 +2760,3 @@
 </script>
 </body>
 </html>
-    
