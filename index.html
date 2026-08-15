@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Noon SLP Dock Security Platform</title>
     <link rel="icon" href="https://fav.farm/🚚" />
+    
+    <!-- Chart.js Core and Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
     <style>
         :root { --bg-color: #0b0e14; --card-bg: rgba(18, 22, 31, 0.95); --card-solid: #12161f; --sidebar-bg: #07090c; --accent-color: #fcc200; --text-main: #f0f2f5; --text-muted: #8b949e; --border-color: rgba(255, 255, 255, 0.08); --success-color: #2ea043; --danger-color: #f85149; --nav-hover: rgba(252, 194, 0, 0.1); }
         #cameraModal, .camera-modal, .camera-overlay, [id*="camera"] { z-index: 999999 !important; }
@@ -993,6 +999,8 @@
 
     // --- INITIALIZATION ---
     document.addEventListener("DOMContentLoaded", () => {
+        Chart.register(ChartDataLabels);
+        
         document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'date')) el.placeholder = tr(key); else el.innerText = tr(key); });
         
         const dockSelect = document.getElementById('dockNumber');
@@ -1599,6 +1607,7 @@
             </tr>`;
             count++;
         }
+
         const hTable = document.getElementById('historyLogTableBody');
         if (hTable) hTable.innerHTML = html || `<tr><td colspan="11" style="text-align:center;">No records match</td></tr>`;
     }
@@ -1629,57 +1638,76 @@
             return checkInMatch || checkOutMatch;
         });
 
+        // 1. Group data strictly by Month (YYYY-MM-01 format required for Chart.js)
         let growthMap = {};
         filtered.forEach(log => {
             let time = parseFlexibleDate(log.checkInTime);
             if (!isNaN(time.getTime())) {
-                let dLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                if (!growthMap[dLabel]) growthMap[dLabel] = { count: 0, ts: time.getTime() };
-                growthMap[dLabel].count++;
+                let monthLabel = `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-01`;
+                if (!growthMap[monthLabel]) growthMap[monthLabel] = 0;
+                growthMap[monthLabel]++;
             }
         });
-        let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a, b) => a.ts - b.ts);
+        
+        // 2. Format Data for Chart.js
+        let growthData = Object.keys(growthMap).map(k => ({ x: k, y: growthMap[k] })).sort((a, b) => new Date(a.x) - new Date(b.x));
+
         const lineCont = document.getElementById('chartGrowthLine');
         if (lineCont) {
-            if(growthData.length === 0) { 
-                lineCont.innerHTML = "<div style='color:var(--text-muted);text-align:center;'>No Data</div>"; 
-            } else {
-                let max = Math.max(...growthData.map(i=>i.count)); if(max===0) max=1;
-                
-                // FIX: Calculate dynamic width to ensure 65px breathing room per data point
-                let containerWidth = lineCont.clientWidth > 0 ? lineCont.clientWidth : 1000;
-                let chartWidth = Math.max(containerWidth, growthData.length * 65);
-                
-                let svgPoints = growthData.map((item, i) => { 
-                    let x = growthData.length > 1 ? (i / (growthData.length - 1)) * (chartWidth - 80) + 40 : chartWidth / 2; 
-                    let y = 140 - ((item.count / max) * 90); 
-                    return `${x},${y}`; 
-                }).join(' ');
-                
-                // FIX: Added overflow-x:auto wrapper and applied dynamic chartWidth
-                let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem; overflow-x:auto; overflow-y:hidden;">
-                    <div style="width:${chartWidth}px; height:100%; position:relative;">
-                        <svg viewBox="0 0 ${chartWidth} 180" style="width:100%; height:100%; overflow:visible;">
-                            <line x1="0" y1="150" x2="${chartWidth}" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
-                            <polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
-                            
-                growthData.forEach((item, i) => { 
-                    let x = growthData.length > 1 ? (i / (growthData.length - 1)) * (chartWidth - 80) + 40 : chartWidth / 2; 
-                    let y = 140 - ((item.count / max) * 90); 
-                    html += `<circle cx="${x}" cy="${y}" r="6" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="3" />
-                             <text x="${x}" y="${y - 15}" fill="#fff" font-size="15" font-weight="bold" text-anchor="middle">${item.count}</text>
-                             <text x="${x}" y="175" fill="var(--text-muted)" font-size="11" font-weight="bold" text-anchor="middle">${item.label}</text>`; 
-                });
-                
-                html += `</svg></div></div>`;
-                lineCont.innerHTML = html;
-
-                // FIX: Automatically scroll to the right (newest dates) if it overflows
-                setTimeout(() => {
-                    let scrollWrapper = lineCont.querySelector('div');
-                    if (scrollWrapper && chartWidth > containerWidth) scrollWrapper.scrollLeft = scrollWrapper.scrollWidth;
-                }, 50);
-            }
+            // Ensure the canvas container enforces strict box boundaries
+            lineCont.innerHTML = '<div style="position: relative; height: 220px; width: 100%;"><canvas id="growthChartCanvas"></canvas></div>';
+            
+            // 3. Dynamic Interval Logic
+            let step = 1; // Default to 1 month
+            if (range === '6months') step = 3;
+            else if (range === '1year') step = 6;
+            
+            // Destroy previous chart instance to prevent overlapping glitches
+            if (window.myGrowthChart) window.myGrowthChart.destroy();
+            
+            // 4. Render the Chart
+            const ctx = document.getElementById('growthChartCanvas').getContext('2d');
+            window.myGrowthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        data: growthData,
+                        borderColor: '#ffc107',
+                        backgroundColor: '#1a1c23',
+                        pointBackgroundColor: '#1a1c23',
+                        pointBorderColor: '#ffc107',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 3,
+                        tension: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 25, left: 15, right: 15 } },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#ffffff',
+                            align: 'top',
+                            offset: 6,
+                            font: { weight: 'bold', size: 12 },
+                            formatter: function(value) { return value.y; }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'month', stepSize: step },
+                            grid: { display: false, drawBorder: false },
+                            ticks: { color: '#888', font: { size: 11 } }
+                        },
+                        y: { display: false, min: 0 }
+                    }
+                }
+            });
         }
 
         let hourMap = {};
@@ -2711,3 +2739,4 @@
 </script>
 </body>
 </html>
+    
