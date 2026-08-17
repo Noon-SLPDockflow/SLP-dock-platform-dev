@@ -1218,10 +1218,19 @@
             dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
             if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return; }
             
-            // CHECK IF DOCK IS OCCUPIED
+            // 1. CHECK IF DOCK IS OCCUPIED
             const isDockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim() === dockVal);
             if (isDockOccupied) {
                 alert(currentLang === 'ar' ? `خطأ: الرصيف رقم (${dockVal}) مستخدم حالياً من قبل شاحنة أخرى.` : `Error: Dock ${dockVal} is currently occupied by another active truck. Please choose a different dock.`);
+                return;
+            }
+            
+            // 2. CHECK IF TRUCK IS ALREADY INSIDE (NEW FIX)
+            const cleanTargetPlate = combinedPlate.replace(/\s+/g,'').toLowerCase();
+            const isTruckAlreadyInside = globalLogsCache.some(r => !r.checkOutTime && String(r.plateNumber).replace(/\s+/g,'').toLowerCase() === cleanTargetPlate);
+            
+            if (isTruckAlreadyInside) {
+                alert(currentLang === 'ar' ? `خطأ: هذه الشاحنة مسجلة وموجودة حالياً بالداخل.` : `Error: This truck (${combinedPlate}) is already checked in and active inside the facility.`);
                 return;
             }
             
