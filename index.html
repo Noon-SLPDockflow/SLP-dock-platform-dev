@@ -158,6 +158,8 @@
         .btn-checkout-action:hover { background: var(--danger-color); color: #fff; }
         .btn-excel { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.4rem 0.85rem; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; transition: 0.2s; }
         .btn-excel:hover { background: var(--accent-color); color: #000; }
+        .btn-ai-insight { background: rgba(252, 194, 0, 0.1); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.4rem 0.85rem; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; transition: 0.2s; display:flex; align-items:center; gap:6px; }
+        .btn-ai-insight:hover { background: var(--accent-color); color: #000; }
         
         .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; max-width: 800px; margin-left: auto; margin-right: auto; transition: grid-template-columns 0.3s; }
         @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr !important; } }
@@ -388,7 +390,10 @@
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1 data-i18n="Analytics">Analytics</h1><p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p></div>
-                <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedApplyAnalyticsFilters) window.debouncedApplyAnalyticsFilters()"></div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="btn-ai-insight" onclick="generateDockInsights()">✨ AI Insights</button>
+                    <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedApplyAnalyticsFilters) window.debouncedApplyAnalyticsFilters()"></div>
+                </div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()">
@@ -605,6 +610,23 @@
     </div>
 
     <!-- Modals -->
+    <!-- AI Insights & Report Modal -->
+    <div class="modal-overlay" id="aiResponseModal">
+        <div class="modal-window" style="max-width: 600px;">
+            <div class="modal-header-container">
+                <h2 style="color: var(--accent-color);">✨ AI Assistant</h2>
+                <button class="btn-modal-close" onclick="closeAiModal()">✕</button>
+            </div>
+            <div class="modal-body-content" style="padding: 1.5rem 2rem;">
+                <div id="aiLoadingIndicator" style="text-align:center; padding:2rem; color:var(--accent-color);">
+                    <div style="font-size:2.5rem; animation: authPulse 1.5s infinite;">✨</div>
+                    <p style="margin-top:1rem; font-weight:bold;">Generating insights using Gemini...</p>
+                </div>
+                <div id="aiResponseContent" style="display:none; color:#f0f2f5; font-size:0.9rem; line-height:1.7;"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
             <div class="modal-header-container"><h2 id="modalTitleName" data-i18n="Driver Details">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
@@ -797,6 +819,89 @@
         return new Date(s);
     }
 
+    // --- GEMINI API INTEGRATION ---
+    async function callGeminiAPI(prompt, systemPrompt) {
+        // Ensure apiKey is empty as per guidelines - environment provides it
+        const apiKey = "";
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: { parts: [{ text: systemPrompt || "You are a helpful logistics assistant." }] }
+        };
+        const delays = [1000, 2000, 4000, 8000, 16000]; // Exponential backoff
+
+        for (let i = 0; i < 5; i++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+            } catch (error) {
+                if (i === 4) return "Failed to reach AI service after multiple attempts. Please try again later.";
+                await new Promise(r => setTimeout(r, delays[i]));
+            }
+        }
+    }
+
+    window.generateDockInsights = function() {
+        const modal = document.getElementById('aiResponseModal');
+        modal.classList.add('modal-active');
+        document.getElementById('aiLoadingIndicator').style.display = 'block';
+        document.getElementById('aiResponseContent').style.display = 'none';
+        
+        const active = globalLogsCache.filter(r => !r.checkOutTime).length;
+        const total = globalLogsCache.length;
+        let dockCounts = {};
+        globalLogsCache.forEach(r => { dockCounts[r.dockNumber] = (dockCounts[r.dockNumber]||0)+1 });
+        let topDock = Object.entries(dockCounts).sort((a,b)=>b[1]-a[1])[0] || ['None', 0];
+
+        const prompt = `Here is the current dock security data summary:
+        - Total Check-ins logged: ${total}
+        - Currently Active Trucks inside: ${active}
+        - Most utilized dock: Dock ${topDock[0]} (${topDock[1]} uses)
+        
+        Based on typical warehouse logistics, provide 3 actionable, insightful bullet points on how to optimize dock flow, along with a brief enthusiastic encouraging message for the security team. Keep it concise.`;
+        
+        callGeminiAPI(prompt, "You are an expert warehouse logistics AI assistant.").then(res => {
+            document.getElementById('aiLoadingIndicator').style.display = 'none';
+            let contentEl = document.getElementById('aiResponseContent');
+            contentEl.style.display = 'block';
+            // Parse basic markdown to HTML
+            contentEl.innerHTML = res.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent-color);">$1</strong>').replace(/\*/g, '•').replace(/\n/g, '<br>');
+        });
+    }
+
+    window.draftDelayReport = function(driver, plate, dock, duration) {
+        const modal = document.getElementById('aiResponseModal');
+        modal.classList.add('modal-active');
+        document.getElementById('aiLoadingIndicator').style.display = 'block';
+        document.getElementById('aiResponseContent').style.display = 'none';
+
+        const prompt = `Draft a short, formal incident report regarding a delayed truck at our warehouse facility.
+        Details:
+        - Driver: ${driver}
+        - Plate: ${plate}
+        - Dock: ${dock}
+        - Time in Yard: ${duration}
+        
+        The report should be addressed to the Logistics Manager, stating that this truck has been in the yard for ${duration} and we are currently investigating the cause of the delay at Dock ${dock} to prevent bottlenecks. Provide a Subject line. Keep it very professional.`;
+
+        callGeminiAPI(prompt, "You are a professional security compliance AI.").then(res => {
+            document.getElementById('aiLoadingIndicator').style.display = 'none';
+            let contentEl = document.getElementById('aiResponseContent');
+            contentEl.style.display = 'block';
+            contentEl.innerHTML = res.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent-color);">$1</strong>').replace(/\n/g, '<br>');
+        });
+    }
+
+    window.closeAiModal = function() {
+        document.getElementById('aiResponseModal').classList.remove('modal-active');
+    }
+
     const translations = {
         "Dashboard": "لوحة القيادة", "Analytics": "التحليلات", "Check-in Truck": "تسجيل دخول شاحنة", "Active Trucks": "الشاحنات النشطة",
         "History Log": "سجل الحركة", "Drivers Database": "قاعدة بيانات السائقين", "Security Guard Database": "قاعدة بيانات حراس الأمن",
@@ -837,8 +942,15 @@
 
     function tr(key) { return currentLang === 'en' ? key : (translations[key] || key); }
 
-    window.toggleLang = function() {
-        currentLang = currentLang === 'en' ? 'ar' : 'en';
+    window.toggleLang = function(forceLang) {
+        if (forceLang) {
+            currentLang = forceLang;
+        } else {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+        }
+        
+        localStorage.setItem('noonSlpLang', currentLang);
+        
         document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = currentLang;
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -947,7 +1059,10 @@
         setDisp('nav-analytics', (role === 'admin') ? 'flex' : 'none');
         setDisp('nav-checkin', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
         setDisp('nav-active-trucks', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
-        setDisp('nav-history', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
+        
+        // ADMIN ONLY FOR HISTORY
+        setDisp('nav-history', (role === 'admin') ? 'flex' : 'none');
+        
         setDisp('nav-drivers', (role === 'admin') ? 'flex' : 'none');
         setDisp('nav-security', (role === 'admin') ? 'flex' : 'none');
         setDisp('btnExportExcel', (role === 'admin') ? 'block' : 'none');
@@ -1001,7 +1116,9 @@
     document.addEventListener("DOMContentLoaded", () => {
         Chart.register(ChartDataLabels);
         
-        document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'date')) el.placeholder = tr(key); else el.innerText = tr(key); });
+        // Initialize saved language
+        let savedLang = localStorage.getItem('noonSlpLang') || 'en';
+        toggleLang(savedLang);
         
         const dockSelect = document.getElementById('dockNumber');
         if (dockSelect) {
@@ -1175,144 +1292,139 @@
 
     const entryForm = document.getElementById('entryForm');
     if (entryForm) {
-        entryForm.addEventListener('submit', (e) => {
+        entryForm.addEventListener('submit', async (e) => {
             e.preventDefault(); 
-            const toggleBtn = document.getElementById('toggleNewDriverBtn');
-            const isNew = toggleBtn && toggleBtn.classList.contains('active');
-            
-            let dName = document.getElementById('driverName')?.value || '';
-            let iqNum = document.getElementById('iqamaNumber')?.value || '';
-            let pDigits = document.getElementById('plateNumberDigits')?.value || '';
-            let pLetters = document.getElementById('plateNumberLetters')?.value || '';
-            let combinedPlate = (pDigits + ' ' + pLetters).trim();
-
-            if (!isNew) {
-                if (!pDigits || !pLetters || !dName || !iqNum) {
-                    alert(currentLang === 'ar' ? "يرجى البحث عن السائق واختياره من القائمة أولاً." : "Please search and select a driver from the dropdown list first.");
-                    return;
-                }
-            }
-
-            if (!pDigits || !pLetters) {
-                alert(currentLang === 'ar' ? "يرجى ملء كل من أرقام وحروف اللوحة." : "Please fill in both the Numbers and Alphabets for the Truck Plate.");
-                return;
-            }
-
-            if (isNew && driversRegistryList.length > 0) {
-                const iqVal = iqNum.trim().toLowerCase();
-                const plVal = combinedPlate.replace(/\s+/g,'').toLowerCase();
-                let iqamaConflicted = driversRegistryList.some(d => String(d.id||'').toLowerCase() === iqVal && iqVal !== 'n/a');
-                let plateConflicted = driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a');
-                
-                if (iqamaConflicted || plateConflicted) {
-                    alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");
-                    return;
-                }
-            }
-
-            let dockVal = document.getElementById('dockNumber')?.value || '';
-            if (dockVal === 'Others') {
-                const dCust = document.getElementById('dockNumberCustom');
-                if (dCust) dockVal = dCust.value;
-            }
-            dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
-            if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return; }
-            
-            // 1. CHECK IF DOCK IS OCCUPIED
-            const isDockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim() === dockVal);
-            if (isDockOccupied) {
-                alert(currentLang === 'ar' ? `خطأ: الرصيف رقم (${dockVal}) مستخدم حالياً من قبل شاحنة أخرى.` : `Error: Dock ${dockVal} is currently occupied by another active truck. Please choose a different dock.`);
-                return;
-            }
-            
-            // 2. CHECK IF TRUCK IS ALREADY INSIDE (NEW FIX)
-            const cleanTargetPlate = combinedPlate.replace(/\s+/g,'').toLowerCase();
-            const isTruckAlreadyInside = globalLogsCache.some(r => !r.checkOutTime && String(r.plateNumber).replace(/\s+/g,'').toLowerCase() === cleanTargetPlate);
-            
-            if (isTruckAlreadyInside) {
-                alert(currentLang === 'ar' ? `خطأ: هذه الشاحنة مسجلة وموجودة حالياً بالداخل.` : `Error: This truck (${combinedPlate}) is already checked in and active inside the facility.`);
-                return;
-            }
-            
-            let directionVal = document.getElementById('direction')?.value || '';
-            if (directionVal === 'Others') {
-                const customDir = document.getElementById('directionCustom');
-                if(customDir) directionVal = customDir.value.trim();
-            }
             
             if (window.isCheckInLocked) return;
-            window.isCheckInLocked = true; setTimeout(() => { window.isCheckInLocked = false; }, 5000);
-
-            const btn = document.querySelector('.submit-btn-global');
+            window.isCheckInLocked = true;
+            
+            const btn = document.querySelector('#entryForm .submit-btn-global');
             if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
+
+            const unlockForm = () => {
+                window.isCheckInLocked = false;
+                if (btn) { btn.innerText = tr("Check In Truck"); btn.disabled = false; }
+            };
             
-            let countVal = document.getElementById('boxCount')?.value || "0";
-            let typeVal = document.getElementById('boxType')?.value || "Boxes";
-            let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
-            let finalBoxCountStr = countVal + " " + displayUnit;
-            
-            if (isNew) {
-                fetch(API_URL, { 
+            try {
+                const toggleBtn = document.getElementById('toggleNewDriverBtn');
+                const isNew = toggleBtn && toggleBtn.classList.contains('active');
+                
+                let dName = document.getElementById('driverName')?.value || '';
+                let iqNum = document.getElementById('iqamaNumber')?.value || '';
+                let pDigits = document.getElementById('plateNumberDigits')?.value || '';
+                let pLetters = document.getElementById('plateNumberLetters')?.value || '';
+                let combinedPlate = (pDigits + ' ' + pLetters).trim();
+
+                if (!isNew) {
+                    if (!pDigits || !pLetters || !dName || !iqNum) {
+                        alert(currentLang === 'ar' ? "يرجى البحث عن السائق واختياره من القائمة أولاً." : "Please search and select a driver from the dropdown list first.");
+                        return unlockForm();
+                    }
+                }
+
+                if (!pDigits || !pLetters) {
+                    alert(currentLang === 'ar' ? "يرجى ملء كل من أرقام وحروف اللوحة." : "Please fill in both the Numbers and Alphabets for the Truck Plate.");
+                    return unlockForm();
+                }
+
+                if (isNew && driversRegistryList.length > 0) {
+                    const iqVal = iqNum.trim().toLowerCase();
+                    const plVal = combinedPlate.replace(/\s+/g,'').toLowerCase();
+                    let iqamaConflicted = driversRegistryList.some(d => String(d.id||'').toLowerCase() === iqVal && iqVal !== 'n/a');
+                    let plateConflicted = driversRegistryList.some(d => String(d.plate||'').replace(/\s+/g,'').toLowerCase() === plVal && plVal !== 'n/a');
+                    
+                    if (iqamaConflicted || plateConflicted) {
+                        alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");
+                        return unlockForm();
+                    }
+                }
+
+                let dockVal = document.getElementById('dockNumber')?.value || '';
+                if (dockVal === 'Others') {
+                    const dCust = document.getElementById('dockNumberCustom');
+                    if (dCust) dockVal = dCust.value;
+                }
+                dockVal = String(dockVal || '').replace(/[^0-9]/g, '').trim();
+                if (!dockVal) { alert('Please enter a valid numeric Dock Number.'); return unlockForm(); }
+                
+                // 1. CHECK IF DOCK IS OCCUPIED
+                const isDockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim() === dockVal);
+                if (isDockOccupied) {
+                    alert(currentLang === 'ar' ? `خطأ: الرصيف رقم (${dockVal}) مستخدم حالياً من قبل شاحنة أخرى.` : `Error: Dock ${dockVal} is currently occupied by another active truck. Please choose a different dock.`);
+                    return unlockForm();
+                }
+                
+                // 2. CHECK IF TRUCK IS ALREADY INSIDE (NEW FIX)
+                const cleanTargetPlate = combinedPlate.replace(/\s+/g,'').toLowerCase();
+                const isTruckAlreadyInside = globalLogsCache.some(r => !r.checkOutTime && String(r.plateNumber).replace(/\s+/g,'').toLowerCase() === cleanTargetPlate);
+                
+                if (isTruckAlreadyInside) {
+                    alert(currentLang === 'ar' ? `خطأ: هذه الشاحنة مسجلة وموجودة حالياً بالداخل.` : `Error: This truck (${combinedPlate}) is already checked in and active inside the facility.`);
+                    return unlockForm();
+                }
+                
+                let directionVal = document.getElementById('direction')?.value || '';
+                if (directionVal === 'Others') {
+                    const customDir = document.getElementById('directionCustom');
+                    if(customDir) directionVal = customDir.value.trim();
+                }
+                
+                let countVal = document.getElementById('boxCount')?.value || "0";
+                let typeVal = document.getElementById('boxType')?.value || "Boxes";
+                let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
+                let finalBoxCountStr = countVal + " " + displayUnit;
+                
+                // Network operations MUST be awaited
+                if (isNew) {
+                    await fetch(API_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ 
+                            action: 'addDriver', 
+                            driverName: dName, 
+                            iqamaNumber: iqNum, 
+                            plateNumber: combinedPlate, 
+                            mobileNumber: document.getElementById('mobileNumber')?.value || "N/A" 
+                        }) 
+                    });
+                }
+
+                const payload = {
+                    action: 'checkin', 
+                    driverName: dName, 
+                    iqamaNumber: iqNum,
+                    plateNumber: combinedPlate, 
+                    mobileNumber: document.getElementById('mobileNumber')?.value || "N/A",
+                    securityName: document.getElementById('securityNameField')?.value || '', 
+                    dockNumber: dockVal, 
+                    direction: directionVal,
+                    dispatchType: document.getElementById('dispatchSelect')?.value || '', 
+                    noonEmployeeId: document.getElementById('noonEmployeeId')?.value || "N/A",
+                    boxCount: finalBoxCountStr, 
+                    sealNumber: document.getElementById('sealNumber')?.value || "--",
+                    securityId: document.getElementById('securityNameId')?.value || '', 
+                    truckPhoto: temporaryCapturedImage || "", 
+                    itemPhoto: temporaryCapturedItemImage || ""
+                };
+
+                await fetch(API_URL, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'addDriver', 
-                        driverName: dName, 
-                        iqamaNumber: iqNum, 
-                        plateNumber: combinedPlate, 
-                        mobileNumber: document.getElementById('mobileNumber')?.value || "N/A" 
-                    }) 
-                }).catch(e => console.error(e));
-                
-                driversRegistryList.push({
-                    name: dName,
-                    id: iqNum,
-                    plate: combinedPlate,
-                    phone: document.getElementById('mobileNumber')?.value || "N/A"
+                    body: JSON.stringify(payload) 
                 });
-                compileDriversRegistryCards();
+                
+                // Automatic refresh
+                if (btn) btn.innerText = "✅ SYNCING...";
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            } catch (err) {
+                console.error("Check-in Error:", err);
+                alert(currentLang === 'ar' ? "حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى." : "A network error occurred. Please try again.");
+                unlockForm();
             }
-
-            const payload = {
-                action: 'checkin', 
-                driverName: dName, 
-                iqamaNumber: iqNum,
-                plateNumber: combinedPlate, 
-                mobileNumber: document.getElementById('mobileNumber')?.value || "N/A",
-                securityName: document.getElementById('securityNameField')?.value || '', 
-                dockNumber: dockVal, 
-                direction: directionVal,
-                dispatchType: document.getElementById('dispatchSelect')?.value || '', 
-                noonEmployeeId: document.getElementById('noonEmployeeId')?.value || "N/A",
-                boxCount: finalBoxCountStr, 
-                sealNumber: document.getElementById('sealNumber')?.value || "--",
-                securityId: document.getElementById('securityNameId')?.value || '', 
-                truckPhoto: temporaryCapturedImage || "", 
-                itemPhoto: temporaryCapturedItemImage || ""
-            };
-
-            fetch(API_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload) 
-            }).catch(e => console.error(e));
-            
-            payload.checkInTime = new Date().toISOString();
-            globalLogsCache.unshift(payload);
-            window.handleLogsResponse({logs: globalLogsCache});
-            
-            entryForm.reset();
-            const secNameField = document.getElementById('securityNameField');
-            const secIdField = document.getElementById('securityNameId');
-            if (secNameField) secNameField.value = loggedInUser.name;
-            if (secIdField) secIdField.value = loggedInUser.noonId || '';
-            temporaryCapturedImage = null; temporaryCapturedItemImage = null;
-            updateScannerVisibility();
-            
-            if (btn) { btn.innerText = "CHECK IN TRUCK"; btn.disabled = false; }
-            
-            let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes('active-trucks'));
-            switchView('active-trucks', navItem);
         });
     }
 
@@ -1351,7 +1463,7 @@
 
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
-        btnConfirmSignOut.addEventListener('click', () => {
+        btnConfirmSignOut.addEventListener('click', async () => {
             if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
                 if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
                     alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
@@ -1360,31 +1472,35 @@
             }
 
             btnConfirmSignOut.innerText = "⏳..."; btnConfirmSignOut.disabled = true;
-            const sealInput = document.getElementById('signOutSeal');
-            const seal = sealInput && currentSignOutContext.dispatchType !== 'Dispatching' ? sealInput.value.trim() : '';
-            const payload = {
-                action: "checkout", 
-                driverName: currentSignOutContext.driverName, 
-                plateNumber: currentSignOutContext.plateNumber,
-                sealNumber: seal, 
-                truckPhoto: tempCheckoutTruckPhoto || "", 
-                itemPhoto: tempCheckoutItemPhoto || ""
-            };
-            fetch(API_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload) 
-            });
             
-            let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
-            if (match) { 
-                match.checkOutTime = new Date().toISOString(); 
-                if (seal) match.sealNumber = seal; 
+            try {
+                const sealInput = document.getElementById('signOutSeal');
+                const seal = sealInput && currentSignOutContext.dispatchType !== 'Dispatching' ? sealInput.value.trim() : '';
+                const payload = {
+                    action: "checkout", 
+                    driverName: currentSignOutContext.driverName, 
+                    plateNumber: currentSignOutContext.plateNumber,
+                    sealNumber: seal, 
+                    truckPhoto: tempCheckoutTruckPhoto || "", 
+                    itemPhoto: tempCheckoutItemPhoto || ""
+                };
+                
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload) 
+                });
+                
+                btnConfirmSignOut.innerText = "✅ SYNCING...";
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            } catch (err) {
+                console.error("Check-out Error:", err);
+                alert(currentLang === 'ar' ? "حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى." : "A network error occurred. Please try again.");
+                btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
             }
-            
-            window.handleLogsResponse({logs: globalLogsCache});
-            closeSignOutModal(); 
-            btnConfirmSignOut.innerText = "CONFIRM CHECK OUT"; btnConfirmSignOut.disabled = false;
         });
     }
 
@@ -1508,7 +1624,10 @@
                 <td class="notranslate" translate="no">${safeCheckInStr}</td>
                 <td class="live-duration notranslate" translate="no" data-timein="${isoCheckIn}" style="color:var(--accent-color); font-weight:bold;">${durStr}</td>
                 <td>🛡️ ${r.securityName}</td>
-                <td style="text-align:right;"><button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button></td>
+                <td style="text-align:right;">
+                    <button class="btn-checkout-action" style="color:var(--accent-color); border-color:var(--accent-color); margin-right:5px;" onclick="draftDelayReport('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${r.dockNumber}', '${durStr}')">✨ Report</button>
+                    <button class="btn-checkout-action" onclick="promptSignOut('${String(r.driverName).replace(/'/g,"\\'")}', '${String(r.plateNumber).replace(/'/g,"\\'")}', '${String(r.securityName).replace(/'/g,"\\'")}', '${r.dockNumber}', '${r.dispatchType}')" data-i18n="Check out">Check out</button>
+                </td>
             </tr>`;
         });
         const yardTable = document.getElementById('activeYardTableBody');
