@@ -65,7 +65,6 @@
         .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: 0.2s; }
         .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
         
-        /* FIX: Made the sidebar close button visible on Desktop */
         .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; display: block; position: absolute; top: 1rem; right: 0.75rem; transition: color 0.2s; z-index: 1010; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
         
@@ -103,7 +102,6 @@
         html[dir="rtl"] .nav-prev-btn { left: auto; right: calc(240px + 10px); transform: translateY(-50%) rotate(180deg); }
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
-        /* FIX: Re-position toggle buttons for Desktop RTL */
         html[dir="rtl"] #floatingOpenBtn { left: auto; right: 1rem; }
         html[dir="rtl"] .sidebar-close-btn { right: auto; left: 0.75rem; }
 
@@ -748,6 +746,9 @@
     window.hasFetchedLogs = false;
     window.isSavingEdit = false;
     
+    // NEW: Background Sync Lock timestamp to prevent overwriting local active trucks
+    window.syncLockUntil = 0;
+    
     let temporaryCapturedImage = null;
     let temporaryCapturedItemImage = null;
     let tempCheckoutTruckPhoto = null;
@@ -913,7 +914,6 @@
         }
     };
 
-    // FIX: Redesigned toggleSidebar to correctly show/hide float button on Desktop
     window.toggleSidebar = function() {
         const sidebar = document.getElementById('appSidebar');
         const floatBtn = document.getElementById('floatingOpenBtn');
@@ -964,6 +964,7 @@
         setDisp('nav-checkin', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
         setDisp('nav-active-trucks', (role === 'admin' || role === 'guard') ? 'flex' : 'none');
         
+        // ADMIN ONLY FOR HISTORY
         setDisp('nav-history', (role === 'admin') ? 'flex' : 'none');
         
         setDisp('nav-drivers', (role === 'admin') ? 'flex' : 'none');
@@ -1195,7 +1196,7 @@
 
     const entryForm = document.getElementById('entryForm');
     if (entryForm) {
-        entryForm.addEventListener('submit', async (e) => {
+        entryForm.addEventListener('submit', (e) => {
             e.preventDefault(); 
             
             if (window.isCheckInLocked) return;
@@ -1258,7 +1259,7 @@
                     return unlockForm();
                 }
                 
-                // 2. CHECK IF TRUCK IS ALREADY INSIDE (NEW FIX)
+                // 2. CHECK IF TRUCK IS ALREADY INSIDE
                 const cleanTargetPlate = combinedPlate.replace(/\s+/g,'').toLowerCase();
                 const isTruckAlreadyInside = globalLogsCache.some(r => !r.checkOutTime && String(r.plateNumber).replace(/\s+/g,'').toLowerCase() === cleanTargetPlate);
                 
@@ -1278,6 +1279,9 @@
                 let displayUnit = countVal === "1" ? (typeVal === "Boxes" ? "Box" : "Pallet") : typeVal;
                 let finalBoxCountStr = countVal + " " + displayUnit;
                 
+                // Set 15-second Sync Lock to block stale background polling from erasing our optimistic UI
+                window.syncLockUntil = Date.now() + 15000;
+
                 // --- OPTIMISTIC UI UPDATE (INSTANT) ---
                 if (isNew) {
                     driversRegistryList.push({
@@ -1388,7 +1392,7 @@
 
     const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
     if (btnConfirmSignOut) {
-        btnConfirmSignOut.addEventListener('click', async () => {
+        btnConfirmSignOut.addEventListener('click', () => {
             if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
                 if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
                     alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
@@ -1410,6 +1414,9 @@
                     itemPhoto: tempCheckoutItemPhoto || ""
                 };
                 
+                // Set 15-second Sync Lock
+                window.syncLockUntil = Date.now() + 15000;
+
                 // --- OPTIMISTIC UI UPDATE (INSTANT) ---
                 let match = globalLogsCache.find(r => r.plateNumber === currentSignOutContext.plateNumber && !r.checkOutTime);
                 if (match) { 
@@ -1441,7 +1448,10 @@
     // --- DATA HANDLING ---
     let isFetchingLogs = false;
     function fetchLogs() {
+        // Block background polling if Sync Lock is currently active
+        if (Date.now() < window.syncLockUntil) return;
         if (isFetchingLogs || window.isSavingEdit) return; 
+        
         isFetchingLogs = true;
         const old = document.getElementById('jsonp-fetcher'); if (old) old.remove();
         const s = document.createElement('script'); s.id = 'jsonp-fetcher';
@@ -1452,6 +1462,8 @@
 
     window.handleLogsResponseWrapper = function(data) {
         isFetchingLogs = false;
+        // Ignore incoming background payload if Sync Lock is currently active
+        if (Date.now() < window.syncLockUntil) return;
         if (typeof window.handleLogsResponse === 'function') window.handleLogsResponse(data);
     };
 
