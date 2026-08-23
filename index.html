@@ -746,11 +746,12 @@
     window.hasFetchedLogs = false;
     window.isSavingEdit = false;
     
-    // NEW: Background Sync Lock timestamp to prevent overwriting local active trucks
+    // Background Sync Lock timestamp
     window.syncLockUntil = 0;
     
     let temporaryCapturedImage = null;
     let temporaryCapturedItemImage = null;
+    let temporaryCapturedIqamaImage = null; // NEW: Holds captured Iqama image
     let tempCheckoutTruckPhoto = null;
     let tempCheckoutItemPhoto = null;
     
@@ -1308,7 +1309,8 @@
                     sealNumber: document.getElementById('sealNumber')?.value || "--",
                     securityId: document.getElementById('securityNameId')?.value || '', 
                     truckPhoto: temporaryCapturedImage || "", 
-                    itemPhoto: temporaryCapturedItemImage || ""
+                    itemPhoto: temporaryCapturedItemImage || "",
+                    iqamaPhoto: temporaryCapturedIqamaImage || "" // INCLUDED SAVED IQAMA IMAGE
                 };
 
                 payload.checkInTime = new Date().toISOString();
@@ -1320,7 +1322,9 @@
                 const secIdField = document.getElementById('securityNameId');
                 if (secNameField) secNameField.value = loggedInUser.name;
                 if (secIdField) secIdField.value = loggedInUser.noonId || '';
-                temporaryCapturedImage = null; temporaryCapturedItemImage = null;
+                temporaryCapturedImage = null; 
+                temporaryCapturedItemImage = null;
+                temporaryCapturedIqamaImage = null; // RESET CAPTURED IQAMA
                 updateScannerVisibility();
                 
                 unlockForm();
@@ -2587,7 +2591,11 @@
                             const statusEl = document.getElementById(currentStatusId);
                             if (statusEl) { statusEl.innerHTML = "✅ Attached"; statusEl.style.color = "var(--success-color)"; }
                         } else {
-                            temporaryCapturedImage = reader.result; 
+                            if (currentScanType === 'IQAMA') {
+                                temporaryCapturedIqamaImage = reader.result; // SAVE SCANNED IQAMA PHOTO
+                            } else {
+                                temporaryCapturedImage = reader.result;
+                            }
                             runLocalOcrEngine(blob, currentStatusId, currentScanType); 
                         }
                     };
@@ -2789,6 +2797,11 @@
             const status = document.getElementById(statusContainerId);
             if (status) { status.innerHTML = "✅ Attached"; status.style.color = "var(--success-color)"; }
         } else {
+            if (scanType === 'IQAMA') {
+                const reader = new FileReader();
+                reader.onloadend = () => { temporaryCapturedIqamaImage = reader.result; }; // SAVE UPLOADED IQAMA PHOTO
+                reader.readAsDataURL(file);
+            }
             runLocalOcrEngine(file, statusContainerId, scanType);
         }
         inputEl.value = ''; 
