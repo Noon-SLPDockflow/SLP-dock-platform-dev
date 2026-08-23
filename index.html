@@ -751,7 +751,7 @@
     
     let temporaryCapturedImage = null;
     let temporaryCapturedItemImage = null;
-    let temporaryCapturedIqamaImage = null; // NEW: Holds captured Iqama image
+    let temporaryCapturedIqamaImage = null; 
     let tempCheckoutTruckPhoto = null;
     let tempCheckoutItemPhoto = null;
     
@@ -1310,7 +1310,7 @@
                     securityId: document.getElementById('securityNameId')?.value || '', 
                     truckPhoto: temporaryCapturedImage || "", 
                     itemPhoto: temporaryCapturedItemImage || "",
-                    iqamaPhoto: temporaryCapturedIqamaImage || "" // INCLUDED SAVED IQAMA IMAGE
+                    iqamaPhoto: temporaryCapturedIqamaImage || ""
                 };
 
                 payload.checkInTime = new Date().toISOString();
@@ -1322,9 +1322,7 @@
                 const secIdField = document.getElementById('securityNameId');
                 if (secNameField) secNameField.value = loggedInUser.name;
                 if (secIdField) secIdField.value = loggedInUser.noonId || '';
-                temporaryCapturedImage = null; 
-                temporaryCapturedItemImage = null;
-                temporaryCapturedIqamaImage = null; // RESET CAPTURED IQAMA
+                temporaryCapturedImage = null; temporaryCapturedItemImage = null; temporaryCapturedIqamaImage = null;
                 updateScannerVisibility();
                 
                 unlockForm();
@@ -1449,27 +1447,37 @@
         });
     }
 
-    // --- DATA HANDLING ---
+    // --- DATA HANDLING (POST Fetch Fix) ---
     let isFetchingLogs = false;
     function fetchLogs() {
-        // Block background polling if Sync Lock is currently active
         if (Date.now() < window.syncLockUntil) return;
         if (isFetchingLogs || window.isSavingEdit) return; 
         
         isFetchingLogs = true;
-        const old = document.getElementById('jsonp-fetcher'); if (old) old.remove();
-        const s = document.createElement('script'); s.id = 'jsonp-fetcher';
-        s.src = API_URL + "?callback=handleLogsResponseWrapper&prefix=handleLogsResponse&_" + new Date().getTime();
-        s.onerror = function() { isFetchingLogs = false; };
-        document.body.appendChild(s);
-    }
 
-    window.handleLogsResponseWrapper = function(data) {
-        isFetchingLogs = false;
-        // Ignore incoming background payload if Sync Lock is currently active
-        if (Date.now() < window.syncLockUntil) return;
-        if (typeof window.handleLogsResponse === 'function') window.handleLogsResponse(data);
-    };
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'getLogs' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            isFetchingLogs = false;
+            if (Date.now() < window.syncLockUntil) return;
+            
+            if (data.status === 'error') {
+                console.error("Backend Error:", data.message);
+                return;
+            }
+            if (typeof window.handleLogsResponse === 'function') {
+                window.handleLogsResponse(data);
+            }
+        })
+        .catch(err => {
+            isFetchingLogs = false;
+            console.error("Fetch logs error:", err);
+        });
+    }
 
     function calculateDurationStr(t1, t2) {
         if (!t1) return "--";
@@ -1829,7 +1837,7 @@
                         y: { 
                             display: false, 
                             min: 0,
-                            grace: '20%' // Adds padding at top so datalabels aren't cut off
+                            grace: '20%' // Adds padding at top so datalabels arent cut off
                         }
                     }
                 }
@@ -2616,6 +2624,7 @@
     function handleCameraCancel() { closeCamera(); }
     window.handleCameraCancel = handleCameraCancel;
 
+    // We no longer use JSONP, but leaving OCR API fetching as is
     let ocrCallbackId = 0;
     function processOcrRequestJSONP(base64Data, scanType) {
         return new Promise((resolve, reject) => {
@@ -2844,7 +2853,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "4.8";
+    const CURRENT_APP_VERSION = "4.9"; // Updated version to force cache bust
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
