@@ -366,11 +366,11 @@
                             
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
-                                <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value)">
+                                <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value); checkDockAvailabilityInstant(this.value);">
                                     <option value="" disabled selected>Select Dock (15 - 90)...</option>
                                     <option value="Others">Others / آخر</option>
                                 </select>
-                                <input type="number" id="dockNumberCustom" class="input-box-styled" placeholder="Enter Custom Numeric Dock..." style="display:none; margin-top:0.5rem;" min="1" oninput="this.value = this.value.replace(/[^0-9]/g, '');" autocomplete="off">
+                                <input type="number" id="dockNumberCustom" class="input-box-styled" placeholder="Enter Custom Numeric Dock..." style="display:none; margin-top:0.5rem;" min="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkDockAvailabilityInstant(this.value);" autocomplete="off">
                             </div>
                             
                             <div class="form-group">
@@ -930,6 +930,34 @@
     }
     window.toggleCustomDockInput = toggleCustomDockInput;
 
+    // --- NEW: Instant Real-time Dock Availability Check ---
+    function checkDockAvailabilityInstant(val) {
+        if (!val || val === 'Others') return;
+        let cleanVal = String(val).replace(/[^0-9]/g, '').trim();
+        if (!cleanVal) return;
+
+        const isDockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim() === cleanVal);
+        const selectEl = document.getElementById('dockNumber');
+        const customEl = document.getElementById('dockNumberCustom');
+
+        if (isDockOccupied) {
+            alert(currentLang === 'ar' ? `⚠️ تنبيه: الرصيف رقم (${cleanVal}) مستخدم حالياً من قبل شاحنة أخرى بالداخل. يرجى اختيار رصيف آخر.` : `⚠️ Dock Occupied: Dock ${cleanVal} is currently occupied by an active truck inside the facility. Please pick an open dock.`);
+            
+            if (selectEl) {
+                selectEl.value = "";
+                if (selectEl.setCustomValidity) selectEl.setCustomValidity(currentLang === 'ar' ? 'الرصيف مستخدم حالياً' : 'Dock Occupied');
+            }
+            if (customEl) {
+                customEl.value = "";
+                if (customEl.setCustomValidity) customEl.setCustomValidity(currentLang === 'ar' ? 'الرصيف مستخدم حالياً' : 'Dock Occupied');
+            }
+        } else {
+            if (selectEl && selectEl.setCustomValidity) selectEl.setCustomValidity('');
+            if (customEl && customEl.setCustomValidity) customEl.setCustomValidity('');
+        }
+    }
+    window.checkDockAvailabilityInstant = checkDockAvailabilityInstant;
+
     function handlePurposeChange(selectEl) {
         const dCust = document.getElementById('directionCustom');
         if (dCust) dCust.style.display = (selectEl.value === 'Others') ? 'block' : 'none';
@@ -999,7 +1027,6 @@
             e.preventDefault(); 
             if (window.isCheckInLocked) return;
             
-            // CRITICAL FIX: Ensure the entire block is inside try/catch so unlocking never fails.
             const btn = document.querySelector('#entryForm .submit-btn-global');
             
             const unlockForm = () => {
@@ -1098,7 +1125,7 @@
 
                 payload.checkInTime = new Date().toISOString();
                 globalLogsCache.unshift(payload);
-                window.handleLogsResponse({logs: globalLogsCache}); // Compiles cards automatically
+                window.handleLogsResponse({logs: globalLogsCache});
                 
                 entryForm.reset();
                 const secNameField = document.getElementById('securityNameField');
@@ -2108,7 +2135,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "5.6"; 
+    const CURRENT_APP_VERSION = "5.7"; 
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
