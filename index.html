@@ -6,7 +6,6 @@
     <title>Noon SLP Dock Security Platform</title>
     <link rel="icon" href="https://fav.farm/🚚" />
     
-    <!-- Chart.js Core and Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -15,27 +14,9 @@
         :root { --bg-color: #0b0e14; --card-bg: rgba(18, 22, 31, 0.95); --card-solid: #12161f; --sidebar-bg: #07090c; --accent-color: #fcc200; --text-main: #f0f2f5; --text-muted: #8b949e; --border-color: rgba(255, 255, 255, 0.08); --success-color: #2ea043; --danger-color: #f85149; --nav-hover: rgba(252, 194, 0, 0.1); }
         #cameraModal, .camera-modal, .camera-overlay, [id*="camera"] { z-index: 999999 !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background-color: var(--bg-color); 
-            background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg'); 
-            background-size: 55%; 
-            background-position: center center; 
-            background-repeat: no-repeat; 
-            background-attachment: fixed; 
-            color: var(--text-main); 
-            display: flex; 
-            min-height: 100vh; 
-            overflow-x: hidden; 
-            font-size: 14px;
-        }
-        
-        input[type=number]::-webkit-outer-spin-button, 
-        input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
-        }
+        body { background-color: var(--bg-color); background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg'); background-size: 55%; background-position: center center; background-repeat: no-repeat; background-attachment: fixed; color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; font-size: 14px; }
+        input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-
         .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .intro-overlay.hidden { opacity: 0; pointer-events: none; }
         .login-container { position: relative; z-index: 2; background: var(--sidebar-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 2.5rem 3rem; text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 420px; width: 90%; box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8); }
@@ -46,13 +27,11 @@
         .login-tabs { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1.25rem; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         .login-tab { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .login-tab.active { background: var(--accent-color); color: #000; }
-
         .desktop-nav-btn { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(18, 22, 31, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); width: 36px; height: 70px; font-size: 1.3rem; cursor: pointer; z-index: 900; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.4; transition: 0.2s; }
         .desktop-nav-btn:hover { background: var(--accent-color); color: #000; opacity: 1; border-color: var(--accent-color); }
         .nav-prev-btn { left: calc(240px + 10px); }
         .nav-next-btn { right: 10px; }
         .main-content.expanded .nav-prev-btn { left: 10px; }
-
         .sidebar { width: 240px; height: 100%; height: 100dvh; bottom: 0; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1rem 0.75rem; position: fixed; top: 0; left: 0; z-index: 1000; transition: transform 0.3s ease; overflow-y: auto; }
         .sidebar.hidden { transform: translateX(-100%); }
         .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem; }
@@ -60,33 +39,20 @@
         .brand-text p { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 1px;}
         .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: 0.2s; }
         .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
-        
         .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; display: block; position: absolute; top: 1rem; right: 0.75rem; transition: color 0.2s; z-index: 1010; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
-        
         #floatingOpenBtn { position: fixed; top: 1rem; left: 1rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.1rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 0.75rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; border-left: 3px solid transparent; transition: all 0.2s; }
         .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1rem; }
-        
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
-        
         .main-content { margin-left: 240px; flex-grow: 1; padding: 1.5rem 2rem; width: calc(100% - 240px); position: relative; transition: margin 0.3s, width 0.3s; min-width: 0; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
-
-        @media (max-width: 1200px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.mobile-open { transform: translateX(0) !important; width: 240px; }
-            #floatingOpenBtn { display: flex; }
-            .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; }
-            .nav-prev-btn { left: 10px; }
-        }
-
+        @media (max-width: 1200px) { .sidebar { transform: translateX(-100%); } .sidebar.mobile-open { transform: translateX(0) !important; width: 240px; } #floatingOpenBtn { display: flex; } .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; } .nav-prev-btn { left: 10px; } }
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
         html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
@@ -98,14 +64,7 @@
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         html[dir="rtl"] #floatingOpenBtn { left: auto; right: 1rem; }
         html[dir="rtl"] .sidebar-close-btn { right: auto; left: 0.75rem; }
-
-        @media (max-width: 1200px) {
-            html[dir="rtl"] .sidebar { transform: translateX(100%); }
-            html[dir="rtl"] .sidebar.mobile-open { transform: translateX(0) !important; }
-            html[dir="rtl"] .main-content { margin-right: 0 !important; margin-left: 0 !important; }
-            html[dir="rtl"] .nav-prev-btn { right: 10px; left: auto; }
-        }
-
+        @media (max-width: 1200px) { html[dir="rtl"] .sidebar { transform: translateX(100%); } html[dir="rtl"] .sidebar.mobile-open { transform: translateX(0) !important; } html[dir="rtl"] .main-content { margin-right: 0 !important; margin-left: 0 !important; } html[dir="rtl"] .nav-prev-btn { right: 10px; left: auto; } }
         .app-view { display: none; } .app-view.active-view { display: block; }
         .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 2.5rem 1.25rem 2rem 1.25rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; }
         .hero-badges-wrapper { position: absolute; top: 1rem; left: 1.25rem; display: flex; gap: 0.75rem; }
@@ -119,23 +78,19 @@
         .metric-card-slate .num { font-size: 1.8rem; font-weight: 700; color: #fff; line-height: 1.1; }
         .metric-card-slate .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 6px; font-weight: 600; }
         .metric-accent-line{position:absolute;top:12px;right:12px;width:25px;height:3px;background-color:var(--accent-color);border-radius:2px}
-        
         .docks-grid-container { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.75rem; padding: 1.25rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px; flex-grow: 1; align-content: start; }
         @media (max-width: 1100px) { .docks-grid-container { grid-template-columns: repeat(6, 1fr); } }
         @media (max-width: 800px) { .docks-grid-container { grid-template-columns: repeat(5, 1fr); } }
         .dock-badge-active { background: #2ea043; border: 2px solid #238636; color: #fff; padding: 0.75rem 0; border-radius: 6px; font-weight: 900; font-size: 1.1rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(46,160,67,0.3); cursor: default;}
         .dock-badge-inactive { background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; padding: 0.75rem 0; border-radius: 6px; font-weight: 800; font-size: 1rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; opacity: 0.9; cursor: default;}
-        
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; }
         .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .view-header-title h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
         .view-header-title p { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
-        
         .header-search-box-container { position: relative; width: 250px; }
         .header-search-box-container span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; }
         .header-search-input { width: 100%; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.5rem 0.85rem 0.5rem 2rem; border-radius: 6px; font-size: 0.8rem; outline: none; transition: border 0.2s; }
         .header-search-input:focus { border-color: var(--accent-color); }
-        
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: start; }
         th { color: var(--text-muted); font-weight: 600; font-size: 0.65rem; text-transform: uppercase; padding: 0.75rem 0.75rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; text-align: start; }
@@ -146,12 +101,10 @@
         .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border-color: rgba(248, 81, 73, 0.3); }
         .badge.purple { background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border-color: rgba(163, 113, 247, 0.3); }
         .badge.blue { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3); }
-        
         .btn-checkout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.35rem 0.85rem; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .btn-checkout-action:hover { background: var(--danger-color); color: #fff; }
         .btn-excel { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.4rem 0.85rem; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; transition: 0.2s; }
         .btn-excel:hover { background: var(--accent-color); color: #000; }
-        
         .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; max-width: 800px; margin-left: auto; margin-right: auto; transition: grid-template-columns 0.3s; }
         @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr !important; } }
         .scan-box-dashed { background: transparent; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 1.75rem 1rem; text-align: center; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
@@ -160,7 +113,6 @@
         .scan-box-dashed span.label-text { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.4rem; }
         .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.4rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.6rem; font-weight: 700; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; position: relative; z-index: 10; }
         .camera-btn-inline:hover { background: var(--accent-color); color: #000; }
-        
         .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; }
         @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
         .form-section-divider { grid-column: 1 / -1; background: #1a365d; color: #fff; padding: 0.4rem 0.8rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-top: 0.75rem; margin-bottom: 0.25rem; max-width: fit-content; }
@@ -169,12 +121,9 @@
         .input-box-styled:focus { border-color: var(--accent-color); background-color: #12161f; }
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 0.85rem; font-size: 0.85rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 1.5rem; transition: opacity 0.2s; }
         .submit-btn-global:hover { opacity: 0.9; }
-        
         .toggle-container { display: flex; justify-content: center; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 3px; margin-bottom: 1.5rem; max-width: 360px; margin-left: auto; margin-right: auto; }
         .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 0.85rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .toggle-btn.active { background: var(--accent-color); color: #000; }
-
-        /* Analytics Charts */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
         @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr; } }
         .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; }
@@ -186,7 +135,6 @@
         .chart-legend { list-style: none; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.75rem; }
         .chart-legend li { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .chart-legend li span { color: #fff; font-weight: 700; }
-        
         .accordion-wrapper { margin-bottom: 0; }
         .accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
         .accordion-header:hover { background: rgba(255,255,255,0.02); }
@@ -194,14 +142,11 @@
         .accordion-badge { color: var(--accent-color); font-weight: bold; font-size: 1rem; }
         .accordion-content { display: none; padding: 0.85rem 0; background: transparent; overflow-x: auto; }
         .accordion-content.open { display: block; }
-        
         .filter-tabs-container { display: flex; gap: 0.2rem; background: rgba(0,0,0,0.4); padding: 0.2rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
         .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.65rem; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .tab-filter-item.active { background: var(--accent-color); color: #000; }
         .custom-date-row { display: none; gap: 0.4rem; align-items: center; margin-top: 0.5rem; justify-content: flex-end; }
         .custom-date-row.open { display: flex; }
-
-        /* Drivers Database explicit fields */
         .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 1rem; }
         @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
         .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; position: relative; }
@@ -220,8 +165,6 @@
         .tag-badge { font-size: 0.55rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 3px; text-transform: uppercase; }
         .tag-badge.verified { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
         .tag-badge.carrier { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.3); }
-        
-        /* Modals & Popups */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal-overlay.modal-active { display: flex; }
         .modal-window { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 520px; display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); }
@@ -237,12 +180,10 @@
         .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
         .modal-media-viewport { width: 100%; height: 180px; border-radius: 6px; border: 1px solid var(--border-color); display:flex; align-items:center; justify-content:center; background-color: #0b0e14; background-size: contain; background-position: center; background-repeat: no-repeat; }
         .modal-footer-container { padding: 0.85rem 1.25rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; gap: 0.5rem; }
-
         .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
         .suggestions-dropdown.open { display: block; }
         .suggestion-item { padding: 0.6rem 0.85rem; cursor: pointer; border-bottom: 1px solid var(--border-color); color: #fff; font-size: 0.8rem; }
         .suggestion-item:hover { background: rgba(252, 194, 0, 0.1); }
-        
         .camera-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; }
         .camera-overlay.open { display: flex; }
         .camera-controls { display: flex; gap: 1rem; z-index: 100010; margin-top: 1rem; }
@@ -250,23 +191,18 @@
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-torch { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid var(--border-color); }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-        
         .camera-video-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 600px; height: 60vh; border-radius: 8px; overflow: hidden; border: 2px solid var(--accent-color); background: #000; }
         .camera-video-wrapper video { width: 100%; height: 100%; object-fit: cover; border: none; }
         .scanner-target-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 2px solid transparent; box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.65); z-index: 100005; pointer-events: none; display: none; }
-        
         .scanner-laser { width: 100%; height: 2px; background: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); position: absolute; top: 5%; animation: laserScan 1.5s infinite alternate ease-in-out; transition: background 0.3s, box-shadow 0.3s; }
         @keyframes laserScan { 0% { top: 5%; } 100% { top: 95%; } }
-        
         .scanner-corner { position: absolute; width: 25px; height: 25px; border-color: var(--accent-color); border-style: solid; transition: border-color 0.3s; }
         .corner-tl { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-top-left-radius: 8px; }
         .corner-tr { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-top-right-radius: 8px; }
         .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
         .corner-br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
-
         .scanner-target-box.locked .scanner-corner { border-color: var(--success-color); }
         .scanner-target-box.locked .scanner-laser { background: var(--success-color); box-shadow: 0 0 12px var(--success-color); animation-duration: 3s; }
-        
         .plate-bumper { display:inline-flex; align-items:center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-family: monospace; overflow: hidden;}
         .plate-num { padding: 3px 6px; background: rgba(0,0,0,0.4); font-weight: bold; color: #fff;}
         .plate-let { padding: 3px 6px; color: var(--accent-color); font-weight: bold;}
@@ -274,50 +210,38 @@
 </head>
 <body>
     <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none; position:fixed; top:20px; right:50%; transform:translateX(50%); z-index:2147483647; background:#1a1a1a; color:#fff; border:1px solid #333; padding:10px 24px; border-radius:50px; font-weight:bold; cursor:pointer; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,0.8);"><div style="width:12px; height:12px; background:#ff4444; border-radius:50%; box-shadow:0 0 10px #ff4444; animation: pulse 1s infinite alternate;"></div><span style="font-size:1.1rem; letter-spacing:0.5px;">New Update Available! Click to Refresh</span></div>
-    
-    <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu">
-        <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
-    </button>
+    <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu"><span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span></button>
 
+    <!-- Login Screen -->
     <div id="introOverlay" class="intro-overlay">
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
-            <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;">
-                <button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button>
-            </div>
+            <div style="text-align: right; width: 100%; margin-bottom: 0.5rem;"><button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background: rgba(255, 255, 255, 0.08); color: var(--accent-color); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🌐 العربية</button></div>
             <div class="login-tabs">
                 <button class="login-tab active" onclick="switchLoginMode('guard', this)">🛡️ <span data-i18n="Guard">Guard</span></button>
                 <button class="login-tab" onclick="switchLoginMode('admin', this)">⚙️ <span data-i18n="Admin">Admin</span></button>
             </div>
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 0.85rem; width: 100%;">
-                
                 <div id="loginNameWrapper" style="position: relative; width: 100%;">
                     <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Name" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'name')">
                     <div id="loginNameSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
                 </div>
-
                 <div id="loginIdWrapper" style="position: relative; width: 100%;">
                     <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Noon ID" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value, 'id')">
                     <div id="loginIdSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
                 </div>
-
                 <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4);" data-i18n="Authorized Noon Email">
-                
-                <div id="adminPasswordContainer" style="display: none; width: 100%;">
-                    <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);">
-                </div>
+                <div id="adminPasswordContainer" style="display: none; width: 100%;"><input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4);"></div>
                 <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.25rem;" data-i18n="AUTHORIZE ACCESS">AUTHORIZE ACCESS</button>
             </div>
             <div id="authStatus" class="auth-status"><p id="authText" class="pulsing">AUTHENTICATING...</p></div>
         </div>
     </div>
 
+    <!-- Sidebar -->
     <div class="sidebar" id="appSidebar">
         <div class="brand-section">
-            <div class="brand-text">
-                <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
-                <p data-i18n="Dock Security Platform">Dock Security Platform</p>
-            </div>
+            <div class="brand-text"><h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2><p data-i18n="Dock Security Platform">Dock Security Platform</p></div>
             <button class="sidebar-close-btn" onclick="toggleSidebar()">✕</button>
         </div>
         <button type="button" class="sidebar-refresh-btn" onclick="location.reload();">🔄 <span data-i18n="Refresh">Refresh</span></button>
@@ -331,30 +255,22 @@
             <li class="nav-item" id="nav-security" onclick="switchView('security', this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
         </ul>
         <div class="sidebar-footer">
-            <div class="system-health">
-                <div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:1px;">Operational</div></div>
-                <div class="health-dot"></div>
-            </div>
+            <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:1px;">Operational</div></div><div class="health-dot"></div></div>
             <div class="nav-item" onclick="toggleLang()"><span class="nav-icon">🌐</span><span class="nav-text" data-i18n="Language: EN / AR">Language: EN / AR</span></div>
             <div class="nav-item" onclick="toggleFullscreen()"><span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-i18n="Fullscreen">Fullscreen</span></div>
             <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); font-weight: 700; cursor: pointer;"><span class="nav-icon">🚪</span><span class="nav-text" data-i18n="SIGN OUT">SIGN OUT</span></div>
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content" id="mainContentArea">
-        <button class="desktop-nav-btn nav-prev-btn" onclick="swipePrev()">❮</button>
-        <button class="desktop-nav-btn nav-next-btn" onclick="swipeNext()">❯</button>
+        <button class="desktop-nav-btn nav-prev-btn" onclick="swipePrev()">❮</button><button class="desktop-nav-btn nav-next-btn" onclick="swipeNext()">❯</button>
 
+        <!-- DASHBOARD -->
         <div id="view-dashboard" class="app-view active-view">
             <div class="dashboard-hero">
-                <div class="hero-badges-wrapper">
-                    <span class="hero-badge" id="heroTimeBadge" style="color: var(--accent-color);">--:--</span>
-                    <span class="hero-badge" id="heroDateBadge" style="color: var(--accent-color);">--</span>
-                </div>
-                <div class="hero-title-box">
-                    <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
-                    <p data-i18n="Dock Security Platform">Dock Security Platform</p>
-                </div>
+                <div class="hero-badges-wrapper"><span class="hero-badge" id="heroTimeBadge" style="color: var(--accent-color);">--:--</span><span class="hero-badge" id="heroDateBadge" style="color: var(--accent-color);">--</span></div>
+                <div class="hero-title-box"><h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2><p data-i18n="Dock Security Platform">Dock Security Platform</p></div>
             </div>
             <div class="metrics-bar-four">
                 <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div><div class="metric-accent-line" style="background-color: var(--accent-color);"></div></div>
@@ -363,25 +279,19 @@
                 <div class="metric-card-slate"><div class="card-icon">💳</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
             <div class="card">
-                <div class="card-header-flex">
-                    <h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2>
-                    <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span>
-                </div>
+                <div class="card-header-flex"><h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2><span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span></div>
                 <div id="occupiedDocksContainer" class="docks-grid-container"><div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div></div>
             </div>
         </div>
 
+        <!-- ANALYTICS -->
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1 data-i18n="Analytics">Analytics</h1><p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p></div>
                 <div class="header-search-box-container"><span>🔍</span><input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedApplyAnalyticsFilters) window.debouncedApplyAnalyticsFilters()"></div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()">
-                    <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
-                    <option value="in" data-i18n="Check In Only">Check In Only</option>
-                    <option value="out" data-i18n="Check Out Only">Check Out Only</option>
-                </select>
+                <select id="analyticsTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyAnalyticsFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select>
                 <div class="filter-tabs-container analytics-filter-container">
                     <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button>
                     <button class="tab-filter-item active" data-range="weekly" onclick="setAnalyticsDateFilter('weekly', this)" data-i18n="Weekly">Weekly</button>
@@ -392,22 +302,17 @@
                     <button class="tab-filter-item" data-range="custom" onclick="setAnalyticsDateFilter('custom', this)" data-i18n="Custom">Custom</button>
                 </div>
             </div>
-            <div class="custom-date-row" id="analyticsCustomDateRow">
-                <input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo">
-                <button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button>
-            </div>
+            <div class="custom-date-row" id="analyticsCustomDateRow"><input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo"> <button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button></div>
             <div class="analytics-grid">
                 <div class="chart-card"><h3 data-i18n="Vehicle Processing Growth">Vehicle Processing Growth</h3><div id="chartGrowthLine"></div></div>
                 <div class="chart-card"><h3 data-i18n="Movement Cohorts">Movement Cohorts</h3><div class="bar-chart-container" id="chartCohortsBars"></div></div>
                 <div class="chart-card"><h3 data-i18n="Peak Operating Hours">Peak Operating Hours</h3><div id="chartHoursColumns"></div></div>
-                <div class="chart-card"><h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3>
-                    <div class="donut-container"><div class="donut-chart" id="chartDocksDonut" style="background: var(--card-solid);"></div><div class="donut-hole"></div></div>
-                    <ul class="chart-legend" id="chartDocksLegend"></ul>
-                </div>
+                <div class="chart-card"><h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3><div class="donut-container"><div class="donut-chart" id="chartDocksDonut" style="background: var(--card-solid);"></div><div class="donut-hole"></div></div><ul class="chart-legend" id="chartDocksLegend"></ul></div>
             </div>
             <div id="analyticsGroupedTables" style="margin-top: 2rem;"></div>
         </div>
 
+        <!-- CHECK IN -->
         <div id="view-checkin" class="app-view">
             <div style="max-width: 850px; margin: 0 auto;">
                 <header class="view-header-row" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;"><div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div></header>
@@ -544,11 +449,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="if(window.debouncedApplyHistoryFilters) window.debouncedApplyHistoryFilters()"></div>
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
-                            <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
-                            <option value="in" data-i18n="Check In Only">Check In Only</option>
-                            <option value="out" data-i18n="Check Out Only">Check Out Only</option>
-                        </select>
+                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select>
                         <div class="filter-tabs-container">
                             <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
                             <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
@@ -557,10 +458,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="custom-date-row" id="customDateRow">
-                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
-                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
-                </div>
+                <div class="custom-date-row" id="customDateRow"><input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo"> <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button></div>
                 <div class="table-responsive" style="margin-top: 1rem;">
                     <table id="historyLogTable">
                         <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal/Transaction">Seal/Transaction</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
@@ -1130,6 +1028,7 @@
                 let pDigits = document.getElementById('plateNumberDigits')?.value || '';
                 let pLetters = document.getElementById('plateNumberLetters')?.value || '';
                 let combinedPlate = (pDigits + ' ' + pLetters).trim();
+                let mobileNum = document.getElementById('mobileNumber')?.value || 'N/A';
 
                 if (!isNew) {
                     if (!pDigits || !pLetters || !dName || !iqNum) {
@@ -1177,6 +1076,44 @@
                     return unlockForm();
                 }
                 
+                // === NEW: MANDATORY PHOTO VALIDATION LOGIC ===
+                const isReceivingDispatch = document.getElementById('dispatchSelect')?.value === 'Receiving';
+
+                if (isNew) {
+                    if (!temporaryCapturedImage) {
+                        alert(currentLang === 'ar' ? "يرجى إرفاق صورة لوحة الشاحنة." : "Please attach the Number Plate Photo.");
+                        return unlockForm();
+                    }
+                    if (!temporaryCapturedIqamaImage) {
+                        alert(currentLang === 'ar' ? "يرجى إرفاق صورة الإقامة." : "Please attach the Iqama (ID Card) Photo.");
+                        return unlockForm();
+                    }
+                    if (isReceivingDispatch && !temporaryCapturedItemImage) {
+                        alert(currentLang === 'ar' ? "يرجى إرفاق صورة العنصر." : "Please attach the Item Picture.");
+                        return unlockForm();
+                    }
+                } else {
+                    if (isReceivingDispatch) {
+                        if (!temporaryCapturedImage) {
+                            alert(currentLang === 'ar' ? "يرجى إرفاق صورة لوحة الشاحنة." : "Please attach the Number Plate Photo.");
+                            return unlockForm();
+                        }
+                        if (!temporaryCapturedItemImage) {
+                            alert(currentLang === 'ar' ? "يرجى إرفاق صورة العنصر." : "Please attach the Item Picture.");
+                            return unlockForm();
+                        }
+                    }
+                }
+
+                if (!isReceivingDispatch) {
+                    let sealInputVal = document.getElementById('sealNumber')?.value || '';
+                    if (!sealInputVal.trim()) {
+                        alert(currentLang === 'ar' ? "يرجى إدخال رقم الختم / المعاملة." : "Please enter the Seal / Transaction number.");
+                        return unlockForm();
+                    }
+                }
+                // ===========================================
+
                 let directionVal = document.getElementById('direction')?.value || '';
                 if (directionVal === 'Others') {
                     const customDir = document.getElementById('directionCustom');
@@ -1190,20 +1127,15 @@
                 
                 window.syncLockUntil = Date.now() + 15000;
 
-                let mobileNum = document.getElementById('mobileNumber')?.value || "N/A";
-
                 if (isNew) {
-                    driversRegistryList.push({
-                        name: String(dName), id: String(iqNum), plate: String(combinedPlate), phone: String(mobileNum)
-                    });
+                    driversRegistryList.push({ name: String(dName), id: String(iqNum), plate: String(combinedPlate), phone: String(mobileNum) });
                     compileDriversRegistryCards();
                 }
 
                 const payload = {
                     action: 'checkin', driverName: dName, iqamaNumber: iqNum, plateNumber: combinedPlate, 
-                    mobileNumber: mobileNum,
-                    securityName: document.getElementById('securityNameField')?.value || '', dockNumber: dockVal, 
-                    direction: directionVal, dispatchType: document.getElementById('dispatchSelect')?.value || '', 
+                    mobileNumber: mobileNum, securityName: document.getElementById('securityNameField')?.value || '', 
+                    dockNumber: dockVal, direction: directionVal, dispatchType: document.getElementById('dispatchSelect')?.value || '', 
                     noonEmployeeId: document.getElementById('noonEmployeeId')?.value || "N/A",
                     boxCount: finalBoxCountStr, sealNumber: document.getElementById('sealNumber')?.value || "--",
                     securityId: document.getElementById('securityNameId')?.value || '', 
@@ -1222,27 +1154,21 @@
                 temporaryCapturedImage = null; temporaryCapturedItemImage = null; temporaryCapturedIqamaImage = null;
                 updateScannerVisibility();
                 
-                unlockForm();
+                setTimeout(unlockForm, 2500); 
                 
                 let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes('active-trucks'));
                 switchView('active-trucks', navItem);
 
                 if (isNew) {
-                    fetch(API_URL, { 
-                        method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'addDriver', driverName: dName, iqamaNumber: iqNum, plateNumber: combinedPlate, mobileNumber: mobileNum }) 
-                    }).catch(e => console.error(e));
+                    fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'addDriver', driverName: dName, iqamaNumber: iqNum, plateNumber: combinedPlate, mobileNumber: mobileNum }) }).catch(e => console.error(e));
                 }
 
-                fetch(API_URL, { 
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload) 
-                }).catch(e => console.error(e));
+                fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(e => console.error(e));
 
             } catch (err) {
                 console.error("Check-in Error:", err);
                 alert(currentLang === 'ar' ? "حدث خطأ في النظام. يرجى المحاولة مرة أخرى." : "A system error occurred. Please try again.");
-                unlockForm();
+                setTimeout(unlockForm, 2500);
             }
         });
     }
@@ -1306,10 +1232,7 @@
                 btnConfirmSignOut.innerText = tr("CONFIRM CHECK OUT"); 
                 btnConfirmSignOut.disabled = false;
 
-                fetch(API_URL, { 
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload) 
-                }).catch(e => console.error(e));
+                fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(e => console.error(e));
 
             } catch (err) {
                 console.error("Check-out Error:", err);
@@ -2220,7 +2143,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "5.9"; 
+    const CURRENT_APP_VERSION = "6.2"; 
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
