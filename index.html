@@ -664,8 +664,8 @@
             <div class="modal-body-content" style="padding: 2rem; text-align: center;">
                 <p id="timerAlertMessage" style="color: #fff; font-size: 1.1rem; font-weight: bold; margin-bottom: 1.5rem; line-height: 1.5;">Dock X has been active for 30 minutes.</p>
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button id="btnExtendTimer" class="submit-btn-global" style="margin-top: 0; background: #2ea043; color: #fff;">⏳ Extend 30 Mins</button>
-                    <button id="btnCheckoutTimer" class="submit-btn-global" style="margin-top: 0; background: var(--danger-color); color: #fff;">🛑 Check Out</button>
+                    <button id="btnExtendTimer" class="submit-btn-global" style="margin-top: 0; background: #2ea043; color: #fff;" data-i18n="Extend 30 Mins">⏳ Extend 30 Mins</button>
+                    <button id="btnCheckoutTimer" class="submit-btn-global" style="margin-top: 0; background: var(--danger-color); color: #fff;" data-i18n="Check Out">🛑 Check Out</button>
                 </div>
             </div>
         </div>
@@ -1054,16 +1054,16 @@
         if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let count = 0;
         alarmInterval = setInterval(() => {
-            if(count >= 10) { clearInterval(alarmInterval); return; } // Stop after 10 secs
+            if(count >= 10) { clearInterval(alarmInterval); return; } 
             let osc = window.audioCtx.createOscillator();
             let gainNode = window.audioCtx.createGain();
             osc.type = 'square';
             osc.frequency.setValueAtTime(800, window.audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.2, window.audioCtx.currentTime); // 20% volume
+            gainNode.gain.setValueAtTime(0.2, window.audioCtx.currentTime);
             osc.connect(gainNode);
             gainNode.connect(window.audioCtx.destination);
             osc.start();
-            osc.stop(window.audioCtx.currentTime + 0.3); // beep duration
+            osc.stop(window.audioCtx.currentTime + 0.3); 
             count++;
         }, 1000);
     }
@@ -1124,7 +1124,6 @@
     };
 
     function triggerAutoCheckout(truck) {
-        // Optimistic UI Update
         let match = globalLogsCache.find(r => String(r.plateNumber) === String(truck.plateNumber) && !r.checkOutTime);
         if (match) { 
             match.checkOutTime = new Date().toISOString(); 
@@ -1132,7 +1131,6 @@
         }
         window.handleLogsResponse({logs: globalLogsCache});
 
-        // Background Check-Out Call
         const payload = { 
             action: "checkout", 
             driverName: truck.driverName, 
@@ -1147,7 +1145,6 @@
         processAlertQueue();
     }
 
-    // Timer Monitor running every 5 seconds
     setInterval(() => {
         if (userRole !== 'guard' || !loginSelectedDocks || loginSelectedDocks.length === 0) return;
         
@@ -1155,7 +1152,6 @@
         const activeTrucks = globalLogsCache.filter(r => !r.checkOutTime);
         
         for (let t of activeTrucks) {
-            // Only monitor the logged-in guard's assigned docks
             if (!loginSelectedDocks.some(d => String(d) === String(t.dockNumber).trim())) continue;
             
             let checkInMs = parseFlexibleDate(t.checkInTime).getTime();
@@ -1165,7 +1161,6 @@
             let extCount = window.truckExtensions[t.plateNumber] || 0;
             let currentLimit = 30 + (extCount * 30);
             
-            // 60-min limit (or 30 mins after extension) -> AUTO CHECKOUT
             if (elapsedMins >= currentLimit + 30) {
                 if (window.truckAlerting[t.plateNumber] === 'auto') continue;
                 window.truckAlerting[t.plateNumber] = 'auto';
@@ -1173,10 +1168,9 @@
                 continue;
             }
             
-            // 30-min limit -> SHOW ALERT
             if (elapsedMins >= currentLimit && elapsedMins < currentLimit + 30) {
                 if (!window.truckAlerting[t.plateNumber] || window.truckAlerting[t.plateNumber] < currentLimit) {
-                    window.truckAlerting[t.plateNumber] = currentLimit; // Mark this specific limit threshold as triggered
+                    window.truckAlerting[t.plateNumber] = currentLimit; 
                     window.alertQueue.push({ type: '30min', truck: t });
                     processAlertQueue();
                 }
@@ -1506,6 +1500,76 @@
                 console.error("Check-in Error:", err);
                 alert(currentLang === 'ar' ? "حدث خطأ في النظام. يرجى المحاولة مرة أخرى." : "A system error occurred. Please try again.");
                 setTimeout(unlockForm, 2500);
+            }
+        });
+    }
+
+    function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
+        currentSignOutContext = { driverName, plateNumber, dockNumber, dispatchType };
+        const subtext = document.getElementById('signOutModalSubtext');
+        if (subtext) subtext.innerText = "Vehicle: " + plateNumber;
+        const sc = document.getElementById('checkoutScanners');
+        if (sc) sc.style.display = (dispatchType === 'Receiving') ? 'none' : 'grid';
+        
+        const sealCont = document.getElementById('checkoutSealContainer');
+        if (sealCont) sealCont.style.display = (dispatchType === 'Dispatching') ? 'none' : 'block';
+        
+        const modal = document.getElementById('signOutModal');
+        if (modal) modal.classList.add('modal-active');
+    }
+    window.promptSignOut = promptSignOut;
+
+    function closeSignOutModal() {
+        const modal = document.getElementById('signOutModal');
+        if (modal) modal.classList.remove('modal-active');
+        
+        tempCheckoutTruckPhoto = null; tempCheckoutItemPhoto = null;
+        const ts = document.getElementById('checkoutTruckStatus');
+        if (ts) { ts.innerHTML = "Truck Picture (with plate) *"; ts.style.color = ""; }
+        const is = document.getElementById('checkoutItemStatus');
+        if (is) { is.innerHTML = "Item Picture *"; is.style.color = ""; }
+        const seal = document.getElementById('signOutSeal');
+        if (seal) seal.value = '';
+    }
+    window.closeSignOutModal = closeSignOutModal;
+
+    const btnConfirmSignOut = document.getElementById('btnConfirmSignOut');
+    if (btnConfirmSignOut) {
+        btnConfirmSignOut.addEventListener('click', () => {
+            if (currentSignOutContext && currentSignOutContext.dispatchType !== 'Receiving') {
+                if (!tempCheckoutTruckPhoto || !tempCheckoutItemPhoto) {
+                    alert(currentLang === 'ar' ? "يرجى إرفاق صورة الشاحنة وصورة العنصر أولاً." : "Please attach the Truck Picture and Item Picture first.");
+                    return;
+                }
+            }
+
+            btnConfirmSignOut.innerText = "⏳..."; btnConfirmSignOut.disabled = true;
+            
+            try {
+                const sealInput = document.getElementById('signOutSeal');
+                const seal = sealInput && currentSignOutContext.dispatchType !== 'Dispatching' ? sealInput.value.trim() : '';
+                const payload = { action: "checkout", driverName: currentSignOutContext.driverName, plateNumber: currentSignOutContext.plateNumber, sealNumber: seal, truckPhoto: tempCheckoutTruckPhoto || "", itemPhoto: tempCheckoutItemPhoto || "" };
+                
+                window.syncLockUntil = Date.now() + 15000;
+
+                let match = globalLogsCache.find(r => String(r.plateNumber) === String(currentSignOutContext.plateNumber) && !r.checkOutTime);
+                if (match) { 
+                    match.checkOutTime = new Date().toISOString(); 
+                    if (seal) match.sealNumber = seal; 
+                }
+                
+                window.handleLogsResponse({logs: globalLogsCache});
+                closeSignOutModal(); 
+                btnConfirmSignOut.innerText = tr("CONFIRM CHECK OUT"); 
+                btnConfirmSignOut.disabled = false;
+
+                fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(e => console.error(e));
+
+            } catch (err) {
+                console.error("Check-out Error:", err);
+                alert(currentLang === 'ar' ? "حدث خطأ في النظام. يرجى المحاولة مرة أخرى." : "A system error occurred. Please try again.");
+                btnConfirmSignOut.innerText = tr("CONFIRM CHECK OUT"); 
+                btnConfirmSignOut.disabled = false;
             }
         });
     }
@@ -2371,12 +2435,20 @@
         if (scanType === 'ITEM_PHOTO' || scanType === 'TRUCK_PHOTO_ONLY') {
             const reader = new FileReader();
             reader.onloadend = () => { 
-                if (scanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result; else temporaryCapturedImage = reader.result; 
-                const status = document.getElementById(statusContainerId); if (status) { status.innerHTML = "✅ Attached"; status.style.color = "var(--success-color)"; }
+                if (scanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result; 
+                else temporaryCapturedImage = reader.result; 
+                const status = document.getElementById(statusContainerId); 
+                if (status) { status.innerHTML = "✅ Attached"; status.style.color = "var(--success-color)"; }
             };
             reader.readAsDataURL(file);
         } else {
-            if (scanType === 'IQAMA') { const reader = new FileReader(); reader.onloadend = () => { temporaryCapturedIqamaImage = reader.result; }; reader.readAsDataURL(file); }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (scanType === 'IQAMA') temporaryCapturedIqamaImage = reader.result;
+                else if (scanType === 'PLATE') temporaryCapturedImage = reader.result;
+            };
+            reader.readAsDataURL(file);
+            
             runLocalOcrEngine(file, statusContainerId, scanType);
         }
         inputEl.value = ''; 
@@ -2410,7 +2482,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "8.1"; 
+    const CURRENT_APP_VERSION = "8.2"; 
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
