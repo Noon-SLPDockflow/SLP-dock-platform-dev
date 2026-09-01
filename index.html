@@ -49,8 +49,10 @@
         .brand-text p { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 1px;}
         .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: 0.2s; }
         .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
+        
         .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; display: block; position: absolute; top: 1rem; right: 0.75rem; transition: color 0.2s; z-index: 1010; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
+        
         #floatingOpenBtn { position: fixed; top: 1rem; left: 1rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.1rem; flex-grow: 1; }
@@ -417,8 +419,7 @@
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
                                 <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value); checkDockAvailabilityInstant(this.value);">
-                                    <option value="" disabled selected>Select Dock (15 - 90)...</option>
-                                    <option value="Others">Others / آخر</option>
+                                    <!-- Options populated dynamically based on login selection -->
                                 </select>
                                 <input type="number" id="dockNumberCustom" class="input-box-styled" placeholder="Enter Custom Numeric Dock..." style="display:none; margin-top:0.5rem;" min="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkDockAvailabilityInstant(this.value);" autocomplete="off">
                             </div>
@@ -500,7 +501,11 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="if(window.debouncedApplyHistoryFilters) window.debouncedApplyHistoryFilters()"></div>
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select>
+                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
+                            <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
+                            <option value="in" data-i18n="Check In Only">Check In Only</option>
+                            <option value="out" data-i18n="Check Out Only">Check Out Only</option>
+                        </select>
                         <div class="filter-tabs-container">
                             <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
                             <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
@@ -509,7 +514,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="custom-date-row" id="customDateRow"><input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo"> <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button></div>
+                <div class="custom-date-row" id="customDateRow">
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
+                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
+                </div>
                 <div class="table-responsive" style="margin-top: 1rem;">
                     <table id="historyLogTable">
                         <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal/Transaction">Seal/Transaction</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
@@ -1041,34 +1049,23 @@
         }
     }, { once: true });
 
-    // === WARM UPWARD ARPEGGIO ALARM SOUND ===
+    // === REVERTED: 10-SECOND SQUARE WAVE ALARM ===
     function playAlarm() {
         if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let freqs = [523.25, 659.25, 783.99]; // C5, E5, G5
         let count = 0;
-        
         alarmInterval = setInterval(() => {
-            if (count >= 5) { clearInterval(alarmInterval); return; } // Repeats arpeggio 5 times (~10 seconds)
-            
-            let now = window.audioCtx.currentTime;
-            freqs.forEach((freq, idx) => {
-                let osc = window.audioCtx.createOscillator();
-                let gain = window.audioCtx.createGain();
-                osc.type = 'sine'; // Soft, warm wave
-                osc.frequency.setValueAtTime(freq, now + (idx * 0.12));
-                
-                gain.gain.setValueAtTime(0.15, now + (idx * 0.12));
-                gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.12) + 0.5);
-                
-                osc.connect(gain);
-                gain.connect(window.audioCtx.destination);
-                
-                osc.start(now + (idx * 0.12));
-                osc.stop(now + (idx * 0.12) + 0.5);
-            });
-            
+            if(count >= 10) { clearInterval(alarmInterval); return; } 
+            let osc = window.audioCtx.createOscillator();
+            let gainNode = window.audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800, window.audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.2, window.audioCtx.currentTime);
+            osc.connect(gainNode);
+            gainNode.connect(window.audioCtx.destination);
+            osc.start();
+            osc.stop(window.audioCtx.currentTime + 0.3); 
             count++;
-        }, 2000);
+        }, 1000);
     }
 
     function stopAlarm() {
@@ -2485,7 +2482,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "8.3"; 
+    const CURRENT_APP_VERSION = "8.4"; 
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
