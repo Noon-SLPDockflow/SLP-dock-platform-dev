@@ -49,8 +49,10 @@
         .brand-text p { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 1px;}
         .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: 0.2s; }
         .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
+        
         .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; display: block; position: absolute; top: 1rem; right: 0.75rem; transition: color 0.2s; z-index: 1010; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
+        
         #floatingOpenBtn { position: fixed; top: 1rem; left: 1rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.1rem; flex-grow: 1; }
@@ -444,6 +446,7 @@
                             
                             <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled" required onchange="handleDispatchChange(this)"><option value="" data-i18n="Select...">Select...</option><option value="Dispatching" data-i18n="Dispatching">Dispatching</option><option value="Receiving" data-i18n="Receiving">Receiving</option></select></div>
                             
+                            <!-- Bottom Scanners Row -->
                             <div class="scanners-double-row" id="bottomScannersRow" style="display:none; grid-column: 1 / -1; margin-bottom: 0;">
                                 <div class="scan-box-dashed" id="bottomScanBoxDriver" onclick="document.getElementById('driverPhotoInputBottom').click()" style="display:none;">
                                     <div><span class="icon">📸</span><span class="label-text" id="driverPhotoStatusBottom" data-i18n="Number Plate Photo">Number Plate Photo</span></div>
@@ -488,9 +491,58 @@
         </div>
 
         <!-- HISTORY -->
-        <div id="view-history" class="app-view"><div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div><button class="btn-excel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button></div><div class="card" style="padding: 1.5rem; background: transparent; border:none;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;"><div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="if(window.debouncedApplyHistoryFilters) window.debouncedApplyHistoryFilters()"></div><div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;"><select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select><div class="filter-tabs-container"><button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button><button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button><button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)" data-i18n="Custom">Custom</button><button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)" data-i18n="All Time">All Time</button></div></div></div><div class="custom-date-row" id="customDateRow"><input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo"> <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button></div><div class="table-responsive" style="margin-top: 1rem;"><table id="historyLogTable"><thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal/Transaction">Seal/Transaction</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead><tbody id="historyLogTableBody"><tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No historical logs parsed inside database.">No historical logs parsed inside database.</td></tr></tbody></table></div></div></div>
-        <div id="view-drivers" class="app-view"><div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Drivers Registry">Drivers Registry</h1><p data-i18n="Centralized database of authorized personnel.">Centralized database of authorized personnel.</p></div><div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" data-i18n="Search name, id, number..." placeholder="Search name, id, plate..." oninput="if(window.debouncedFilterRegistryCards) window.debouncedFilterRegistryCards()"></div></div><div class="drivers-grid" id="driversRegistryContainer"></div></div>
-        <div id="view-security" class="app-view"><div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Security Guard Database">Security Guard Database</h1><p data-i18n="Centralized registry of security personnel.">Centralized registry of security personnel.</p></div><div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" data-i18n="Search guards..." placeholder="Search name or ID..." oninput="if(window.debouncedFilterSecurityCards) window.debouncedFilterSecurityCards()"></div></div><div class="drivers-grid" id="securityRegistryContainer"></div></div>
+        <div id="view-history" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div>
+                <button class="btn-excel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button>
+            </div>
+            <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="if(window.debouncedApplyHistoryFilters) window.debouncedApplyHistoryFilters()"></div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
+                            <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
+                            <option value="in" data-i18n="Check In Only">Check In Only</option>
+                            <option value="out" data-i18n="Check Out Only">Check Out Only</option>
+                        </select>
+                        <div class="filter-tabs-container">
+                            <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
+                            <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
+                            <button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)" data-i18n="Custom">Custom</button>
+                            <button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)" data-i18n="All Time">All Time</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="custom-date-row" id="customDateRow">
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
+                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
+                </div>
+                <div class="table-responsive" style="margin-top: 1rem;">
+                    <table id="historyLogTable">
+                        <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal/Transaction">Seal/Transaction</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
+                        <tbody id="historyLogTableBody"><tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No historical logs parsed inside database.">No historical logs parsed inside database.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DRIVERS DB -->
+        <div id="view-drivers" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Drivers Registry">Drivers Registry</h1><p data-i18n="Centralized database of authorized personnel.">Centralized database of authorized personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" data-i18n="Search name, id, number..." placeholder="Search name, id, plate..." oninput="if(window.debouncedFilterRegistryCards) window.debouncedFilterRegistryCards()"></div>
+            </div>
+            <div class="drivers-grid" id="driversRegistryContainer"></div>
+        </div>
+
+        <!-- SECURITY DB -->
+        <div id="view-security" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1 data-i18n="Security Guard Database">Security Guard Database</h1><p data-i18n="Centralized registry of security personnel.">Centralized registry of security personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" data-i18n="Search guards..." placeholder="Search name or ID..." oninput="if(window.debouncedFilterSecurityCards) window.debouncedFilterSecurityCards()"></div>
+            </div>
+            <div class="drivers-grid" id="securityRegistryContainer"></div>
+        </div>
     </div>
 
     <!-- Modals -->
@@ -641,27 +693,49 @@
             <button class="btn-cancel-cam" onclick="handleCameraCancel()">Cancel</button>
         </div>
     </div>
-    
-<script>
+    <!-- END OF PART 1 -->
+    <script>
     let currentLang = 'en';
     const API_URL = "https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
     const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
     
-    let globalLogsCache = []; let driversRegistryList = []; let securityRegistryList = [];
-    window.globalSystemLogs = []; window.hasFetchedLogs = false; window.syncLockUntil = 0; window.isCheckInLocked = false;
+    let globalLogsCache = []; 
+    let driversRegistryList = []; 
+    let securityRegistryList = [];
+    window.globalSystemLogs = []; 
+    window.hasFetchedLogs = false; 
+    window.syncLockUntil = 0; 
+    window.isCheckInLocked = false;
+    
+    // Core state variables restored
+    let isFetchingLogs = false;
+    window.isSavingEdit = false;
     
     window.truckExtensions = JSON.parse(localStorage.getItem('noonSlpExtensions') || '{}'); 
-    window.truckAlerting = {}; window.alertQueue = []; window.isAlertModalOpen = false; window.currentAlert = null;
-    window.currentFuseInterval = null; let alarmInterval = null; window.audioCtx = null;
+    window.truckAlerting = {}; 
+    window.alertQueue = []; 
+    window.isAlertModalOpen = false; 
+    window.currentAlert = null;
+    window.currentFuseInterval = null; 
+    let alarmInterval = null; 
+    window.audioCtx = null;
     
     let loginSelectedDocks = [], temporaryCapturedImage = null, temporaryCapturedItemImage = null, temporaryCapturedIqamaImage = null; 
     let tempCheckoutTruckPhoto = null, tempCheckoutItemPhoto = null;
+    let currentHistoryDateRange = 'all', currentAnalyticsDateRange = 'weekly';
     let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "👤" };
-    let userRole = 'guard', currentSignOutContext = null, currentLoginMode = 'guard';
+    let userRole = 'guard', isSidebarHidden = false, currentSignOutContext = null, currentLoginMode = 'guard';
     let cameraStream = null, cameraTargetStatusId = null, cameraTargetScanType = null, isTorchOn = false;
 
     const chartColors = ['var(--accent-color)', '#3fb950', '#79c0ff', '#d2a8ff', '#f85149', '#ff9800'];
-    function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
+    
+    function debounce(func, wait) { 
+        let timeout; 
+        return function(...args) { 
+            clearTimeout(timeout); 
+            timeout = setTimeout(() => func.apply(this, args), wait); 
+        }; 
+    }
 
     function formatEnglishDate(dateObj) {
         if (!dateObj || isNaN(dateObj.getTime())) return "--";
@@ -692,142 +766,6 @@
         let mins = Math.floor(diff / 60000);
         return `${Math.floor(mins / 60)}h ${mins % 60}m`;
     }
-
-    const translations = {
-        "Dashboard": "لوحة القيادة", "Analytics": "التحليلات", "Check-in Truck": "تسجيل دخول شاحنة", "Active Trucks": "الشاحنات النشطة",
-        "History Log": "سجل الحركة", "Drivers Database": "قاعدة بيانات السائقين", "Security Guard Database": "قاعدة بيانات حراس الأمن",
-        "Centralized registry of security personnel.": "سجل مركزي لموظفي الأمن.", "Search guards...": "البحث عن حراس...", "Noon ID": "هوية نون",
-        "Name": "الاسم", "Guard": "حارس", "Admin": "مسؤول", "Weekly": "أسبوعياً", "Monthly": "شهرياً", 
-        "6 Months": "6 أشهر", "1 Year": "سنة واحدة", "Vehicle Processing Growth": "نمو معالجة المركبات", "Noon": "نون",
-        "Dock Security Platform": "منصة أمن الأرصفة", "Guest User": "مستخدم ضيف", "Not signed in": "غير مسجل الدخول", "System Health": "صحة النظام",
-        "Operational": "قيد التشغيل", "Fullscreen": "ملء الشاشة", "Exit Fullscreen": "إنهاء ملء الشاشة", "Menu": "القائمة",
-        "Language: EN / AR": "اللغة: عربي / EN", "Active Now": "نشط الآن", "Completed Today": "اكتمل اليوم",
-        "Total Check-Ins": "إجمالي التسجيلات", "Currently Occupied Docks": "الأرصفة المشغولة حالياً", "Docks In Use": "أرصفة مستخدمة",
-        "All docks are currently clear.": "جميع الأرصفة فارغة حالياً.", "DEEP-DIVE ANALYTICS HUB": "مركز التحليلات العميقة",
-        "Movement Cohorts": "فئات الحركة", "Peak Operating Hours": "ساعات الذروة", "Dock Utilization Ranking": "تصنيف استخدام الأرصفة",
-        "No Data": "لا توجد بيانات", "Truck Entry Form": "نموذج دخول الشاحنة", "Number Plate Photo": "صورة لوحة الأرقام",
-        "Iqama (ID Card) Scanner": "ماسح الإقامة (بطاقة الهوية)", "Use Camera": "استخدام الكاميرا", "New Driver": "سائق جديد",
-        "Existing Driver": "سائق حالي", "Search Driver By Name or Plate... *": "ابحث عن السائق بالاسم أو اللوحة... *", "Driver Name *": "اسم السائق *",
-        "Iqama Number *": "رقم الإقامة *", "Truck Plate Number *": "رقم لوحة الشاحنة *", "Mobile Number": "رقم الجوال",
-        "Security & Facility Details": "تفاصيل الأمن والمنشأة", "Security Name *": "اسم رجل الأمن *", "Security ID *": "هوية الأمن *",
-        "Dock Number *": "رقم الرصيف *", "Purpose / Direction *": "الغرض / الاتجاه *", "Dispatching / Receiving *": "إرسال / استلام *",
-        "Dispatching": "إرسال", "Receiving": "استلام", "Seal or transction number": "رقم الختم أو رقم المعاملة",
-        "Seal/Transaction": "رقم الختم / المعاملة",
-        "Noon Employee ID": "معرف موظف نون", "Quantity (Boxes/Pallets)": "الكمية (صناديق/طبالي)", "Boxes/Pallets": "الصناديق / الطبالي", "Check In Truck": "إدخال الشاحنة",
-        "Active Trucks in Facility": "الشاحنات النشطة في المنشأة", "Currently Checked-In Vehicles": "المركبات المسجلة حالياً",
-        "Total Inside": "الإجمالي بالداخل", "Search records...": "البحث في السجلات...", "Driver": "السائق", "Plate": "اللوحة",
-        "Direction": "الاتجاه", "Type": "النوع", "Dock": "الرصيف", "Check-In Time": "وقت الدخول",
-        "Duration": "المدة", "Security": "الأمن", "Action": "الإجراء", "NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.": "لا توجد شاحنات نشطة في الجلسة الحالية.",
-        "Movement History": "سجل الحركة", "Site Movement Activity": "نشاط حركة الموقع", "Export to Excel": "تصدير إلى إكسل",
-        "Filter by driver, plate, or security ID...": "تصفية حسب السائق أو اللوحة...", "Today": "اليوم", "Last 7 Days": "آخر 7 أيام",
-        "Custom": "مخصص", "All Time": "كل الوقت", "TO": "إلى", "Apply": "تطبيق", "Check Out": "وقت الخروج",
-        "No historical logs parsed inside database.": "لا توجد سجلات تاريخية في قاعدة البيانات.", "Drivers Registry": "سجل السائقين",
-        "Centralized database of authorized personnel.": "قاعدة بيانات مركزية للموظفين المعتمدين.", "Search name, id, number...": "البحث بالاسم، الهوية، الرقم...",
-        "Driver Details": "تفاصيل السائق", "Security Guard Details": "تفاصيل حارس الأمن", "Full Legal Name": "الاسم القانوني الكامل",
-        "Iqama/National ID": "الإقامة / الهوية الوطنية", "Primary Vehicle Plate": "لوحة المركبة الأساسية", "Registered Date": "تاريخ التسجيل",
-        "Close Window": "إغلاق النافذة", "Edit Driver Record": "تعديل سجل السائق", "Edit Guard Record": "تعديل سجل الحارس", "Delete": "حذف",
-        "Cancel": "إلغاء", "Save Updates": "حفظ التحديثات", "Completing SLP cycle...": "إكمال دورة SLP...", "ATTACH DEPARTURE SEAL *": "إرفاق ختم المغادرة *",
-        "CONFIRM CHECK OUT": "تأكيد تسجيل الخروج", "CHECK OUT": "تسجيل الخروج", "DISCARD CHANGES": "تجاهل التغييرات", "Capture": "التقاط", "Hold Still...": "ثبت يدك...",
-        "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق", "Check out": "تسجيل الخروج", "Edit": "تعديل",
-        "Assigned Docks *": "الأرصفة المعينة *", "Select Dock...": "اختر الرصيف...", "Docks Selected": "أرصفة محددة",
-        "You cannot log out. You must check out your active trucks at your assigned docks first.": "لا يمكنك تسجيل الخروج. يجب عليك تسجيل خروج الشاحنات النشطة في الأرصفة المعينة لك أولاً.",
-        "has been active for ": "نشط منذ ",
-        " minutes.": " دقيقة.",
-        "Extend 30 Mins": "تمديد 30 دقيقة",
-        "Auto-checked out.": "تم تسجيل الخروج تلقائيًا.",
-        "Shift Handover": "تسليم المناوبة",
-        "Only guards with assigned docks can perform a shift handover.": "يمكن فقط للحراس المعينين بأرصفة إجراء تسليم المناوبة.",
-        "Your assigned docks are completely clear. No handover required. You may sign out.": "أرصفتك فارغة تماماً. لا حاجة للتسليم. يمكنك تسجيل الخروج.",
-        "Please enter the incoming guard's Name and ID.": "يرجى إدخال اسم ورقم هوية الحارس القادم."
-    };
-
-    function tr(key) { return currentLang === 'en' ? key : (translations[key] || key); }
-
-    window.toggleLang = function(forceLang) {
-        if (forceLang) currentLang = forceLang; else currentLang = currentLang === 'en' ? 'ar' : 'en';
-        localStorage.setItem('noonSlpLang', currentLang);
-        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.lang = currentLang;
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'date')) el.placeholder = tr(key);
-            else el.innerText = tr(key);
-        });
-        if (window.handleLogsResponse && globalLogsCache) window.handleLogsResponse({ logs: globalLogsCache });
-    };
-
-    window.toggleLoginLanguage = function() { window.toggleLang(); };
-
-    function switchView(viewId, element) {
-        document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
-        const targetView = document.getElementById('view-' + viewId);
-        if (targetView) targetView.classList.add('active-view');
-        if (element) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-        }
-        if (window.innerWidth <= 1200) {
-            const sidebar = document.getElementById('appSidebar');
-            if (sidebar) sidebar.classList.remove('mobile-open');
-        }
-    }
-    window.switchView = switchView;
-
-    function getAvailableViews() {
-        let views = [];
-        document.querySelectorAll('.nav-links .nav-item').forEach(item => {
-            if (window.getComputedStyle(item).display !== 'none' && item.getAttribute('onclick')) {
-                let match = item.getAttribute('onclick').match(/switchView\('([^']+)'/);
-                if(match) views.push(match[1]);
-            }
-        });
-        return views;
-    }
-
-    window.swipeNext = function() {
-        let activeView = document.querySelector('.app-view.active-view'); if (!activeView) return;
-        let currentId = activeView.id.replace('view-', '');
-        let views = getAvailableViews();
-        let idx = views.indexOf(currentId);
-        if (idx >= 0 && idx < views.length - 1) {
-            let nextView = views[idx + 1];
-            let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(nextView));
-            switchView(nextView, navItem);
-        }
-    };
-
-    window.swipePrev = function() {
-        let activeView = document.querySelector('.app-view.active-view'); if (!activeView) return;
-        let currentId = activeView.id.replace('view-', '');
-        let views = getAvailableViews();
-        let idx = views.indexOf(currentId);
-        if (idx > 0) {
-            let prevView = views[idx - 1];
-            let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(prevView));
-            switchView(prevView, navItem);
-        }
-    };
-
-    window.toggleSidebar = function() {
-        const sidebar = document.getElementById('appSidebar');
-        const floatBtn = document.getElementById('floatingOpenBtn');
-        if (!sidebar) return;
-        if (window.innerWidth <= 1200) {
-            sidebar.classList.toggle('mobile-open');
-        } else {
-            sidebar.classList.toggle('hidden');
-            const main = document.getElementById('mainContentArea');
-            if (main) main.classList.toggle('expanded');
-            if (sidebar.classList.contains('hidden')) { if (floatBtn) floatBtn.style.display = 'flex'; } 
-            else { if (floatBtn) floatBtn.style.display = 'none'; }
-        }
-    };
-
-    window.toggleFullscreen = function() {
-        const fsBtnText = document.getElementById('fsBtnLabel'), fsIcon = document.getElementById('fsIcon');
-        if (!document.fullscreenElement) { document.documentElement.requestFullscreen().then(() => { if(fsBtnText) fsBtnText.innerText = tr("Exit Fullscreen"); if(fsIcon) fsIcon.innerText = "📉"; }).catch(() => alert("Fullscreen error.")); }
-        else { document.exitFullscreen().then(() => { if(fsBtnText) fsBtnText.innerText = tr("Fullscreen"); if(fsIcon) fsIcon.innerText = "🖥️"; }); }
-    };
 
     window.toggleLoginDockGrid = function() {
         const grid = document.getElementById('loginDocksGrid'), arrow = document.getElementById('dockDropdownArrow');
@@ -895,7 +833,7 @@
 
         if (isInitialLoad) {
             if (overlay) { overlay.style.display = 'none'; overlay.classList.add('hidden'); }
-            switchView(defaultViewId, defaultNavId);
+            if (window.switchView) window.switchView(defaultViewId, defaultNavId);
         } else {
             setDisp('customLoginBox', 'none');
             const tabs = document.querySelector('.login-tabs'); if (tabs) tabs.style.display = 'none';
@@ -905,7 +843,10 @@
                 if (authText) { authText.innerText = "SYSTEM AUTHENTICATION COMPLETE"; authText.style.color = "var(--success-color)"; authText.classList.remove('pulsing'); }
                 setTimeout(() => {
                     if (overlay) overlay.classList.add('hidden');
-                    setTimeout(() => { if (overlay) overlay.style.display = 'none'; switchView(defaultViewId, defaultNavId); }, 1000);
+                    setTimeout(() => {
+                        if (overlay) overlay.style.display = 'none';
+                        if (window.switchView) window.switchView(defaultViewId, defaultNavId);
+                    }, 1000);
                 }, 1200);
             }, 1200);
         }
@@ -1099,7 +1040,9 @@
             console.warn("Chart.js failed to load due to network. Analytics charts won't display properly, but core functions will work.");
         }
         
-        let savedLang = localStorage.getItem('noonSlpLang') || 'en'; toggleLang(savedLang);
+        let savedLang = localStorage.getItem('noonSlpLang') || 'en'; 
+        if (window.toggleLang) window.toggleLang(savedLang);
+
         const gridEl = document.getElementById('loginDocksGrid');
         if (gridEl) { let gHtml = ''; for (let i = 15; i <= 90; i++) gHtml += `<button type="button" class="dock-select-btn" onclick="toggleLoginDock(${i}, this)">${i}</button>`; gridEl.innerHTML = gHtml; }
         
@@ -1142,7 +1085,7 @@
         entryForm.addEventListener('submit', (e) => {
             e.preventDefault(); if (window.isCheckInLocked) return;
             const btn = document.querySelector('#entryForm .submit-btn-global');
-            const unlockForm = () => { window.isCheckInLocked = false; if (btn) { btn.innerText = tr("Check In Truck"); btn.disabled = false; } };
+            const unlockForm = () => { window.isCheckInLocked = false; if (btn) { btn.innerText = "Check In Truck"; btn.disabled = false; } };
             try {
                 window.isCheckInLocked = true; if (btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
                 const toggleBtn = document.getElementById('toggleNewDriverBtn'), isNew = toggleBtn && toggleBtn.classList.contains('active');
@@ -1192,7 +1135,7 @@
                 setTimeout(unlockForm, 2500); 
                 
                 let navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes('active-trucks'));
-                switchView('active-trucks', navItem);
+                if (window.switchView) window.switchView('active-trucks', navItem);
 
                 fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
             } catch (err) { alert("A system error occurred."); setTimeout(unlockForm, 2500); }
@@ -1269,10 +1212,10 @@
         if (!inputEl.files || !inputEl.files[0]) return; const file = inputEl.files[0];
         const reader = new FileReader();
         reader.onloadend = () => { 
-            if (scanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result; 
-            else if (scanType === 'TRUCK_PHOTO_ONLY') temporaryCapturedImage = reader.result; 
-            else if (scanType === 'IQAMA') temporaryCapturedIqamaImage = reader.result;
-            else if (scanType === 'PLATE') temporaryCapturedImage = reader.result;
+            if (scanType === 'ITEM_PHOTO') window.temporaryCapturedItemImage = reader.result; 
+            else if (scanType === 'TRUCK_PHOTO_ONLY') window.temporaryCapturedImage = reader.result; 
+            else if (scanType === 'IQAMA') window.temporaryCapturedIqamaImage = reader.result;
+            else if (scanType === 'PLATE') window.temporaryCapturedImage = reader.result;
             const status = document.getElementById(statusContainerId); 
             if (status) { status.innerHTML = "✅ Attached"; status.style.color = "var(--success-color)"; }
         };
