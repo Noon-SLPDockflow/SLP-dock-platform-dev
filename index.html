@@ -17,7 +17,6 @@
         body { background-color: var(--bg-color); background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg'); background-size: 55%; background-position: center center; background-repeat: no-repeat; background-attachment: fixed; color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; font-size: 14px; }
         input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        
         .intro-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .intro-overlay.hidden { opacity: 0; pointer-events: none; }
         .login-container { position: relative; z-index: 2; background: var(--sidebar-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 2.5rem 3rem; text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 420px; width: 90%; box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8); }
@@ -28,20 +27,17 @@
         .login-tabs { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1.25rem; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
         .login-tab { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .login-tab.active { background: var(--accent-color); color: #000; }
-
         .dock-select-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 145px; overflow-y: auto; background: #0b0e14; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
         .dock-select-grid::-webkit-scrollbar { width: 4px; }
         .dock-select-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         .dock-select-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 8px 0; border-radius: 4px; cursor: pointer; transition: 0.2s; font-weight: 700; font-size: 0.8rem; font-family: monospace; }
         .dock-select-btn:hover { border-color: rgba(255,255,255,0.3); }
         .dock-select-btn.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); box-shadow: 0 0 8px rgba(252, 194, 0, 0.4); }
-
         .desktop-nav-btn { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(18, 22, 31, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); width: 36px; height: 70px; font-size: 1.3rem; cursor: pointer; z-index: 900; border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0.4; transition: 0.2s; }
         .desktop-nav-btn:hover { background: var(--accent-color); color: #000; opacity: 1; border-color: var(--accent-color); }
         .nav-prev-btn { left: calc(240px + 10px); }
         .nav-next-btn { right: 10px; }
         .main-content.expanded .nav-prev-btn { left: 10px; }
-
         .sidebar { width: 240px; height: 100%; height: 100dvh; bottom: 0; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1rem 0.75rem; position: fixed; top: 0; left: 0; z-index: 1000; transition: transform 0.3s ease; overflow-y: auto; }
         .sidebar.hidden { transform: translateX(-100%); }
         .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem; }
@@ -49,33 +45,20 @@
         .brand-text p { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 1px;}
         .sidebar-refresh-btn { width: 100%; border: 1px solid rgba(255,255,255,0.12); background: rgba(252,194,0,0.12); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 0.5rem; transition: 0.2s; }
         .sidebar-refresh-btn:hover { background: rgba(252,194,0,0.2); }
-        
         .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; display: block; position: absolute; top: 1rem; right: 0.75rem; transition: color 0.2s; z-index: 1010; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
-        
         #floatingOpenBtn { position: fixed; top: 1rem; left: 1rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.1rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 0.75rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; border-left: 3px solid transparent; transition: all 0.2s; }
         .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1rem; }
-        
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.4rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.25rem; }
         .health-dot { width: 7px; height: 7px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); }
-        
         .main-content { margin-left: 240px; flex-grow: 1; padding: 1.5rem 2rem; width: calc(100% - 240px); position: relative; transition: margin 0.3s, width 0.3s; min-width: 0; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
-
-        @media (max-width: 1200px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.mobile-open { transform: translateX(0) !important; width: 240px; }
-            #floatingOpenBtn { display: flex; }
-            .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; }
-            .nav-prev-btn { left: 10px; }
-        }
-
+        @media (max-width: 1200px) { .sidebar { transform: translateX(-100%); } .sidebar.mobile-open { transform: translateX(0) !important; width: 240px; } #floatingOpenBtn { display: flex; } .main-content { margin-left: 0; width: 100%; padding: 1.25rem 1rem; margin-top: 2rem; } .nav-prev-btn { left: 10px; } }
         html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
         html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
         html[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
@@ -87,7 +70,6 @@
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
         html[dir="rtl"] #floatingOpenBtn { left: auto; right: 1rem; }
         html[dir="rtl"] .sidebar-close-btn { right: auto; left: 0.75rem; }
-        
         .app-view { display: none; } .app-view.active-view { display: block; }
         .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 2.5rem 1.25rem 2rem 1.25rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; }
         .hero-badges-wrapper { position: absolute; top: 1rem; left: 1.25rem; display: flex; gap: 0.75rem; }
@@ -101,23 +83,19 @@
         .metric-card-slate .num { font-size: 1.8rem; font-weight: 700; color: #fff; line-height: 1.1; }
         .metric-card-slate .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 6px; font-weight: 600; }
         .metric-accent-line{position:absolute;top:12px;right:12px;width:25px;height:3px;background-color:var(--accent-color);border-radius:2px}
-        
         .docks-grid-container { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.75rem; padding: 1.25rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px; flex-grow: 1; align-content: start; }
         @media (max-width: 1100px) { .docks-grid-container { grid-template-columns: repeat(6, 1fr); } }
         @media (max-width: 800px) { .docks-grid-container { grid-template-columns: repeat(5, 1fr); } }
         .dock-badge-active { background: #2ea043; border: 2px solid #238636; color: #fff; padding: 0.75rem 0; border-radius: 6px; font-weight: 900; font-size: 1.1rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(46,160,67,0.3); cursor: default;}
         .dock-badge-inactive { background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; padding: 0.75rem 0; border-radius: 6px; font-weight: 800; font-size: 1rem; font-family: monospace; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; opacity: 0.9; cursor: default;}
-        
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; }
         .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .view-header-title h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
         .view-header-title p { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
-        
         .header-search-box-container { position: relative; width: 250px; }
         .header-search-box-container span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; }
         .header-search-input { width: 100%; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.5rem 0.85rem 0.5rem 2rem; border-radius: 6px; font-size: 0.8rem; outline: none; transition: border 0.2s; }
         .header-search-input:focus { border-color: var(--accent-color); }
-        
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: start; }
         th { color: var(--text-muted); font-weight: 600; font-size: 0.65rem; text-transform: uppercase; padding: 0.75rem 0.75rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; text-align: start; }
@@ -128,12 +106,10 @@
         .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border-color: rgba(248, 81, 73, 0.3); }
         .badge.purple { background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border-color: rgba(163, 113, 247, 0.3); }
         .badge.blue { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3); }
-        
         .btn-checkout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.35rem 0.85rem; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .btn-checkout-action:hover { background: var(--danger-color); color: #fff; }
         .btn-excel { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.4rem 0.85rem; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; transition: 0.2s; }
         .btn-excel:hover { background: var(--accent-color); color: #000; }
-        
         .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; max-width: 800px; margin-left: auto; margin-right: auto; transition: grid-template-columns 0.3s; }
         @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr !important; } }
         .scan-box-dashed { background: transparent; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 1.75rem 1rem; text-align: center; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
@@ -142,7 +118,6 @@
         .scan-box-dashed span.label-text { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.4rem; }
         .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.4rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.6rem; font-weight: 700; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; position: relative; z-index: 10; }
         .camera-btn-inline:hover { background: var(--accent-color); color: #000; }
-        
         .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; }
         @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
         .form-section-divider { grid-column: 1 / -1; background: #1a365d; color: #fff; padding: 0.4rem 0.8rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-top: 0.75rem; margin-bottom: 0.25rem; max-width: fit-content; }
@@ -151,11 +126,9 @@
         .input-box-styled:focus { border-color: var(--accent-color); background-color: #12161f; }
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 0.85rem; font-size: 0.85rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 1.5rem; transition: opacity 0.2s; }
         .submit-btn-global:hover { opacity: 0.9; }
-        
         .toggle-container { display: flex; justify-content: center; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 3px; margin-bottom: 1.5rem; max-width: 360px; margin-left: auto; margin-right: auto; }
         .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 0.85rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .toggle-btn.active { background: var(--accent-color); color: #000; }
-
         .analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
         @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr; } }
         .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; }
@@ -167,7 +140,6 @@
         .chart-legend { list-style: none; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.75rem; }
         .chart-legend li { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .chart-legend li span { color: #fff; font-weight: 700; }
-        
         .accordion-wrapper { margin-bottom: 0; }
         .accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
         .accordion-header:hover { background: rgba(255,255,255,0.02); }
@@ -175,13 +147,11 @@
         .accordion-badge { color: var(--accent-color); font-weight: bold; font-size: 1rem; }
         .accordion-content { display: none; padding: 0.85rem 0; background: transparent; overflow-x: auto; }
         .accordion-content.open { display: block; }
-        
         .filter-tabs-container { display: flex; gap: 0.2rem; background: rgba(0,0,0,0.4); padding: 0.2rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
         .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.65rem; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .tab-filter-item.active { background: var(--accent-color); color: #000; }
         .custom-date-row { display: none; gap: 0.4rem; align-items: center; margin-top: 0.5rem; justify-content: flex-end; }
         .custom-date-row.open { display: flex; }
-
         .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 1rem; }
         @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
         .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; position: relative; }
@@ -200,7 +170,6 @@
         .tag-badge { font-size: 0.55rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 3px; text-transform: uppercase; }
         .tag-badge.verified { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
         .tag-badge.carrier { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.3); }
-        
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal-overlay.modal-active { display: flex; }
         .modal-window { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 520px; display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); }
@@ -220,7 +189,6 @@
         .suggestions-dropdown.open { display: block; }
         .suggestion-item { padding: 0.6rem 0.85rem; cursor: pointer; border-bottom: 1px solid var(--border-color); color: #fff; font-size: 0.8rem; }
         .suggestion-item:hover { background: rgba(252, 194, 0, 0.1); }
-        
         .camera-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; }
         .camera-overlay.open { display: flex; }
         .camera-controls { display: flex; gap: 1rem; z-index: 100010; margin-top: 1rem; }
@@ -228,23 +196,18 @@
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-torch { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid var(--border-color); }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-        
         .camera-video-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 600px; height: 60vh; border-radius: 8px; overflow: hidden; border: 2px solid var(--accent-color); background: #000; }
         .camera-video-wrapper video { width: 100%; height: 100%; object-fit: cover; border: none; }
         .scanner-target-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 2px solid transparent; box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.65); z-index: 100005; pointer-events: none; display: none; }
-        
         .scanner-laser { width: 100%; height: 2px; background: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); position: absolute; top: 5%; animation: laserScan 1.5s infinite alternate ease-in-out; transition: background 0.3s, box-shadow 0.3s; }
         @keyframes laserScan { 0% { top: 5%; } 100% { top: 95%; } }
-        
         .scanner-corner { position: absolute; width: 25px; height: 25px; border-color: var(--accent-color); border-style: solid; transition: border-color 0.3s; }
         .corner-tl { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-top-left-radius: 8px; }
         .corner-tr { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-top-right-radius: 8px; }
         .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: 8px; }
         .corner-br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: 8px; }
-
         .scanner-target-box.locked .scanner-corner { border-color: var(--success-color); }
         .scanner-target-box.locked .scanner-laser { background: var(--success-color); box-shadow: 0 0 12px var(--success-color); animation-duration: 3s; }
-        
         .plate-bumper { display:inline-flex; align-items:center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-family: monospace; overflow: hidden;}
         .plate-num { padding: 3px 6px; background: rgba(0,0,0,0.4); font-weight: bold; color: #fff;}
         .plate-let { padding: 3px 6px; color: var(--accent-color); font-weight: bold;}
@@ -310,6 +273,7 @@
             <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:1px;">Operational</div></div><div class="health-dot"></div></div>
             <div class="nav-item" onclick="toggleLang()"><span class="nav-icon">🌐</span><span class="nav-text" data-i18n="Language: EN / AR">Language: EN / AR</span></div>
             <div class="nav-item" onclick="toggleFullscreen()"><span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-i18n="Fullscreen">Fullscreen</span></div>
+            <div class="nav-item" onclick="openHandoverModal()" style="color: #79c0ff; font-weight: 700; cursor: pointer; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem; margin-top: 0.25rem;"><span class="nav-icon">🤝</span><span class="nav-text" data-i18n="Shift Handover">Shift Handover</span></div>
             <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); font-weight: 700; cursor: pointer;"><span class="nav-icon">🚪</span><span class="nav-text" data-i18n="SIGN OUT">SIGN OUT</span></div>
         </div>
     </div>
@@ -419,7 +383,8 @@
                             <div class="form-group">
                                 <label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
                                 <select id="dockNumber" class="input-box-styled" required onchange="toggleCustomDockInput(this.value); checkDockAvailabilityInstant(this.value);">
-                                    <!-- Options populated dynamically based on login selection -->
+                                    <option value="" disabled selected>Select Dock (15 - 90)...</option>
+                                    <option value="Others">Others / آخر</option>
                                 </select>
                                 <input type="number" id="dockNumberCustom" class="input-box-styled" placeholder="Enter Custom Numeric Dock..." style="display:none; margin-top:0.5rem;" min="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkDockAvailabilityInstant(this.value);" autocomplete="off">
                             </div>
@@ -501,11 +466,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate..." oninput="if(window.debouncedApplyHistoryFilters) window.debouncedApplyHistoryFilters()"></div>
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
-                            <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
-                            <option value="in" data-i18n="Check In Only">Check In Only</option>
-                            <option value="out" data-i18n="Check Out Only">Check Out Only</option>
-                        </select>
+                        <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()"><option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option><option value="in" data-i18n="Check In Only">Check In Only</option><option value="out" data-i18n="Check Out Only">Check Out Only</option></select>
                         <div class="filter-tabs-container">
                             <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
                             <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
@@ -514,10 +475,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="custom-date-row" id="customDateRow">
-                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
-                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
-                </div>
+                <div class="custom-date-row" id="customDateRow"><input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo"> <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button></div>
                 <div class="table-responsive" style="margin-top: 1rem;">
                     <table id="historyLogTable">
                         <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Noon Employee ID">Noon Employee ID</th><th data-i18n="Boxes/Pallets">Boxes/Pallets</th><th data-i18n="Seal/Transaction">Seal/Transaction</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
@@ -654,14 +612,45 @@
         </div>
     </div>
 
-    <!-- NEW 30-MIN TIMER ALERT MODAL -->
+    <!-- NEW SHIFT HANDOVER MODAL -->
+    <div class="modal-overlay" id="handoverModal">
+        <div class="modal-window" style="max-width: 450px;">
+            <div class="modal-header-container" style="background: rgba(121, 192, 255, 0.1); border-bottom-color: #79c0ff;">
+                <h2 style="color: #79c0ff; font-size: 1.1rem;">🤝 <span data-i18n="Shift Handover">Shift Handover</span></h2>
+                <button class="btn-modal-close" onclick="closeHandoverModal()">✕</button>
+            </div>
+            <div class="modal-body-content" style="padding: 1.5rem 2rem;">
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; text-align: center; line-height: 1.5;">
+                    You have <strong id="handoverTruckCount" style="color:#fff; font-size:1.1rem;">0</strong> active trucks on your assigned docks. Who are you transferring these docks to?
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="position: relative; width: 100%;">
+                        <label class="badge-style">Incoming Guard Name *</label>
+                        <input type="text" id="handoverNewName" class="input-box-styled" required style="border-color: rgba(121, 192, 255, 0.4);" autocomplete="off" oninput="window.renderHandoverGuardSuggestions(this.value, 'name')">
+                        <div id="handoverNameSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
+                    </div>
+                    <div style="position: relative; width: 100%;">
+                        <label class="badge-style">Incoming Guard ID *</label>
+                        <input type="text" id="handoverNewId" class="input-box-styled" required style="border-color: rgba(121, 192, 255, 0.4);" autocomplete="off" oninput="window.renderHandoverGuardSuggestions(this.value, 'id')">
+                        <div id="handoverIdSuggestions" class="suggestions-dropdown" style="text-align: left; max-height: 150px;"></div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button id="btnConfirmHandover" class="submit-btn-global" style="margin-top: 0; border-radius: 6px; background: #79c0ff; color: #000;" onclick="confirmHandover()">CONFIRM TRANSFER</button>
+                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; text-align:center;" onclick="closeHandoverModal()">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 30-MIN TIMER ALERT MODAL -->
     <div class="modal-overlay" id="timerAlertModal" style="z-index: 9999999;">
         <div class="modal-window" style="max-width: 400px; border-color: var(--accent-color); box-shadow: 0 0 50px rgba(252, 194, 0, 0.3);">
             <div class="modal-header-container" style="background: rgba(252, 194, 0, 0.1); border-bottom-color: var(--accent-color);">
                 <h2 style="color: var(--accent-color); font-size: 1.25rem;">⚠️ DOCK ALERT</h2>
             </div>
             <div class="modal-body-content" style="padding: 2rem; text-align: center;">
-                <p id="timerAlertMessage" style="color: #fff; font-size: 1.1rem; font-weight: bold; margin-bottom: 1.5rem; line-height: 1.5;">Dock X has been active for 30 minutes.</p>
+                <p id="timerAlertMessage" style="color: #fff; font-size: 1.1rem; font-weight: bold; margin-bottom: 1.5rem; line-height: 1.5;"></p>
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <button id="btnExtendTimer" class="submit-btn-global" style="margin-top: 0; background: #2ea043; color: #fff;" data-i18n="Extend 30 Mins">⏳ Extend 30 Mins</button>
                     <button id="btnCheckoutTimer" class="submit-btn-global" style="margin-top: 0; background: var(--danger-color); color: #fff;" data-i18n="Check Out">🛑 Check Out</button>
@@ -670,14 +659,14 @@
         </div>
     </div>
 
-    <!-- NEW AUTO-CHECKOUT WARNING MODAL -->
+    <!-- AUTO-CHECKOUT WARNING MODAL -->
     <div class="modal-overlay" id="autoCheckoutWarningModal" style="z-index: 9999999;">
         <div class="modal-window" style="max-width: 400px; border-color: var(--danger-color); box-shadow: 0 0 50px rgba(248, 81, 73, 0.4);">
             <div class="modal-header-container" style="background: rgba(248, 81, 73, 0.1); border-bottom-color: var(--danger-color);">
                 <h2 style="color: var(--danger-color); font-size: 1.25rem;">🚨 AUTO-CHECKOUT TRIGGERED</h2>
             </div>
             <div class="modal-body-content" style="padding: 2rem; text-align: center;">
-                <p id="autoWarningMessage" style="color: #fff; font-size: 1rem; font-weight: bold; margin-bottom: 1.5rem; line-height: 1.5;">Dock X auto-checked out. Do not leave the dock; extend every 30 mins.</p>
+                <p id="autoWarningMessage" style="color: #fff; font-size: 1rem; font-weight: bold; margin-bottom: 1.5rem; line-height: 1.5;"></p>
                 <button class="submit-btn-global" style="margin-top: 0; background: var(--danger-color); color: #fff;" onclick="closeAutoWarningModal()">ACKNOWLEDGE</button>
             </div>
         </div>
@@ -718,7 +707,6 @@
     window.syncLockUntil = 0;
     window.isCheckInLocked = false;
     
-    // Timer Alert Globals
     window.truckExtensions = JSON.parse(localStorage.getItem('noonSlpExtensions') || '{}'); 
     window.truckAlerting = {}; 
     window.alertQueue = [];
@@ -814,7 +802,11 @@
         "has been active for ": "نشط منذ ",
         " minutes.": " دقيقة.",
         "Extend 30 Mins": "تمديد 30 دقيقة",
-        "Auto-checked out.": "تم تسجيل الخروج تلقائيًا."
+        "Auto-checked out.": "تم تسجيل الخروج تلقائيًا.",
+        "Shift Handover": "تسليم المناوبة",
+        "Only guards with assigned docks can perform a shift handover.": "يمكن فقط للحراس المعينين بأرصفة إجراء تسليم المناوبة.",
+        "Your assigned docks are completely clear. No handover required. You may sign out.": "أرصفتك فارغة تماماً. لا حاجة للتسليم. يمكنك تسجيل الخروج.",
+        "Please enter the incoming guard's Name and ID.": "يرجى إدخال اسم ورقم هوية الحارس القادم."
     };
 
     function tr(key) { return currentLang === 'en' ? key : (translations[key] || key); }
@@ -1044,6 +1036,88 @@
         location.reload();
     };
 
+    // --- SHIFT HANDOVER LOGIC ---
+    window.openHandoverModal = function() {
+        if (userRole !== 'guard' || !loginSelectedDocks || loginSelectedDocks.length === 0) {
+            alert(tr("Only guards with assigned docks can perform a shift handover."));
+            return;
+        }
+        
+        let myActiveTrucks = globalLogsCache.filter(r => !r.checkOutTime && loginSelectedDocks.some(d => String(d) === String(r.dockNumber).trim()));
+        
+        if (myActiveTrucks.length === 0) {
+            alert(tr("Your assigned docks are completely clear. No handover required. You may sign out."));
+            return;
+        }
+
+        const countEl = document.getElementById('handoverTruckCount');
+        if (countEl) countEl.innerText = myActiveTrucks.length;
+        document.getElementById('handoverModal').classList.add('modal-active');
+    };
+
+    window.closeHandoverModal = function() {
+        document.getElementById('handoverModal').classList.remove('modal-active');
+    };
+
+    window.confirmHandover = function() {
+        const newName = document.getElementById('handoverNewName').value.trim();
+        const newId = document.getElementById('handoverNewId').value.trim();
+
+        if (!newName || !newId) {
+            alert(tr("Please enter the incoming guard's Name and ID."));
+            return;
+        }
+
+        const btn = document.getElementById('btnConfirmHandover');
+        btn.innerText = "⏳..."; 
+        btn.disabled = true;
+
+        const payload = {
+            action: 'handover',
+            assignedDocks: loginSelectedDocks,
+            newGuardName: newName,
+            newGuardId: newId
+        };
+
+        // Optimistic UI Update
+        let myActiveTrucks = globalLogsCache.filter(r => !r.checkOutTime && loginSelectedDocks.some(d => String(d) === String(r.dockNumber).trim()));
+        myActiveTrucks.forEach(t => {
+            t.securityName = t.securityName + " / " + newName;
+            t.securityId = newId;
+        });
+        window.handleLogsResponse({logs: globalLogsCache});
+
+        // Backend Update
+        fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e => console.error(e));
+
+        // Seamless Switch Local Session
+        loggedInUser.name = newName;
+        loggedInUser.noonId = newId;
+        localStorage.setItem('noonSlpUserSession', JSON.stringify({
+            name: newName,
+            email: loggedInUser.email,
+            noonId: newId,
+            role: userRole,
+            assignedDocks: loginSelectedDocks,
+            loginTime: Date.now()
+        }));
+
+        // Update Check-In Forms
+        const secNameField = document.getElementById('securityNameField');
+        const secIdField = document.getElementById('securityNameId');
+        if (secNameField) secNameField.value = newName;
+        if (secIdField) secIdField.value = newId;
+
+        // Close Modal
+        document.getElementById('handoverModal').classList.remove('modal-active');
+        btn.innerText = "CONFIRM TRANSFER"; 
+        btn.disabled = false;
+        document.getElementById('handoverNewName').value = '';
+        document.getElementById('handoverNewId').value = '';
+
+        alert(currentLang === 'ar' ? `تم نقل المناوبة بنجاح! أنت الآن مسجل الدخول باسم ${newName}.` : `Shift transferred successfully! You are now logged in as ${newName}.`);
+    };
+
     // Initialize Audio Context on any user interaction
     document.addEventListener('click', function initAudio() {
         if (!window.audioCtx) {
@@ -1086,6 +1160,7 @@
             const extendBtn = document.getElementById('btnExtendTimer');
             if(extendBtn) {
                 extendBtn.onclick = () => {
+                    // Update exact count in local storage
                     window.truckExtensions[nextAlert.truck.plateNumber] = (window.truckExtensions[nextAlert.truck.plateNumber] || 0) + 1;
                     localStorage.setItem('noonSlpExtensions', JSON.stringify(window.truckExtensions));
                     closeAlertModal(true);
@@ -1129,6 +1204,7 @@
     };
 
     function triggerAutoCheckout(truck) {
+        // Clear active alert if it belongs to this truck
         if (window.isAlertModalOpen && window.currentAlert && window.currentAlert.truck.plateNumber === truck.plateNumber && window.currentAlert.type === '30min') {
             document.getElementById('timerAlertModal').classList.remove('modal-active');
             stopAlarm();
@@ -1153,6 +1229,7 @@
         };
         fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
 
+        // Clean up extensions when completely checked out
         delete window.truckExtensions[truck.plateNumber];
         localStorage.setItem('noonSlpExtensions', JSON.stringify(window.truckExtensions));
 
@@ -1160,6 +1237,7 @@
         processAlertQueue();
     }
 
+    // MAIN TIMER ENGINE (Runs every 5 seconds)
     setInterval(() => {
         if (userRole !== 'guard' || !loginSelectedDocks || loginSelectedDocks.length === 0) return;
         
@@ -1173,10 +1251,12 @@
             if (isNaN(checkInMs)) continue;
             
             let elapsedMins = (now - checkInMs) / 60000;
+            
+            // STRICTLY fetch from LocalStorage memory
             let extCount = window.truckExtensions[t.plateNumber] || 0;
             let currentLimit = 30 + (extCount * 30);
             
-            // 1 MINUTE GRACE PERIOD (e.g. at 31 mins, 61 mins) -> AUTO CHECKOUT
+            // GRACE PERIOD EXPIRATION (1 min after prompt) -> AUTO CHECKOUT
             if (elapsedMins >= currentLimit + 1) {
                 if (window.truckAlerting[t.plateNumber] === 'auto') continue;
                 window.truckAlerting[t.plateNumber] = 'auto';
@@ -1184,10 +1264,10 @@
                 continue;
             }
             
-            // EXACT INTERVAL REACHED (e.g. at 30 mins, 60 mins) -> SHOW ALERT PROMPT
+            // EXACT PROMPT TRIGGER
             if (elapsedMins >= currentLimit && elapsedMins < currentLimit + 1) {
                 let alertKey = currentLimit;
-                if (!window.truckAlerting[t.plateNumber] || window.truckAlerting[t.plateNumber] < alertKey) {
+                if (window.truckAlerting[t.plateNumber] !== alertKey && window.truckAlerting[t.plateNumber] !== 'auto') {
                     window.truckAlerting[t.plateNumber] = alertKey; 
                     window.alertQueue.push({ type: '30min', truck: t, mins: currentLimit });
                     processAlertQueue();
@@ -1267,6 +1347,10 @@
             if (secList && !e.target.closest('.form-group')) secList.classList.remove('open');
             if (loginNameList && !e.target.closest('#loginNameWrapper')) loginNameList.classList.remove('open');
             if (loginIdList && !e.target.closest('#loginIdWrapper')) loginIdList.classList.remove('open');
+            const handoverNameList = document.getElementById('handoverNameSuggestions');
+            const handoverIdList = document.getElementById('handoverIdSuggestions');
+            if (handoverNameList && !e.target.closest('#handoverModal')) handoverNameList.classList.remove('open');
+            if (handoverIdList && !e.target.closest('#handoverModal')) handoverIdList.classList.remove('open');
         });
 
         setInterval(() => {
@@ -1652,11 +1736,16 @@
         const mTotal = document.getElementById('metric-total-checkins');
         const mActive = document.getElementById('metric-active-now');
         const mCompleted = document.getElementById('metric-completed-today');
+        
+        const yardActiveList = (userRole === 'guard' && loginSelectedDocks && loginSelectedDocks.length > 0)
+            ? activeList.filter(r => loginSelectedDocks.some(d => String(d) === String(r.dockNumber).trim()))
+            : activeList;
+            
         const yardCounter = document.getElementById('activeYardCounter');
         
         if (mTotal) mTotal.innerText = globalLogsCache.length;
-        if (mActive) mActive.innerText = activeList.length;
-        if (yardCounter) yardCounter.innerText = activeList.length;
+        if (mActive) mActive.innerText = activeList.length; 
+        if (yardCounter) yardCounter.innerText = yardActiveList.length;
         
         const todayStr = new Date().toDateString();
         if (mCompleted) mCompleted.innerText = globalLogsCache.filter(r => r.checkOutTime && parseFlexibleDate(r.checkOutTime).toDateString() === todayStr).length;
@@ -1686,7 +1775,7 @@
         }
         
         let activeHtml = '';
-        activeList.forEach(r => {
+        yardActiveList.forEach(r => {
             const dir = String(r.direction || '').split('-')[0].trim().toUpperCase();
             const badgeClass = getBadgeClass(dir, false);
             const durStr = calculateDurationStr(r.checkInTime, null);
@@ -2165,6 +2254,40 @@
         listEl.classList.add('open');
     }, 250);
 
+    window.renderHandoverGuardSuggestions = debounce(function(value, type) {
+        const listName = document.getElementById('handoverNameSuggestions'), listId = document.getElementById('handoverIdSuggestions');
+        if (listName) listName.classList.remove('open'); if (listId) listId.classList.remove('open');
+        if (!value) return;
+
+        const listEl = type === 'name' ? listName : listId;
+        if (!listEl) return;
+        listEl.innerHTML = '';
+
+        let localGuards = JSON.parse(localStorage.getItem('noonSlpLocalGuards') || '[]');
+        let combinedGuards = [...localGuards];
+
+        securityRegistryList.forEach(g => { if (!combinedGuards.some(lg => lg.securityId === g.securityId && lg.securityName === g.securityName)) combinedGuards.push(g); });
+
+        let matches = combinedGuards.filter(g => {
+            if (type === 'name') return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());
+            if (type === 'id') return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());
+            return false;
+        }).slice(0, 5);
+
+        if (matches.length === 0) return;
+
+        matches.forEach(g => {
+            const item = document.createElement('div'); item.className = 'suggestion-item'; item.innerHTML = `<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;
+            item.addEventListener('click', () => {
+                const nameEl = document.getElementById('handoverNewName'), idEl = document.getElementById('handoverNewId');
+                if (nameEl) nameEl.value = g.securityName; if (idEl) idEl.value = g.securityId || '';
+                listEl.classList.remove('open');
+            });
+            listEl.appendChild(item);
+        });
+        listEl.classList.add('open');
+    }, 250);
+
     window.renderDriverSuggestions = debounce(function(value) {
         const listEl = document.getElementById('driverSuggestionsList'); if (!listEl) return;
         listEl.innerHTML = ''; if (!value) { listEl.classList.remove('open'); return; }
@@ -2504,7 +2627,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "8.5"; 
+    const CURRENT_APP_VERSION = "8.6"; 
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
