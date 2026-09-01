@@ -719,10 +719,11 @@
     window.isCheckInLocked = false;
     
     // Timer Alert Globals
-    window.truckExtensions = {}; 
+    window.truckExtensions = JSON.parse(localStorage.getItem('noonSlpExtensions') || '{}'); 
     window.truckAlerting = {}; 
     window.alertQueue = [];
     window.isAlertModalOpen = false;
+    window.currentAlert = null;
     let alarmInterval = null;
     window.audioCtx = null;
     
@@ -810,7 +811,8 @@
         "Inside": "بالداخل", "OUTBOUND": "مغادرة", "INBOUND": "دخول", "SIGN OUT": "خروج", "View Records": "عرض السجلات", "Verified": "مُوثّق", "Check out": "تسجيل الخروج", "Edit": "تعديل",
         "Assigned Docks *": "الأرصفة المعينة *", "Select Dock...": "اختر الرصيف...", "Docks Selected": "أرصفة محددة",
         "You cannot log out. You must check out your active trucks at your assigned docks first.": "لا يمكنك تسجيل الخروج. يجب عليك تسجيل خروج الشاحنات النشطة في الأرصفة المعينة لك أولاً.",
-        "has been active for 30 minutes.": "نشط منذ 30 دقيقة.",
+        "has been active for ": "نشط منذ ",
+        " minutes.": " دقيقة.",
         "Extend 30 Mins": "تمديد 30 دقيقة",
         "Auto-checked out.": "تم تسجيل الخروج تلقائيًا."
     };
@@ -1049,7 +1051,6 @@
         }
     }, { once: true });
 
-    // === REVERTED: 10-SECOND SQUARE WAVE ALARM ===
     function playAlarm() {
         if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let count = 0;
@@ -1076,23 +1077,25 @@
         if (window.isAlertModalOpen || window.alertQueue.length === 0) return;
         let nextAlert = window.alertQueue.shift();
         window.isAlertModalOpen = true;
+        window.currentAlert = nextAlert; 
         
         if (nextAlert.type === '30min') {
             const msgEl = document.getElementById('timerAlertMessage');
-            if(msgEl) msgEl.innerText = `${tr('Dock')} ${nextAlert.truck.dockNumber} ${tr('has been active for 30 minutes.')}`;
+            if(msgEl) msgEl.innerText = `${tr('Dock')} ${nextAlert.truck.dockNumber} ${tr('has been active for ')}${nextAlert.mins}${tr(' minutes.')}`;
             
             const extendBtn = document.getElementById('btnExtendTimer');
             if(extendBtn) {
                 extendBtn.onclick = () => {
                     window.truckExtensions[nextAlert.truck.plateNumber] = (window.truckExtensions[nextAlert.truck.plateNumber] || 0) + 1;
-                    closeAlertModal();
+                    localStorage.setItem('noonSlpExtensions', JSON.stringify(window.truckExtensions));
+                    closeAlertModal(true);
                 };
             }
             
             const checkoutBtn = document.getElementById('btnCheckoutTimer');
             if(checkoutBtn) {
                 checkoutBtn.onclick = () => {
-                    closeAlertModal();
+                    closeAlertModal(true);
                     promptSignOut(nextAlert.truck.driverName, nextAlert.truck.plateNumber, nextAlert.truck.securityName, nextAlert.truck.dockNumber, nextAlert.truck.dispatchType);
                 };
             }
@@ -1108,11 +1111,12 @@
         }
     }
 
-    function closeAlertModal() {
+    function closeAlertModal(silent) {
         document.getElementById('timerAlertModal').classList.remove('modal-active');
         stopAlarm();
         window.isAlertModalOpen = false;
-        processAlertQueue();
+        window.currentAlert = null;
+        if (silent) processAlertQueue();
     }
     window.closeAlertModal = closeAlertModal;
 
@@ -1120,10 +1124,18 @@
         document.getElementById('autoCheckoutWarningModal').classList.remove('modal-active');
         stopAlarm();
         window.isAlertModalOpen = false;
+        window.currentAlert = null;
         processAlertQueue();
     };
 
     function triggerAutoCheckout(truck) {
+        if (window.isAlertModalOpen && window.currentAlert && window.currentAlert.truck.plateNumber === truck.plateNumber && window.currentAlert.type === '30min') {
+            document.getElementById('timerAlertModal').classList.remove('modal-active');
+            stopAlarm();
+            window.isAlertModalOpen = false;
+            window.currentAlert = null;
+        }
+
         let match = globalLogsCache.find(r => String(r.plateNumber) === String(truck.plateNumber) && !r.checkOutTime);
         if (match) { 
             match.checkOutTime = new Date().toISOString(); 
@@ -1140,6 +1152,9 @@
             itemPhoto: "" 
         };
         fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+
+        delete window.truckExtensions[truck.plateNumber];
+        localStorage.setItem('noonSlpExtensions', JSON.stringify(window.truckExtensions));
 
         window.alertQueue.push({ type: 'auto', truck: truck });
         processAlertQueue();
@@ -1161,17 +1176,20 @@
             let extCount = window.truckExtensions[t.plateNumber] || 0;
             let currentLimit = 30 + (extCount * 30);
             
-            if (elapsedMins >= currentLimit + 30) {
+            // 1 MINUTE GRACE PERIOD (e.g. at 31 mins, 61 mins) -> AUTO CHECKOUT
+            if (elapsedMins >= currentLimit + 1) {
                 if (window.truckAlerting[t.plateNumber] === 'auto') continue;
                 window.truckAlerting[t.plateNumber] = 'auto';
                 triggerAutoCheckout(t);
                 continue;
             }
             
-            if (elapsedMins >= currentLimit && elapsedMins < currentLimit + 30) {
-                if (!window.truckAlerting[t.plateNumber] || window.truckAlerting[t.plateNumber] < currentLimit) {
-                    window.truckAlerting[t.plateNumber] = currentLimit; 
-                    window.alertQueue.push({ type: '30min', truck: t });
+            // EXACT INTERVAL REACHED (e.g. at 30 mins, 60 mins) -> SHOW ALERT PROMPT
+            if (elapsedMins >= currentLimit && elapsedMins < currentLimit + 1) {
+                let alertKey = currentLimit;
+                if (!window.truckAlerting[t.plateNumber] || window.truckAlerting[t.plateNumber] < alertKey) {
+                    window.truckAlerting[t.plateNumber] = alertKey; 
+                    window.alertQueue.push({ type: '30min', truck: t, mins: currentLimit });
                     processAlertQueue();
                 }
             }
@@ -1474,6 +1492,7 @@
                 };
 
                 payload.checkInTime = new Date().toISOString();
+                
                 globalLogsCache.unshift(payload);
                 window.handleLogsResponse({logs: globalLogsCache});
                 
@@ -1564,6 +1583,9 @@
                 btnConfirmSignOut.disabled = false;
 
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(e => console.error(e));
+
+                delete window.truckExtensions[currentSignOutContext.plateNumber];
+                localStorage.setItem('noonSlpExtensions', JSON.stringify(window.truckExtensions));
 
             } catch (err) {
                 console.error("Check-out Error:", err);
@@ -2482,7 +2504,7 @@
     }
     window.exportHistoryToExcel = exportHistoryToExcel;
 
-    const CURRENT_APP_VERSION = "8.4"; 
+    const CURRENT_APP_VERSION = "8.5"; 
     function checkForNewCode() {
         fetch(window.location.href.split('#')[0].split('?')[0] + '?cachebust=' + new Date().getTime(), { cache: 'no-store' })
             .then(r => r.text())
