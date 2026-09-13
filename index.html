@@ -20,11 +20,11 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 .intro-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:99999;display:flex;align-items:center;justify-content:center}
-.intro-overlay.hidden{display:none} /* Removed opacity transition for performance */
-.login-container{position:relative;z-index:2;background:var(--sidebar-bg);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:2.5rem 3rem;text-align:center;display:flex;flex-direction:column;align-items:center;max-width:420px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.8)} /* Removed heavy 80px glowing blur */
+.intro-overlay.hidden{display:none} 
+.login-container{position:relative;z-index:2;background:var(--sidebar-bg);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:2.5rem 3rem;text-align:center;display:flex;flex-direction:column;align-items:center;max-width:420px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.8)}
 .login-logo{height:100px;margin-bottom:1.5rem}
 .auth-status{margin-top:1.5rem;display:none}
-.auth-status p{font-size:0.75rem;color:var(--accent-color);text-transform:uppercase;letter-spacing:2px;font-weight:700} /* Removed pulsing animation */
+.auth-status p{font-size:0.75rem;color:var(--accent-color);text-transform:uppercase;letter-spacing:2px;font-weight:700}
 .login-tabs{display:flex;gap:0.5rem;width:100%;margin-bottom:1.25rem;background:rgba(0,0,0,0.4);padding:4px;border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
 .login-tab{flex:1;background:transparent;border:none;color:var(--text-muted);padding:0.5rem;font-size:0.75rem;font-weight:700;text-transform:uppercase;border-radius:6px;cursor:pointer}
 .login-tab.active{background:var(--accent-color);color:#000}
@@ -33,7 +33,7 @@ input[type=number]{-moz-appearance:textfield}
 .dock-select-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px}
 .dock-select-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);padding:8px 0;border-radius:4px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:monospace}
 .dock-select-btn:hover{border-color:rgba(255,255,255,0.3)}
-.dock-select-btn.selected{background:var(--accent-color);color:#000;border-color:var(--accent-color)} /* Removed glow box-shadow */
+.dock-select-btn.selected{background:var(--accent-color);color:#000;border-color:var(--accent-color)}
 .desktop-nav-btn{position:fixed;top:50%;transform:translateY(-50%);background:rgba(18,22,31,0.8);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);width:36px;height:70px;font-size:1.3rem;cursor:pointer;z-index:900;border-radius:8px;display:flex;align-items:center;justify-content:center;opacity:0.4}
 .desktop-nav-btn:hover{background:var(--accent-color);color:#000;opacity:1;border-color:var(--accent-color)}
 .nav-prev-btn{left:calc(240px + 10px)}
@@ -59,7 +59,19 @@ input[type=number]{-moz-appearance:textfield}
 .health-dot{width:7px;height:7px;background-color:var(--success-color);border-radius:50%}
 .main-content{margin-left:240px;flex-grow:1;padding:1.5rem 2rem;width:calc(100% - 240px);position:relative;transition:margin 0.3s,width 0.3s;min-width:0}
 .main-content.expanded{margin-left:0 !important;width:100% !important}
-@media (max-width:1200px){.sidebar{transform:translateX(-100%)}.sidebar.mobile-open{transform:translateX(0) !important;width:240px}#floatingOpenBtn{display:flex}.main-content{margin-left:0;width:100%;padding:1.25rem 1rem;margin-top:2rem}.nav-prev-btn{left:10px}html[dir="rtl"] .sidebar{transform:translateX(100%)}html[dir="rtl"] .sidebar.mobile-open{transform:translateX(0) !important}}
+
+/* RTL Mobile Fixes */
+@media (max-width:1200px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.mobile-open{transform:translateX(0) !important;width:240px}
+  #floatingOpenBtn{display:flex}
+  .main-content{margin-left:0;width:100%;padding:1.25rem 1rem;margin-top:2rem}
+  .nav-prev-btn{left:10px}
+  html[dir="rtl"] .sidebar{transform:translateX(100%)}
+  html[dir="rtl"] .sidebar.mobile-open{transform:translateX(0) !important}
+  html[dir="rtl"] .main-content{margin-right:0} /* Fix for empty dark gap on mobile */
+}
+
 html[dir="rtl"] .sidebar{left:auto;right:0;border-right:none;border-left:1px solid var(--border-color)}
 html[dir="rtl"] .sidebar.hidden{transform:translateX(100%)}
 html[dir="rtl"] .main-content{margin-left:0;margin-right:240px}
@@ -71,6 +83,7 @@ html[dir="rtl"] .main-content.expanded .nav-prev-btn{right:10px}
 html[dir="rtl"] .nav-next-btn{right:auto;left:10px;transform:translateY(-50%) rotate(180deg)}
 html[dir="rtl"] #floatingOpenBtn{left:auto;right:1rem}
 html[dir="rtl"] .sidebar-close-btn{right:auto;left:0.75rem}
+
 .app-view{display:none}.app-view.active-view{display:block}
 .dashboard-hero{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:10px;padding:2.5rem 1.25rem 2rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;align-items:center;position:relative}
 .hero-badges-wrapper{position:absolute;top:1rem;left:1.25rem;display:flex;gap:0.75rem}
@@ -199,16 +212,18 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 .btn-cancel-cam{background:var(--danger-color);color:#fff}
 .camera-video-wrapper{position:relative;display:flex;align-items:center;justify-content:center;width:100%;max-width:600px;height:60vh;border-radius:8px;overflow:hidden;border:2px solid var(--accent-color);background:#000}
 .camera-video-wrapper video{width:100%;height:100%;object-fit:cover;border:none}
+
+/* Static Camera Scanner UI - Animations Stripped */
 .scanner-target-box{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:2px solid transparent;box-shadow:0 0 0 4000px rgba(0,0,0,0.65);z-index:100005;pointer-events:none;display:none}
-.scanner-laser{width:100%;height:2px;background:var(--danger-color);box-shadow:0 0 10px var(--danger-color);position:absolute;top:5%;animation:laserScan 1.5s infinite alternate ease-in-out}
-@keyframes laserScan{0%{top:5%}100%{top:95%}}
+.scanner-laser{width:100%;height:2px;background:var(--danger-color);position:absolute;top:50%}
 .scanner-corner{position:absolute;width:25px;height:25px;border-color:var(--accent-color);border-style:solid}
 .corner-tl{top:-2px;left:-2px;border-width:4px 0 0 4px;border-top-left-radius:8px}
 .corner-tr{top:-2px;right:-2px;border-width:4px 4px 0 0;border-top-right-radius:8px}
 .corner-bl{bottom:-2px;left:-2px;border-width:0 0 4px 4px;border-bottom-left-radius:8px}
 .corner-br{bottom:-2px;right:-2px;border-width:0 4px 4px 0;border-bottom-right-radius:8px}
 .scanner-target-box.locked .scanner-corner{border-color:var(--success-color)}
-.scanner-target-box.locked .scanner-laser{background:var(--success-color);box-shadow:0 0 12px var(--success-color);animation-duration:3s}
+.scanner-target-box.locked .scanner-laser{background:var(--success-color)}
+
 .plate-bumper{display:inline-flex;align-items:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;font-family:monospace;overflow:hidden}
 .plate-num{padding:3px 6px;background:rgba(0,0,0,0.4);font-weight:bold;color:#fff}
 .plate-let{padding:3px 6px;color:var(--accent-color);font-weight:bold}
@@ -487,8 +502,8 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 <div id="view-whatsnew" class="app-view">
 <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="What's New">What's New</h1><p data-i18n="Version History & Updates">Version History & Updates</p></div></div>
 <div class="card" style="margin-bottom:1rem;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2 style="color:var(--accent-color);">Version 9.6 - Performance Optimizations</h2><span style="font-size:0.75rem;color:var(--text-muted);">Sept 2026</span></div>
-<ul style="list-style:inside;padding-left:1rem;color:var(--text-main);font-size:0.85rem;line-height:1.6;margin-bottom:1.5rem;"><li><strong>GPU Lag Fix:</strong> Removed heavy rendering math. The background is now isolated and heavy shadows have been removed to prevent the app from freezing on low-end tablets.</li><li><strong>RTL Animation Fix:</strong> Corrected the mobile sidebar slide animation. In Arabic mode, the menu now smoothly slides off-screen to the right when minimized.</li><li><strong>Google Chat Alerts:</strong> The system now automatically pings the Google Chat Space Webhook if a guard ignores a dock alert for 5 minutes.</li></ul>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2 style="color:var(--accent-color);">Version 9.7 - UI & Database Polish</h2><span style="font-size:0.75rem;color:var(--text-muted);">Sept 2026</span></div>
+<ul style="list-style:inside;padding-left:1rem;color:var(--text-main);font-size:0.85rem;line-height:1.6;margin-bottom:1.5rem;"><li><strong>Database Protection:</strong> Backend script upgraded to automatically scan the database and completely reject duplicate Iqama and Truck Plate submissions.</li><li><strong>RTL Mobile Layout Fixed:</strong> Corrected a margin bug in Arabic mode that left an empty black gap on tablet screens when the menu was closed.</li><li><strong>Camera Performance:</strong> Stripped all CSS animations (laser moving) during camera initialization to provide a static, lag-free scanning experience.</li></ul>
 <button class="submit-btn-global" style="width:auto;padding:0.5rem 1.5rem;margin-top:0;" onclick="demoTimerAlert()" data-i18n="Test Demo">Test Demo</button>
 </div>
 </div>
@@ -881,7 +896,7 @@ async function handleCheckoutPhoto(inputEl,statusContainerId,scanType){const fil
 window.handleCheckoutPhoto=handleCheckoutPhoto;
 function exportHistoryToExcel(){if(!globalLogsCache||globalLogsCache.length===0){alert('No data to export.');return;}const headers=['Driver','Iqama Number','Plate','Direction','Dock','Noon Employee ID','Boxes/Pallets','Seal Number','Check In Truck','Check Out','Security'];const csvLines=[headers.join(',')];globalLogsCache.forEach(r=>{let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'Inside');const line=[r.driverName||'',r.iqamaNumber||'',r.plateNumber||'',r.direction||'',r.dockNumber||'',r.noonEmployeeId||'',r.boxCount||'0',r.sealNumber||'--',safeCheckInStr,safeCheckOutStr,r.securityName||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');csvLines.push(line);});const csvContent=csvLines.join('\n');const blob=new Blob(["\uFEFF"+csvContent],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`movement-history-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 window.exportHistoryToExcel=exportHistoryToExcel;
-const CURRENT_APP_VERSION="9.6";
+const CURRENT_APP_VERSION="9.7";
 function checkForNewCode(){fetch(window.location.href.split('#')[0].split('?')[0]+'?cachebust='+new Date().getTime(),{cache:'no-store'}).then(r=>r.text()).then(html=>{const match=html.match(/const CURRENT_APP_VERSION = "([^"]+)";/);if(match&&match[1]!==CURRENT_APP_VERSION){const btn=document.getElementById('updateAppBtn');if(btn)btn.style.display='flex';}}).catch(()=>{});}
 </script>
 </body>
