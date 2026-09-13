@@ -57,20 +57,10 @@ input[type=number]{-moz-appearance:textfield}
 .sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:0.1rem;padding-top:0.4rem;border-top:1px solid var(--border-color)}
 .system-health{background:rgba(46,160,67,0.05);border:1px dashed rgba(46,160,67,0.3);border-radius:6px;padding:0.4rem 0.6rem;display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;margin-bottom:0.25rem}
 .health-dot{width:7px;height:7px;background-color:var(--success-color);border-radius:50%}
+
+/* Main Desktop Styles */
 .main-content{margin-left:240px;flex-grow:1;padding:1.5rem 2rem;width:calc(100% - 240px);position:relative;transition:margin 0.3s,width 0.3s;min-width:0}
 .main-content.expanded{margin-left:0 !important;width:100% !important}
-
-/* RTL Mobile Fixes */
-@media (max-width:1200px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.mobile-open{transform:translateX(0) !important;width:240px}
-  #floatingOpenBtn{display:flex}
-  .main-content{margin-left:0;width:100%;padding:1.25rem 1rem;margin-top:2rem}
-  .nav-prev-btn{left:10px}
-  html[dir="rtl"] .sidebar{transform:translateX(100%)}
-  html[dir="rtl"] .sidebar.mobile-open{transform:translateX(0) !important}
-  html[dir="rtl"] .main-content{margin-right:0} /* Fix for empty dark gap on mobile */
-}
 
 html[dir="rtl"] .sidebar{left:auto;right:0;border-right:none;border-left:1px solid var(--border-color)}
 html[dir="rtl"] .sidebar.hidden{transform:translateX(100%)}
@@ -83,6 +73,19 @@ html[dir="rtl"] .main-content.expanded .nav-prev-btn{right:10px}
 html[dir="rtl"] .nav-next-btn{right:auto;left:10px;transform:translateY(-50%) rotate(180deg)}
 html[dir="rtl"] #floatingOpenBtn{left:auto;right:1rem}
 html[dir="rtl"] .sidebar-close-btn{right:auto;left:0.75rem}
+
+/* Mobile & Tablet Overrides (Must be at the bottom to override Desktop) */
+@media (max-width:1200px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.mobile-open{transform:translateX(0) !important;width:240px}
+  #floatingOpenBtn{display:flex}
+  .main-content{margin-left:0 !important;width:100% !important;padding:1.25rem 1rem;margin-top:2rem}
+  .nav-prev-btn{left:10px}
+  
+  html[dir="rtl"] .sidebar{transform:translateX(100%) !important}
+  html[dir="rtl"] .sidebar.mobile-open{transform:translateX(0) !important}
+  html[dir="rtl"] .main-content{margin-right:0 !important;margin-left:0 !important}
+}
 
 .app-view{display:none}.app-view.active-view{display:block}
 .dashboard-hero{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:10px;padding:2.5rem 1.25rem 2rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;align-items:center;position:relative}
@@ -502,8 +505,8 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 <div id="view-whatsnew" class="app-view">
 <div class="view-header-row"><div class="view-header-title"><h1 data-i18n="What's New">What's New</h1><p data-i18n="Version History & Updates">Version History & Updates</p></div></div>
 <div class="card" style="margin-bottom:1rem;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2 style="color:var(--accent-color);">Version 9.7 - UI & Database Polish</h2><span style="font-size:0.75rem;color:var(--text-muted);">Sept 2026</span></div>
-<ul style="list-style:inside;padding-left:1rem;color:var(--text-main);font-size:0.85rem;line-height:1.6;margin-bottom:1.5rem;"><li><strong>Database Protection:</strong> Backend script upgraded to automatically scan the database and completely reject duplicate Iqama and Truck Plate submissions.</li><li><strong>RTL Mobile Layout Fixed:</strong> Corrected a margin bug in Arabic mode that left an empty black gap on tablet screens when the menu was closed.</li><li><strong>Camera Performance:</strong> Stripped all CSS animations (laser moving) during camera initialization to provide a static, lag-free scanning experience.</li></ul>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2 style="color:var(--accent-color);">Version 9.8 - RTL Tablet CSS Fix</h2><span style="font-size:0.75rem;color:var(--text-muted);">Sept 2026</span></div>
+<ul style="list-style:inside;padding-left:1rem;color:var(--text-main);font-size:0.85rem;line-height:1.6;margin-bottom:1.5rem;"><li><strong>Database Protection:</strong> Backend script upgraded to automatically scan the database and completely reject duplicate Iqama and Truck Plate submissions.</li><li><strong>RTL Mobile Layout Fixed:</strong> Hardened the margin bug fix in Arabic mode to completely eliminate the black gap on tablet screens when the menu is closed.</li><li><strong>Camera Performance:</strong> Stripped all CSS animations (laser moving) during camera initialization to provide a static, lag-free scanning experience.</li></ul>
 <button class="submit-btn-global" style="width:auto;padding:0.5rem 1.5rem;margin-top:0;" onclick="demoTimerAlert()" data-i18n="Test Demo">Test Demo</button>
 </div>
 </div>
@@ -896,7 +899,7 @@ async function handleCheckoutPhoto(inputEl,statusContainerId,scanType){const fil
 window.handleCheckoutPhoto=handleCheckoutPhoto;
 function exportHistoryToExcel(){if(!globalLogsCache||globalLogsCache.length===0){alert('No data to export.');return;}const headers=['Driver','Iqama Number','Plate','Direction','Dock','Noon Employee ID','Boxes/Pallets','Seal Number','Check In Truck','Check Out','Security'];const csvLines=[headers.join(',')];globalLogsCache.forEach(r=>{let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'Inside');const line=[r.driverName||'',r.iqamaNumber||'',r.plateNumber||'',r.direction||'',r.dockNumber||'',r.noonEmployeeId||'',r.boxCount||'0',r.sealNumber||'--',safeCheckInStr,safeCheckOutStr,r.securityName||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');csvLines.push(line);});const csvContent=csvLines.join('\n');const blob=new Blob(["\uFEFF"+csvContent],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`movement-history-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 window.exportHistoryToExcel=exportHistoryToExcel;
-const CURRENT_APP_VERSION="9.7";
+const CURRENT_APP_VERSION="9.8";
 function checkForNewCode(){fetch(window.location.href.split('#')[0].split('?')[0]+'?cachebust='+new Date().getTime(),{cache:'no-store'}).then(r=>r.text()).then(html=>{const match=html.match(/const CURRENT_APP_VERSION = "([^"]+)";/);if(match&&match[1]!==CURRENT_APP_VERSION){const btn=document.getElementById('updateAppBtn');if(btn)btn.style.display='flex';}}).catch(()=>{});}
 </script>
 </body>
