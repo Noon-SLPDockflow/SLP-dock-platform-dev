@@ -1708,7 +1708,7 @@
           '<div class="history-detail-meta-item"><span class="history-detail-meta-label">SCANNED BY</span><span class="history-detail-meta-value">'+escapeHistoryText(scannedByText)+'</span></div>'+
           '</div>';
         const seeMore=details?'<details class="history-see-more" data-history-key="'+escapeHistoryText(companyGroup.uniqueKey)+'"><summary>SEE MORE · '+attendeeCount+' PEOPLE</summary><div style="width:100%;margin-top:10px;border:1px solid var(--border-color);border-radius:6px;overflow-x:auto;overflow-y:hidden;">'+detailMeta+attendeeHeaders+details+'</div></details>':'<span style="color:var(--text-muted);font-size:14px;">No member gate activity</span>';
-        rows+='<tr><td colspan="8" style="padding:16px 18px;border-bottom:1px solid var(--border-color);"><div style="color:#fff;font-size:13px;font-weight:800;letter-spacing:.1em;">ACCESS HISTORY · '+attendeeCount+' PEOPLE</div>'+seeMore+'</td></tr>';
+        rows+='<tr><td colspan="8" style="padding:16px 18px;border-bottom:1px solid var(--border-color);"><div style="color:#fff;font-size:13px;font-weight:800;letter-spacing:.1em;">'+escapeHistoryText(companyGroup.company||'ACCESS HISTORY')+'</div>'+seeMore+'</td></tr>';
       });
     });
     // ========================================
