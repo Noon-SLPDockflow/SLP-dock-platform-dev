@@ -9,20 +9,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <style>
-:root{--bg-color:#0b0e14;--card-bg:rgba(18,22,31,0.95);--card-solid:#12161f;--sidebar-bg:#07090c;--accent-color:#fcc200;--text-main:#f0f2f5;--text-muted:#8b949e;--border-color:rgba(255,255,255,0.08);--success-color:#2ea043;--danger-color:#f85149;--nav-hover:rgba(252,194,0,0.1)}
+:root{--bg-color:#0b1320;--page-bg:#0f1b2b;--card-bg:rgba(13,21,32,0.82);--card-solid:#132334;--sidebar-bg:rgba(9,14,21,0.96);--accent-color:#d9b14a;--accent-soft:#f0d07f;--text-main:#edf4ff;--text-muted:#a8bacd;--border-color:rgba(217,177,74,0.28);--success-color:#3ccf8e;--danger-color:#ff6b5c;--nav-hover:rgba(217,177,74,0.12)}
 #cameraModal,.camera-modal,.camera-overlay,[id*="camera"]{z-index:999999 !important}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 
 /* GPU OPTIMIZATION: Isolated fixed background to prevent scroll repainting */
-body{background-color:var(--bg-color);color:var(--text-main);display:flex;min-height:100vh;overflow-x:hidden;font-size:14px}
-body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(11,14,20,0.92),rgba(11,14,20,0.92)),url('background.jpg.jpeg');background-size:55%;background-position:center center;background-repeat:no-repeat;z-index:-1;pointer-events:none}
+body{background:radial-gradient(circle at top,#1f3350 0%,#101a2b 25%,#070d16 68%);color:var(--text-main);display:flex;min-height:100vh;overflow-x:hidden;font-size:14px}
+body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(7,13,22,0.38),rgba(7,13,22,0.52)),url('Logo-optimized.png');background-size:cover,42%;background-position:center center,center center;background-repeat:no-repeat,no-repeat;opacity:0.75;z-index:-1;pointer-events:none;filter:drop-shadow(0 0 18px rgba(217,177,74,0.12));}
 
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 .intro-overlay{position:fixed;inset:0;background-color:var(--bg-color);z-index:99999;display:flex;align-items:center;justify-content:center}
 .intro-overlay.hidden{display:none} 
-.login-container{position:relative;z-index:2;background:var(--sidebar-bg);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:2.5rem 3rem;text-align:center;display:flex;flex-direction:column;align-items:center;max-width:420px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.8)}
-.login-logo{height:100px;margin-bottom:1.5rem}
+.login-container{position:relative;z-index:2;background:linear-gradient(180deg, rgba(15,25,36,0.94), rgba(10,17,24,0.96));border:1px solid rgba(217,177,74,0.38);border-radius:12px;padding:2.5rem 3rem;text-align:center;display:flex;flex-direction:column;align-items:center;max-width:420px;width:90%;box-shadow:0 18px 42px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.03)}
+.login-logo{height:110px;margin-bottom:1.5rem;filter:drop-shadow(0 8px 16px rgba(18,20,24,0.22));}
 .auth-status{margin-top:1.5rem;display:none}
 .auth-status p{font-size:0.75rem;color:var(--accent-color);text-transform:uppercase;letter-spacing:2px;font-weight:700}
 .login-tabs{display:flex;gap:0.5rem;width:100%;margin-bottom:1.25rem;background:rgba(0,0,0,0.4);padding:4px;border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
@@ -88,7 +88,7 @@ html[dir="rtl"] .sidebar-close-btn{right:auto;left:0.75rem}
 }
 
 .app-view{display:none}.app-view.active-view{display:block}
-.dashboard-hero{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:10px;padding:2.5rem 1.25rem 2rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;align-items:center;position:relative}
+.dashboard-hero{background:linear-gradient(180deg, rgba(18,29,42,0.9), rgba(12,19,28,0.88));border:1px solid var(--border-color);border-radius:10px;padding:2.5rem 1.25rem 2rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 12px 28px rgba(5,8,12,0.32), inset 0 1px 0 rgba(255,255,255,0.04)}
 .hero-badges-wrapper{position:absolute;top:1rem;left:1.25rem;display:flex;gap:0.75rem}
 .hero-badge{background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);padding:0.4rem 0.8rem;border-radius:5px;font-size:0.8rem;font-weight:800;color:var(--accent-color);font-family:monospace}
 .hero-title-box{margin-top:0.5rem;text-align:center}
@@ -96,7 +96,7 @@ html[dir="rtl"] .sidebar-close-btn{right:auto;left:0.75rem}
 .metrics-bar-four{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
 @media (max-width:1200px){.metrics-bar-four{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:600px){.metrics-bar-four{grid-template-columns:1fr}}
-.metric-card-slate{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.2rem;position:relative}
+.metric-card-slate{background:linear-gradient(180deg, rgba(20,29,41,0.9), rgba(11,18,27,0.82));border:1px solid var(--border-color);border-radius:8px;padding:1.2rem;position:relative;box-shadow:0 8px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.05)}
 .metric-card-slate .num{font-size:1.8rem;font-weight:700;color:#fff;line-height:1.1}
 .metric-card-slate .label{font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;margin-top:6px;font-weight:600}
 .metric-accent-line{position:absolute;top:12px;right:12px;width:25px;height:3px;background-color:var(--accent-color);border-radius:2px}
@@ -105,7 +105,7 @@ html[dir="rtl"] .sidebar-close-btn{right:auto;left:0.75rem}
 @media (max-width:800px){.docks-grid-container{grid-template-columns:repeat(5,1fr)}}
 .dock-badge-active{background:#2ea043;border:2px solid #238636;color:#fff;padding:0.75rem 0;border-radius:6px;font-weight:900;font-size:1.1rem;font-family:monospace;display:flex;align-items:center;justify-content:center;text-align:center;width:100%;cursor:default}
 .dock-badge-inactive{background:#f0f2f5;border:1px solid #d0d7de;color:#24292f;padding:0.75rem 0;border-radius:6px;font-weight:800;font-size:1rem;font-family:monospace;display:flex;align-items:center;justify-content:center;text-align:center;width:100%;opacity:0.9;cursor:default}
-.card{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.25rem}
+.card{background:linear-gradient(180deg, rgba(18,29,42,0.88), rgba(12,19,28,0.8));border:1px solid var(--border-color);border-radius:8px;padding:1.25rem;box-shadow:0 10px 22px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04)}
 .view-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;border-bottom:1px solid var(--border-color);padding-bottom:0.75rem}
 .view-header-title h1{font-size:1.5rem;font-weight:700;color:#fff}
 .view-header-title p{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;margin-top:4px;font-weight:600}
@@ -241,7 +241,7 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu"><span style="color:var(--accent-color);font-size:1.2rem">☰</span> <span data-i18n="Menu">Menu</span></button>
 <div id="introOverlay" class="intro-overlay">
 <div class="login-container" id="loginContainer">
-<img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
+<img src="Logo-optimized.png" alt="SLP Logo" class="login-logo">
 <div style="text-align:right;width:100%;margin-bottom:0.5rem"><button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background:rgba(255,255,255,0.08);color:var(--accent-color);border:1px solid rgba(255,255,255,0.2);padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:0.8rem">🌐 العربية</button></div>
 <div class="login-tabs">
 <button class="login-tab active" onclick="switchLoginMode('guard',this)">🛡️ <span data-i18n="Guard">Guard</span></button>
