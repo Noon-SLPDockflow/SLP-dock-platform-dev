@@ -29,22 +29,25 @@ input[type=number]{-moz-appearance:textfield}
 .login-tabs{display:flex;gap:0.5rem;width:100%;margin-bottom:1.25rem;background:rgba(0,0,0,0.4);padding:4px;border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
 .login-tab{flex:1;background:transparent;border:none;color:var(--text-muted);padding:0.5rem;font-size:0.75rem;font-weight:700;text-transform:uppercase;border-radius:6px;cursor:pointer}
 .login-tab.active{background:var(--accent-color);color:#000}
-.intro-overlay{padding:2rem;overflow-y:auto;background:radial-gradient(ellipse at 80% 15%,rgba(33,62,91,.72),transparent 42%),linear-gradient(135deg,#080e17,#101c2a 58%,#0b1420)}
-.login-container{width:min(1080px,96vw);max-width:1080px;flex:0 0 min(1080px,96vw);min-height:min(680px,calc(100vh - 4rem));padding:0;flex-direction:row;align-items:stretch;text-align:left;overflow:hidden;border:1px solid rgba(217,177,74,.32);border-radius:20px;background:#f7f8fa;box-shadow:0 28px 80px rgba(0,0,0,.52)}
-.login-form-panel{width:52%;flex:0 0 52%;padding:clamp(2rem,5vw,4.25rem);display:flex;flex-direction:column;justify-content:center;align-items:stretch;background:linear-gradient(145deg,#fff 0%,#f5f7fa 100%);color:#172231}
+.intro-overlay{position:fixed!important;inset:0!important;width:100vw;height:100vh;height:100dvh;padding:2rem;overflow-y:auto;background:linear-gradient(135deg,#080e17,#101c2a 58%,#0b1420);z-index:2147483000}
+.intro-overlay.hidden{display:none!important}
+body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn{display:none!important}
+#introOverlay:not(.hidden)~.sidebar,#introOverlay:not(.hidden)~.main-content{display:none!important}
+.login-container{width:min(1080px,96vw);max-width:1080px;flex:0 0 min(1080px,96vw);min-height:min(680px,calc(100vh - 4rem));padding:0;flex-direction:row;align-items:stretch;text-align:left;overflow:hidden;border:1px solid rgba(217,177,74,.32);border-radius:20px;background:#0b111a;box-shadow:0 28px 80px rgba(0,0,0,.52)}
+.login-form-panel{width:52%;flex:0 0 52%;padding:clamp(2rem,5vw,4.25rem);display:flex;flex-direction:column;justify-content:center;align-items:stretch;background:linear-gradient(145deg,#111b28 0%,#080e16 100%);color:#edf4ff}
 .login-logo{height:58px;width:auto;max-width:190px;object-fit:contain;object-position:left center;margin:0 0 1.7rem;filter:drop-shadow(0 3px 8px rgba(18,20,24,.12))}
-.login-form-heading{margin:0 0 1.35rem;color:#142235;font-size:1.8rem;line-height:1.2;font-weight:800}
-.login-form-subheading{margin:-.9rem 0 1.5rem;color:#657386;font-size:.86rem;line-height:1.55}
-.login-form-panel #loginLangBtn{background:#edf1f5!important;color:#33465d!important;border-color:#d7dee7!important;border-radius:7px!important}
-.login-form-panel .login-tabs{gap:.35rem;margin-bottom:1.15rem;background:#e9edf2;border:1px solid #dce2e9;border-radius:9px}
-.login-form-panel .login-tab{color:#526174}
+.login-form-heading{margin:0 0 1.35rem;color:#fff;font-size:1.8rem;line-height:1.2;font-weight:800}
+.login-signin-heading{margin:0 0 1.5rem;color:#fff;font-size:clamp(1.8rem,3vw,2.25rem);line-height:1.2;font-weight:800}
+.login-form-panel #loginLangBtn{background:rgba(255,255,255,.07)!important;color:#e5c46d!important;border-color:rgba(255,255,255,.18)!important;border-radius:7px!important}
+.login-form-panel .login-tabs{gap:.35rem;margin-bottom:1.15rem;background:#0b1420;border:1px solid #26374a;border-radius:9px}
+.login-form-panel .login-tab{color:#a8bacd}
 .login-form-panel .login-tab.active{background:#173653;color:#fff;box-shadow:0 3px 8px rgba(23,54,83,.2)}
-#customLoginBox .input-box-styled{min-height:44px;text-align:left!important;color:#172231;background:#fff;border:1px solid #d7dee7!important;border-radius:8px;padding:.7rem .85rem}
-#customLoginBox .input-box-styled::placeholder{color:#99a5b3}
-#customLoginBox .input-box-styled:focus{outline:none;border-color:#315d83!important;box-shadow:0 0 0 3px rgba(49,93,131,.12)}
-#customLoginBox #assignedDocksLabel{color:#657386!important}
-.login-form-panel #loginDocksGrid{background:#f2f5f8;border-color:#dce2e9}
-.login-form-panel .dock-select-btn{background:#fff;border-color:#d7dee7;color:#526174}
+#customLoginBox .input-box-styled{min-height:44px;text-align:left!important;color:#edf4ff;background:#0b1420;border:1px solid #34465a!important;border-radius:8px;padding:.7rem .85rem}
+#customLoginBox .input-box-styled::placeholder{color:#8292a6}
+#customLoginBox .input-box-styled:focus{outline:none;border-color:#79c0ff!important;box-shadow:0 0 0 3px rgba(121,192,255,.12)}
+#customLoginBox #assignedDocksLabel{color:#a8bacd!important}
+.login-form-panel #loginDocksGrid{background:#0b1420;border-color:#26374a}
+.login-form-panel .dock-select-btn{background:#111c2a;border-color:#34465a;color:#d5e0ed}
 .login-form-panel .dock-select-btn.selected{background:#173653;border-color:#173653;color:#fff}
 .login-form-panel #customSignInBtn{min-height:46px;background:linear-gradient(100deg,#173653,#24577b);color:#fff;border-radius:8px;box-shadow:0 8px 18px rgba(23,54,83,.18)}
 .login-form-panel #customSignInBtn:hover{filter:brightness(1.08)}
@@ -52,15 +55,12 @@ input[type=number]{-moz-appearance:textfield}
 .login-brand-panel::before,.login-brand-panel::after{content:"";position:absolute;border:1px solid rgba(217,177,74,.13);border-radius:50%;pointer-events:none}
 .login-brand-panel::before{width:390px;height:390px;right:-155px;top:-170px}
 .login-brand-panel::after{width:300px;height:300px;left:-180px;bottom:-150px}
-.login-brand-kicker{position:relative;z-index:1;align-self:flex-start;color:#e5c46d;font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
-.login-brand-title{position:relative;z-index:1;align-self:flex-start;margin:.85rem 0 .4rem;color:#fff;font-size:clamp(1.6rem,3vw,2.25rem);line-height:1.12;font-weight:800}
-.login-brand-copy{position:relative;z-index:1;align-self:flex-start;max-width:330px;color:#b4c4d5;font-size:.9rem;line-height:1.6}
-.login-truck-art{position:relative;z-index:1;width:min(100%,420px);max-height:330px;object-fit:contain;margin:1.2rem 0 .25rem;filter:drop-shadow(0 24px 28px rgba(0,0,0,.35))}
-.login-brand-caption{position:relative;z-index:1;align-self:flex-start;margin-top:.5rem;color:#8fa5ba;font-size:.73rem;letter-spacing:.08em;text-transform:uppercase}
+.login-brand-title{position:relative;z-index:1;margin:0 0 1.5rem;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.6rem,3vw,2.25rem);line-height:1.2;font-weight:700;letter-spacing:.025em;text-align:center}
+.login-brand-logo{position:relative;z-index:1;width:min(78%,340px);max-height:360px;object-fit:contain;filter:drop-shadow(0 18px 24px rgba(0,0,0,.34))}
 html[dir="rtl"] .login-form-panel{direction:rtl;text-align:right}
 html[dir="rtl"] .login-logo{object-position:right center}
 html[dir="rtl"] .login-brand-panel{direction:rtl}
-html[dir="rtl"] .login-brand-kicker,html[dir="rtl"] .login-brand-title,html[dir="rtl"] .login-brand-copy,html[dir="rtl"] .login-brand-caption{align-self:flex-start;text-align:right}
+html[dir="rtl"] .login-brand-title{text-align:center}
 html[dir="rtl"] #customLoginBox .input-box-styled{text-align:right!important}
 @media(max-width:760px){
  .intro-overlay{padding:1rem;align-items:flex-start}
@@ -68,12 +68,9 @@ html[dir="rtl"] #customLoginBox .input-box-styled{text-align:right!important}
  .login-form-panel{width:100%;flex:0 0 auto;padding:1.6rem clamp(1.25rem,6vw,2.25rem) 2rem}
  .login-logo{height:48px;margin-bottom:1.1rem}
  .login-form-heading{font-size:1.55rem}
- .login-brand-panel{width:100%;flex:0 0 auto;min-height:190px;padding:1.35rem 1.5rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(105px,34%);grid-template-rows:auto auto 1fr;column-gap:.6rem}
- .login-brand-kicker,.login-brand-title,.login-brand-copy,.login-brand-caption{grid-column:1;align-self:end}
- .login-brand-title{margin:.45rem 0 .3rem}
- .login-brand-copy{font-size:.78rem}
- .login-truck-art{grid-column:2;grid-row:1/4;width:100%;max-height:155px;margin:0}
- .login-brand-caption{display:none}
+ .login-brand-panel{width:100%;flex:0 0 auto;min-height:190px;padding:1.35rem 1.5rem;gap:.4rem}
+ .login-brand-title{font-size:1.35rem;margin:0 0 .35rem}
+ .login-brand-logo{width:min(54%,190px);max-height:145px}
 }
 .dock-select-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-height:145px;overflow-y:auto;background:#0b0e14;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.05)}
 .dock-select-grid::-webkit-scrollbar{width:4px}
@@ -316,9 +313,7 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 <div id="introOverlay" class="intro-overlay">
 <div class="login-container" id="loginContainer">
 <div class="login-form-panel">
-<img src="Logo-optimized.png" alt="SLP Logo" class="login-logo">
-<h1 class="login-form-heading" data-i18n="Welcome to Noon SLP">Welcome to Noon SLP</h1>
-<p class="login-form-subheading" data-i18n="Sign in to access the Dock Security Platform.">Sign in to access the Dock Security Platform.</p>
+<h1 class="login-signin-heading" data-i18n="Sign in">Sign in</h1>
 <div style="text-align:right;width:100%;margin-bottom:0.5rem"><button id="loginLangBtn" type="button" onclick="toggleLoginLanguage()" style="background:rgba(255,255,255,0.08);color:var(--accent-color);border:1px solid rgba(255,255,255,0.2);padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:0.8rem">🌐 العربية</button></div>
 <div class="login-tabs">
 <button class="login-tab active" onclick="switchLoginMode('guard',this)">🛡️ <span data-i18n="Guard">Guard</span></button>
@@ -347,12 +342,10 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 <div id="authStatus" class="auth-status"><p id="authText" class="pulsing">AUTHENTICATING...</p></div>
 </div>
 <section class="login-brand-panel" aria-label="Noon SLP dock security branding">
-<span class="login-brand-kicker" data-i18n="SECURE FACILITY ACCESS">SECURE FACILITY ACCESS</span>
-<h2 class="login-brand-title" data-i18n="Dock operations, clearly in control.">Dock operations, clearly in control.</h2>
-<p class="login-brand-copy" data-i18n="A secure workspace for managing truck arrivals, dock activity, and site personnel.">A secure workspace for managing truck arrivals, dock activity, and site personnel.</p>
-<img class="login-truck-art" src="Truck-logo.png" alt="Noon SLP delivery truck">
-<span class="login-brand-caption" data-i18n="Protect · Prevent · Secure">Protect · Prevent · Secure</span>
+<h2 class="login-brand-title" data-i18n="SLP dock Platform">SLP dock Platform</h2>
+<img class="login-brand-logo" src="Logo-optimized.png" alt="Noon SLP Security and Loss Prevention logo">
 </section>
+</div>
 </div>
 <div class="sidebar" id="appSidebar">
 <div class="brand-section">
@@ -822,11 +815,8 @@ function parseFlexibleDate(val){if(!val)return new Date(NaN);let s=String(val).t
 const translations={"Dashboard":"لوحة القيادة","Analytics":"التحليلات","Check-in Truck":"تسجيل دخول شاحنة","Active Trucks":"الشاحنات النشطة","History Log":"سجل الحركة","Drivers Database":"قاعدة بيانات السائقين","Security Guard Database":"قاعدة بيانات حراس الأمن","Centralized registry of security personnel.":"سجل مركزي لموظفي الأمن.","Search guards...":"البحث عن حراس...","Noon ID":"هوية نون","Name":"الاسم","Guard":"حارس","Admin":"مسؤول","Weekly":"أسبوعياً","Monthly":"شهرياً","6 Months":"6 أشهر","1 Year":"سنة واحدة","Vehicle Processing Growth":"نمو معالجة المركبات","Noon":"نون","Dock Security Platform":"منصة أمن الأرصفة","Guest User":"مستخدم ضيف","Not signed in":"غير مسجل الدخول","System Health":"صحة النظام","Operational":"قيد التشغيل","Fullscreen":"ملء الشاشة","Exit Fullscreen":"إنهاء ملء الشاشة","Menu":"القائمة","Language: EN / AR":"اللغة: عربي / EN","Active Now":"نشط الآن","Completed Today":"اكتمل اليوم","Total Check-Ins":"إجمالي التسجيلات","Currently Occupied Docks":"الأرصفة المشغولة حالياً","Docks In Use":"أرصفة مستخدمة","All docks are currently clear.":"جميع الأرصفة فارغة حالياً.","DEEP-DIVE ANALYTICS HUB":"مركز التحليلات العميقة","Movement Cohorts":"فئات الحركة","Peak Operating Hours":"ساعات الذروة","Dock Utilization Ranking":"تصنيف استخدام الأرصفة","No Data":"لا توجد بيانات","Truck Entry Form":"نموذج دخول الشاحنة","Number Plate Photo":"صورة لوحة الأرقام","Iqama (ID Card) Scanner":"ماسح الإقامة (بطاقة الهوية)","Use Camera":"استخدام الكاميرا","New Driver":"سائق جديد","Existing Driver":"سائق حالي","Co-Driver":"سائق مساعد","Search Driver By Name or Plate... *":"ابحث عن السائق بالاسم أو اللوحة... *","Driver Name *":"اسم السائق *","Iqama Number *":"رقم الإقامة *","Truck Plate Number *":"رقم لوحة الشاحنة *","Mobile Number":"رقم الجوال","Security & Facility Details":"تفاصيل الأمن والمنشأة","Security Name *":"اسم رجل الأمن *","Security ID *":"هوية الأمن *","Dock Number *":"رقم الرصيف *","Purpose / Direction *":"الغرض / الاتجاه *","Dispatching / Receiving *":"إرسال / استلام *","Dispatching":"إرسال","Receiving":"استلام","Seal or transction number":"رقم الختم أو رقم المعاملة","Seal/Transaction":"رقم الختم / المعاملة","Noon Employee ID":"معرف موظف نون","Quantity (Boxes/Pallets)":"الكمية (صناديق/طبالي)","Boxes/Pallets":"الصناديق / الطبالي","Check In Truck":"إدخال الشاحنة","Active Trucks in Facility":"الشاحنات النشطة في المنشأة","Currently Checked-In Vehicles":"المركبات المسجلة حالياً","Total Inside":"الإجمالي بالداخل","Search records...":"البحث في السجلات...","Driver":"السائق","Plate":"اللوحة","Direction":"الاتجاه","Type":"النوع","Dock":"الرصيف","Check-In Time":"وقت الدخول","Duration":"المدة","Security":"الأمن","Action":"الإجراء","NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.":"لا توجد شاحنات نشطة في الجلسة الحالية.","Movement History":"سجل الحركة","Site Movement Activity":"نشاط حركة الموقع","Export to Excel":"تصدير إلى إكسل","Filter by driver, plate, or security ID...":"تصفية حسب السائق أو اللوحة...","Today":"اليوم","Last 7 Days":"آخر 7 أيام","Custom":"مخصص","All Time":"كل الوقت","TO":"إلى","Apply":"تطبيق","Check Out":"وقت الخروج","No historical logs parsed inside database.":"لا توجد سجلات تاريخية في قاعدة البيانات.","Drivers Registry":"سجل السائقين","Centralized database of authorized personnel.":"قاعدة بيانات مركزية للموظفين المعتمدين.","Search name, id, number...":"البحث بالاسم، الهوية، الرقم...","Driver Details":"تفاصيل السائق","Security Guard Details":"تفاصيل حارس الأمن","Full Legal Name":"الاسم القانوني الكامل","Iqama/National ID":"الإقامة / الهوية الوطنية","Primary Vehicle Plate":"لوحة المركبة الأساسية","Registered Date":"تاريخ التسجيل","Close Window":"إغلاق النافذة","Edit Driver Record":"تعديل سجل السائق","Edit Guard Record":"تعديل سجل الحارس","Delete":"حذف","Cancel":"إلغاء","Save Updates":"حفظ التحديثات","Completing SLP cycle...":"إكمال دورة SLP...","ATTACH DEPARTURE SEAL *":"إرفاق ختم المغادرة *","CONFIRM CHECK OUT":"تأكيد تسجيل الخروج","CHECK OUT":"تسجيل الخروج","DISCARD CHANGES":"تجاهل التغييرات","Capture":"التقاط","Hold Still...":"ثبت يدك...","Inside":"بالداخل","OUTBOUND":"مغادرة","INBOUND":"دخول","SIGN OUT":"خروج","View Records":"عرض السجلات","Verified":"مُوثّق","Check out":"تسجيل الخروج","Edit":"تعديل","Assigned Docks *":"الأرصفة المعينة *","Select Dock...":"اختر الرصيف...","Docks Selected":"أرصفة محددة","You cannot log out. You must check out your active trucks at your assigned docks first.":"لا يمكنك تسجيل الخروج. يجب عليك تسجيل خروج الشاحنات النشطة في الأرصفة المعينة لك أولاً.","has been active for ":"نشط منذ "," minutes.":" دقيقة.","Extend 30 min":"تمديد 30 دقيقة","Auto-checked out.":"تم تسجيل الخروج تلقائيًا.","Shift Handover":"تسليم المناوبة","Only guards with assigned docks can perform a shift handover.":"يمكن فقط للحراس المعينين بأرصفة إجراء تسليم المناوبة.","Your assigned docks are completely clear. No handover required. You may sign out.":"أرصفتك فارغة تماماً. لا حاجة للتسليم. يمكنك تسجيل الخروج.","Please enter the incoming guard's Name and ID.":"يرجى إدخال اسم ورقم هوية الحارس القادم.","What's New":"ما الجديد","Test Demo":"تجربة العرض","Version History & Updates":"سجل الإصدارات والتحديثات","Add Co-Driver":"إضافة سائق مساعد"};
 function tr(key){return currentLang==='en'?key:(translations[key]||key);}
 translations["Welcome to Noon SLP"]="\u0645\u0631\u062d\u0628\u064b\u0627 \u0628\u0643 \u0641\u064a Noon SLP";
-translations["Sign in to access the Dock Security Platform."]="\u0633\u062c\u0651\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0644\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0646\u0635\u0629 \u0623\u0645\u0646 \u0627\u0644\u0645\u0648\u0627\u0646\u0626.";
-translations["SECURE FACILITY ACCESS"]="\u062f\u062e\u0648\u0644 \u0622\u0645\u0646 \u0625\u0644\u0649 \u0627\u0644\u0645\u0646\u0634\u0623\u0629";
-translations["Dock operations, clearly in control."]="\u0639\u0645\u0644\u064a\u0627\u062a \u0627\u0644\u0645\u0648\u0627\u0646\u0626\u060c \u0628\u0633\u064a\u0637\u0629 \u0648\u0645\u0646\u0638\u0645\u0629.";
-translations["A secure workspace for managing truck arrivals, dock activity, and site personnel."]="\u0645\u0633\u0627\u062d\u0629 \u0622\u0645\u0646\u0629 \u0644\u0625\u062f\u0627\u0631\u0629 \u0648\u0635\u0648\u0644 \u0627\u0644\u0634\u0627\u062d\u0646\u0627\u062a \u0648\u062d\u0631\u0643\u0629 \u0627\u0644\u0645\u0648\u0627\u0646\u0626 \u0648\u0645\u0648\u0638\u0641\u064a \u0627\u0644\u0645\u0648\u0642\u0639.";
-translations["Protect · Prevent · Secure"]="\u062d\u0645\u0627\u064a\u0629 \u00b7 \u0648\u0642\u0627\u064a\u0629 \u00b7 \u0623\u0645\u0627\u0646";
+translations["Sign in"]="\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644";
+translations["SLP dock Platform"]="\u0645\u0646\u0635\u0629 \u0627\u0644\u0645\u0648\u0627\u0646\u0626 SLP";
 translations["Total Drivers"]="\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646";
 translations["Total Guards"]="\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u062d\u0631\u0627\u0633";
 window.toggleLang=function(forceLang){if(forceLang)currentLang=forceLang;else currentLang=currentLang==='en'?'ar':'en';localStorage.setItem('noonSlpLang',currentLang);document.documentElement.dir=currentLang==='ar'?'rtl':'ltr';document.documentElement.lang=currentLang;document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n');if(el.tagName==='INPUT'&&(el.type==='text'||el.type==='date'))el.placeholder=tr(key);else el.innerText=tr(key);});if(window.handleLogsResponse&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});};
