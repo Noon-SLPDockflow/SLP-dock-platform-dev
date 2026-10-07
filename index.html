@@ -117,23 +117,29 @@ html[dir="rtl"] .sidebar-close-btn{right:auto;left:0.75rem}
 .header-search-box-container span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem}
 .header-search-input{width:100%;background:#0b0e14;border:1px solid rgba(255,255,255,0.05);color:#fff;padding:0.5rem 0.85rem 0.5rem 2rem;border-radius:6px;font-size:0.8rem;outline:none}
 .header-search-input:focus{border-color:var(--accent-color)}
-.table-responsive{width:100%;overflow-x:auto}
+.table-responsive{width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-gutter:stable}
+.table-responsive::-webkit-scrollbar{height:12px}
+.table-responsive::-webkit-scrollbar-track{background:#09111b;border-radius:6px}
+.table-responsive::-webkit-scrollbar-thumb{background:#60758b;border:2px solid #09111b;border-radius:6px}
+.table-responsive::-webkit-scrollbar-thumb:hover{background:#91a9c0}
 table{width:100%;border-collapse:collapse;text-align:start}
-#historyLogTable{table-layout:fixed;min-width:1100px}
-#historyLogTable th:nth-child(1),#historyLogTable td:nth-child(1){width:22%}
-#historyLogTable th:nth-child(2),#historyLogTable td:nth-child(2){width:7%}
-#historyLogTable th:nth-child(3),#historyLogTable td:nth-child(3){width:8%}
+#historyLogTable{table-layout:fixed;width:100%;min-width:1400px}
+#historyLogTable th:nth-child(1),#historyLogTable td:nth-child(1){width:20%}
+#historyLogTable th:nth-child(2),#historyLogTable td:nth-child(2){width:9%}
+#historyLogTable th:nth-child(3),#historyLogTable td:nth-child(3){width:7%}
 #historyLogTable th:nth-child(4),#historyLogTable td:nth-child(4){width:5%}
 #historyLogTable th:nth-child(5),#historyLogTable td:nth-child(5){width:9%}
 #historyLogTable th:nth-child(6),#historyLogTable td:nth-child(6){width:8%}
 #historyLogTable th:nth-child(7),#historyLogTable td:nth-child(7){width:9%}
-#historyLogTable th:nth-child(8),#historyLogTable td:nth-child(8){width:10%}
-#historyLogTable th:nth-child(9),#historyLogTable td:nth-child(9){width:10%}
+#historyLogTable th:nth-child(8),#historyLogTable td:nth-child(8){width:9%}
+#historyLogTable th:nth-child(9),#historyLogTable td:nth-child(9){width:9%}
 #historyLogTable th:nth-child(10),#historyLogTable td:nth-child(10){width:6%}
-#historyLogTable th:nth-child(11),#historyLogTable td:nth-child(11){width:6%}
+#historyLogTable th:nth-child(11),#historyLogTable td:nth-child(11){width:9%}
 th{color:var(--text-muted);font-weight:600;font-size:0.65rem;text-transform:uppercase;padding:0.75rem 0.75rem;border-bottom:1px solid var(--border-color);white-space:nowrap;text-align:start}
 td{padding:0.75rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.8rem;vertical-align:middle;white-space:nowrap;text-align:start}
 #historyLogTable th,#historyLogTable td{overflow:hidden;text-overflow:ellipsis}
+#historyLogTable td:nth-child(2) .plate-bumper{max-width:100%;white-space:nowrap}
+#historyLogTable td:nth-child(2) .plate-num,#historyLogTable td:nth-child(2) .plate-let{padding-left:5px;padding-right:5px}
 tr:hover td{background-color:rgba(255,255,255,0.02)}
 #activeYardTable tbody tr{background:rgba(16,27,40,0.94);box-shadow:inset 0 0 0 1px rgba(217,177,74,0.14)}
 #activeYardTable tbody tr:nth-child(even){background:rgba(22,35,50,0.96)}
