@@ -369,7 +369,6 @@ tr:hover td{background-color:rgba(255,255,255,.025)}
 .plate-num{background:rgba(0,0,0,.4);color:var(--text-main)}
 .selected-driver-info p{color:var(--text-muted)}
 #signOutSeal{background:#11110f!important;color:var(--text-main)}
-body,body *{color:#fff!important}
 input::placeholder,textarea::placeholder{color:#fff!important;opacity:1}
 .login-signin-heading,.login-brand-subtitle,.login-form-panel #loginLangBtn{color:#fff!important}
 .login-brand-name{color:#f0d07f!important;font-size:clamp(2.3rem,4.4vw,3.8rem)}
@@ -441,16 +440,6 @@ button,input,select,textarea{font-weight:400}
 .badge{font-weight:700!important;letter-spacing:.015em}
 .chart-legend li{font-weight:500}
 .chart-legend li span{font-weight:600}
-.test-environment-notice{padding:1.2rem}
-.test-environment-heading{display:flex;align-items:flex-start;gap:.85rem}
-.test-environment-heading>span{font-size:1.5rem}
-.test-environment-heading h2{color:var(--accent-color);font-size:1rem;font-weight:600;margin-bottom:.25rem}
-.test-environment-heading p{line-height:1.5}
-.test-environment-actions{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:1rem}
-.test-environment-button{width:auto;margin:0;padding:.55rem 1rem}
-.test-environment-frame{width:100%;height:min(78vh,900px);min-height:620px;margin-top:1rem;border:1px solid var(--border-color);border-radius:8px;background:#090909}
-.test-mode-banner{display:none;padding:.55rem .75rem;margin:.35rem 0 .6rem;border:1px solid rgba(217,177,74,.55);border-radius:7px;background:#201a0e;color:#f0d07f;font-size:.72rem;font-weight:600;line-height:1.4}
-.test-mode-banner select{display:block;width:100%;margin-top:.4rem;padding:.35rem;background:#11110f;color:#fff;border:1px solid rgba(217,177,74,.45);border-radius:5px}
 @media(max-width:760px){
  .main-content{padding:.9rem .75rem;margin-top:3.25rem}
  .view-header-row{flex-wrap:wrap;align-items:center;gap:.75rem}
@@ -463,100 +452,100 @@ button,input,select,textarea{font-weight:400}
  #view-history .card>div:first-child>div{width:100%}
  #view-history .filter-tabs-container{justify-content:flex-start}
  .custom-date-row{flex-wrap:wrap;justify-content:flex-start}
- .test-environment-frame{height:78vh;min-height:540px}
+}
+:root{--bg-color:#0b0c0e;--page-bg:#111316;--card-bg:#151719;--card-solid:#1b1e20;--sidebar-bg:#0c0e10;--accent-color:#d8b75a;--accent-soft:#f0d78a;--text-main:#f7f5ef;--text-muted:#aaa9a3;--border-color:rgba(216,183,90,.24);--nav-hover:rgba(216,183,90,.09)}
+body{background-color:var(--bg-color);background-image:radial-gradient(ellipse at 70% 0%,rgba(216,183,90,.055),transparent 42%),linear-gradient(145deg,#111316 0%,#0b0c0e 70%);color:var(--text-main)}
+body::before{opacity:.18}
+.sidebar{background:linear-gradient(180deg,#101214,#0b0c0e)!important;border-color:rgba(216,183,90,.18);box-shadow:8px 0 34px rgba(0,0,0,.24)}
+.brand-section{padding:1rem .7rem 1.1rem;margin-bottom:.8rem;border-bottom-color:rgba(255,255,255,.07)}
+.brand-text h2{font-size:1.32rem;letter-spacing:.035em}
+.brand-text p{color:#a9a79f;font-size:.63rem;letter-spacing:.12em}
+.sidebar-refresh-btn{min-height:40px;border-color:rgba(216,183,90,.24);background:rgba(216,183,90,.07);border-radius:10px}
+.nav-links{gap:.28rem;padding:.2rem 0}
+.nav-item{min-height:42px;padding:.62rem .8rem;border-radius:10px;color:#b8b8b2;font-size:.82rem}
+.nav-item:hover{background:rgba(255,255,255,.045);color:#fff}
+.nav-item.active{border-left-color:transparent;background:linear-gradient(90deg,rgba(216,183,90,.16),rgba(216,183,90,.035));box-shadow:inset 3px 0 0 var(--accent-color);color:var(--accent-soft)}
+html[dir="rtl"] .nav-item.active{border-right-color:transparent;box-shadow:inset -3px 0 0 var(--accent-color)}
+.sidebar-footer{gap:.3rem;border-top-color:rgba(255,255,255,.08);padding-top:.7rem}
+.system-health{border-style:solid;border-color:rgba(60,207,142,.18);border-radius:10px;padding:.65rem .75rem}
+.main-content{padding:clamp(1.25rem,2.2vw,2.25rem) clamp(1.25rem,2.6vw,2.75rem)}
+.view-header-row{align-items:center;margin-bottom:1.4rem;padding-bottom:1rem;border-bottom-color:rgba(255,255,255,.08)}
+.view-header-title h1{font-size:clamp(1.5rem,2vw,1.9rem);letter-spacing:-.025em;color:#f6f4ed}
+.view-header-title p{color:#a9a79f;font-size:.72rem;letter-spacing:.075em}
+.dashboard-hero{min-height:190px;padding:2.7rem 1.5rem 2.2rem;background:radial-gradient(ellipse at 50% 0%,rgba(216,183,90,.13),transparent 58%),linear-gradient(135deg,#1c1e1e,#111315 72%)!important;border:1px solid rgba(216,183,90,.24);border-radius:18px;box-shadow:0 18px 44px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.035)}
+.hero-title-box h1,.hero-title-box h2{letter-spacing:.035em}
+.hero-title-box p{color:#b8b5ab}
+.hero-badge{border-color:rgba(216,183,90,.25);border-radius:9px;color:var(--accent-soft);background:rgba(10,11,12,.56)}
+.metrics-bar-four{gap:1rem}
+.metric-card-slate,.card,.driver-registry-card,.chart-card{background:linear-gradient(155deg,#191c1e,#121416 78%)!important;border:1px solid rgba(255,255,255,.075)!important;border-radius:15px;box-shadow:0 12px 30px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.025)!important}
+.metric-card-slate{padding:1.25rem 1.3rem;min-height:116px}
+.metric-card-slate .num{color:#f7f5ef;font-size:2rem}
+.metric-card-slate .label{color:#aaa9a3;letter-spacing:.045em}
+.metric-accent-line{top:1rem;right:1rem;width:32px;height:3px;opacity:.85}
+.card{padding:clamp(1rem,1.7vw,1.5rem)}
+.card-header-flex h2{font-size:1.04rem;letter-spacing:-.01em}
+.docks-grid-container{gap:.55rem;padding:1rem;background:rgba(8,10,11,.34);border:1px solid rgba(255,255,255,.07);border-radius:12px}
+.dock-badge-active,.dock-badge-inactive{min-height:42px;border-radius:9px}
+.dock-badge-active{background:linear-gradient(145deg,#218452,#17653e);border:1px solid #34a46d;box-shadow:0 4px 12px rgba(12,89,51,.22)}
+.dock-badge-inactive{background:#f5f4ef!important;border-color:#d9d8d1!important;color:#30312f!important}
+.scan-box-dashed{background:linear-gradient(145deg,#1a1d1f,#121416)!important;border:1px solid rgba(216,183,90,.24);border-radius:15px;box-shadow:0 12px 28px rgba(0,0,0,.2)}
+.scan-box-dashed:hover{background:linear-gradient(145deg,#202326,#151719)!important;border-color:rgba(216,183,90,.48)}
+.scan-box-dashed .icon{color:var(--accent-soft);opacity:1}
+.camera-btn-inline{padding:.42rem .8rem;border-radius:8px;color:var(--accent-soft)}
+.input-box-styled,.header-search-input,.toggle-container,.filter-tabs-container,.dock-select-grid{background:#111416!important;border-color:rgba(255,255,255,.12)!important;color:#f5f4ef}
+.input-box-styled,.header-search-input{min-height:42px;border-radius:9px}
+.input-box-styled:focus,.header-search-input:focus{background:#171a1c!important;border-color:rgba(216,183,90,.72)!important;box-shadow:0 0 0 3px rgba(216,183,90,.12)!important}
+.input-box-styled::placeholder,.header-search-input::placeholder{color:#8f918d!important}
+.form-section-divider{background:rgba(216,183,90,.12);color:var(--accent-soft);border:1px solid rgba(216,183,90,.2);border-radius:8px;padding:.55rem .8rem}
+.toggle-container,.filter-tabs-container{padding:.3rem;border-radius:10px}
+.toggle-btn,.tab-filter-item{border-radius:8px}
+.toggle-btn.active,.tab-filter-item.active{background:linear-gradient(135deg,#b48f37,#e0c56f)!important;color:#17150e!important}
+.submit-btn-global,.btn-excel,.btn-card-action,.btn-modal-cancel,.btn-checkout-action,.camera-controls button{border-radius:9px}
+.submit-btn-global{background:linear-gradient(135deg,#b48f37,#e0c56f)!important;color:#19160e!important;box-shadow:0 8px 20px rgba(181,144,52,.14)}
+.submit-btn-global:hover,.btn-excel:hover{filter:brightness(1.09);transform:translateY(-1px)}
+.driver-registry-card{gap:1rem;padding:1.2rem}
+.driver-card-info-grid,.modal-slate-cell,.selected-driver-box{background:rgba(8,10,11,.42)!important;border-color:rgba(255,255,255,.08)!important;border-radius:11px}
+.driver-avatar-img{border-color:rgba(216,183,90,.3)}
+.chart-card{padding:1.35rem}
+.chart-card h3{color:#c3c0b6;letter-spacing:.065em}
+.table-responsive{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(10,12,13,.32)}
+.table-responsive::-webkit-scrollbar{height:9px}
+.table-responsive::-webkit-scrollbar-track{background:#101214;border-radius:8px}
+.table-responsive::-webkit-scrollbar-thumb{background:#494b48;border:2px solid #101214;border-radius:8px}
+th{color:#c6c3b8;border-bottom-color:rgba(216,183,90,.22);letter-spacing:.06em}
+td{border-bottom-color:rgba(255,255,255,.055)}
+tr:hover td{background:rgba(216,183,90,.045)}
+#activeYardTable tbody tr,#activeYardTable tbody tr:nth-child(even){background:#171a1b}
+#activeYardTable tbody td{border-bottom-color:rgba(255,255,255,.06)}
+#historyLogTable tbody tr,#historyLogTable tbody td{background:#141719!important}
+.modal-overlay{background:rgba(3,4,5,.78);backdrop-filter:blur(8px)}
+.modal-window{background:linear-gradient(155deg,#1b1e20,#111315)!important;border:1px solid rgba(216,183,90,.2);border-radius:16px}
+.modal-header-container{background:rgba(216,183,90,.065)!important;border-bottom-color:rgba(255,255,255,.08)}
+.modal-footer-container{background:rgba(0,0,0,.18)!important;border-top-color:rgba(255,255,255,.08)}
+.suggestions-dropdown{background:#171a1c!important;border-color:rgba(255,255,255,.12);border-radius:11px}
+.suggestion-item:hover{background:rgba(216,183,90,.1)}
+.vehicle-choice-button{border-color:rgba(216,183,90,.35);border-radius:10px}
+.sidebar-refresh-btn,.nav-item,.scan-box-dashed,.card,.metric-card-slate,.driver-registry-card,.chart-card,.submit-btn-global{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease}
+button:focus-visible,.nav-item:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent-soft);outline-offset:2px}
+@media(max-width:760px){
+ .main-content{padding:1rem .8rem;margin-top:3.25rem}
+ .dashboard-hero{min-height:160px;padding:2.2rem 1rem 1.5rem;border-radius:15px}
+ .hero-badges-wrapper{top:.7rem;left:.75rem;gap:.4rem}
+ .hero-badge{font-size:.68rem;padding:.35rem .55rem}
+ .metrics-bar-four{gap:.7rem}
+ .metric-card-slate{min-height:102px;padding:1rem}
+ .card{padding:1rem!important;border-radius:13px}
+ .view-header-row{padding-bottom:.8rem}
+ .view-header-title h1{font-size:1.4rem}
+ .docks-grid-container{grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem;padding:.7rem}
+ .dock-badge-active,.dock-badge-inactive{min-height:36px;font-size:.9rem}
+ .camera-controls{gap:.55rem}
+ .camera-controls button{min-width:90px;padding:.65rem .85rem}
+ .camera-light-controls{gap:.45rem;font-size:.72rem}
+ .camera-light-controls input{width:min(45vw,220px)}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
-<script>
-window.DOCK_TEST_MODE=new URLSearchParams(window.location.search).get("dockTestMode")==="1";
-if(window.DOCK_TEST_MODE){
-  const isolatedStorage=new Map();
-  const memoryStorage={
-    get length(){return isolatedStorage.size;},
-    clear(){isolatedStorage.clear();},
-    getItem(key){return isolatedStorage.has(String(key))?isolatedStorage.get(String(key)):null;},
-    key(index){return Array.from(isolatedStorage.keys())[index]||null;},
-    removeItem(key){isolatedStorage.delete(String(key));},
-    setItem(key,value){isolatedStorage.set(String(key),String(value));}
-  };
-  Object.defineProperty(window,"localStorage",{configurable:true,value:memoryStorage});
-  const makeTestTime=hoursAgo=>new Date(Date.now()-hoursAgo*3600000).toISOString();
-  const testDb={
-    drivers:[
-      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"4117 JRA",mobileNumber:"550000001"},
-      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"1234 FSB",mobileNumber:"550000001"},
-      {driverName:"DEMO DRIVER B",iqamaNumber:"2000000002",plateNumber:"4296 HAY",mobileNumber:"550000002"},
-      {driverName:"DEMO DRIVER C",iqamaNumber:"2000000003",plateNumber:"2093 SJA",mobileNumber:"550000003"},
-      {driverName:"DEMO DRIVER D",iqamaNumber:"2000000004",plateNumber:"1881 ATA",mobileNumber:"550000004"},
-      {driverName:"DEMO DRIVER E",iqamaNumber:"2000000005",plateNumber:"9685 RSR",mobileNumber:"550000005"}
-    ],
-    guards:[
-      {securityName:"TEST GUARD ONE",securityId:"TEST-001"},
-      {securityName:"TEST GUARD TWO",securityId:"TEST-002"}
-    ],
-    logs:[
-      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"4117 JRA",dockNumber:"28",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1001",boxCount:"6 Boxes",sealNumber:"--",checkInTime:makeTestTime(42),checkOutTime:"",securityName:"TEST GUARD ONE",securityId:"TEST-001"},
-      {driverName:"DEMO DRIVER B",iqamaNumber:"2000000002",plateNumber:"4296 HAY",dockNumber:"25",direction:"RTV HANDOVER",dispatchType:"Dispatching",noonEmployeeId:"TEST-1002",boxCount:"12 Pallets",sealNumber:"TEST-SEAL-02",checkInTime:makeTestTime(18),checkOutTime:"",securityName:"TEST GUARD TWO",securityId:"TEST-002"},
-      {driverName:"DEMO DRIVER C",iqamaNumber:"2000000003",plateNumber:"2093 SJA",dockNumber:"31",direction:"LIQUIDATION",dispatchType:"Receiving",noonEmployeeId:"TEST-1003",boxCount:"3 Boxes",sealNumber:"--",checkInTime:makeTestTime(3),checkOutTime:"",securityName:"TEST GUARD ONE",securityId:"TEST-001"},
-      {driverName:"DEMO DRIVER D",iqamaNumber:"2000000004",plateNumber:"1881 ATA",dockNumber:"42",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1004",boxCount:"20 Boxes",sealNumber:"--",checkInTime:makeTestTime(1),checkOutTime:"",securityName:"TEST GUARD TWO",securityId:"TEST-002"},
-      {driverName:"DEMO DRIVER E",iqamaNumber:"2000000005",plateNumber:"9685 RSR",dockNumber:"39",direction:"ST CFC",dispatchType:"Dispatching",noonEmployeeId:"TEST-1005",boxCount:"8 Pallets",sealNumber:"TEST-SEAL-05",checkInTime:makeTestTime(6),checkOutTime:makeTestTime(5.5),securityName:"TEST GUARD ONE",securityId:"TEST-001"},
-      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"1234 FSB",dockNumber:"35",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1006",boxCount:"2 Boxes",sealNumber:"--",checkInTime:makeTestTime(27),checkOutTime:makeTestTime(26.5),securityName:"TEST GUARD TWO",securityId:"TEST-002"},
-      {driverName:"DEMO DRIVER B",iqamaNumber:"2000000002",plateNumber:"4296 HAY",dockNumber:"22",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1007",boxCount:"5 Boxes",sealNumber:"--",checkInTime:makeTestTime(54),checkOutTime:makeTestTime(53),securityName:"TEST GUARD ONE",securityId:"TEST-001"},
-      {driverName:"DEMO DRIVER C",iqamaNumber:"2000000003",plateNumber:"2093 SJA",dockNumber:"40",direction:"RTV HANDOVER",dispatchType:"Dispatching",noonEmployeeId:"TEST-1008",boxCount:"4 Pallets",sealNumber:"TEST-SEAL-08",checkInTime:makeTestTime(110),checkOutTime:makeTestTime(108),securityName:"TEST GUARD TWO",securityId:"TEST-002"},
-      {driverName:"DEMO DRIVER D",iqamaNumber:"2000000004",plateNumber:"1881 ATA",dockNumber:"24",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1009",boxCount:"10 Boxes",sealNumber:"--",checkInTime:makeTestTime(30*24),checkOutTime:makeTestTime(30*24-1),securityName:"TEST GUARD ONE",securityId:"TEST-001"}
-    ]
-  };
-  window.__DOCK_TEST_DB__=testDb;
-  const jsonResponse=data=>Promise.resolve(new Response(JSON.stringify(data),{status:200,headers:{"Content-Type":"application/json"}}));
-  const textResponse=text=>Promise.resolve(new Response(text,{status:200,headers:{"Content-Type":"text/html"}}));
-  const normalized=value=>String(value||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
-  window.fetch=(input,options={})=>{
-    const url=typeof input==="string"?input:input.url;
-    if(!url.includes("script.google.com/macros/s/")){
-      const requested=new URL(url,window.location.href);
-      if(requested.origin===window.location.origin&&requested.pathname===window.location.pathname)return textResponse('const CURRENT_APP_VERSION = "10.0";');
-      return Promise.reject(new Error("Network access is disabled in isolated test mode."));
-    }
-    if(url.includes("AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc")){
-      const type=new URL(url).searchParams.get("scanType")||"";
-      const text=type==="IQAMA"?"DEMO DRIVER A 2000000001":type==="PLATE"?"4117 JRA":"TEST GUARD ONE TEST-001";
-      return jsonResponse({status:"success",text});
-    }
-    let payload={};
-    if(options.body){try{payload=JSON.parse(options.body);}catch(error){return jsonResponse({status:"error",message:"Invalid test request payload."});}}
-    const identity=normalized(payload.oldDriverIqama||payload.iqamaNumber);
-    if(payload.action==="getLogs")return jsonResponse({status:"success",logs:testDb.logs,drivers:testDb.drivers,guards:testDb.guards});
-    if(payload.action==="checkin"){
-      testDb.logs.unshift({...payload,checkInTime:payload.checkInTime||new Date().toISOString(),checkOutTime:""});
-      if(!testDb.drivers.some(driver=>normalized(driver.iqamaNumber)===identity&&normalized(driver.plateNumber)===normalized(payload.plateNumber)))testDb.drivers.push({driverName:payload.driverName,iqamaNumber:payload.iqamaNumber,plateNumber:payload.plateNumber,mobileNumber:payload.mobileNumber});
-    }else if(payload.action==="checkout"){
-      const entry=testDb.logs.find(log=>normalized(log.plateNumber)===normalized(payload.plateNumber)&&!log.checkOutTime);
-      if(entry){entry.checkOutTime=new Date().toISOString();if(payload.sealNumber)entry.sealNumber=payload.sealNumber;}
-    }else if(payload.action==="addDriver"){
-      if(!testDb.drivers.some(driver=>normalized(driver.iqamaNumber)===identity&&normalized(driver.plateNumber)===normalized(payload.plateNumber)))testDb.drivers.push({driverName:payload.driverName,iqamaNumber:payload.iqamaNumber,plateNumber:payload.plateNumber,mobileNumber:payload.mobileNumber});
-    }else if(payload.action==="addDriverCar"){
-      testDb.drivers.push({driverName:payload.driverName,iqamaNumber:payload.iqamaNumber,plateNumber:payload.plateNumber,mobileNumber:payload.mobileNumber});
-    }else if(payload.action==="editDriver"){
-      const vehicles=Array.isArray(payload.vehicles)?payload.vehicles:[{oldPlate:payload.oldDriverPlate,plateNumber:payload.plateNumber}];
-      testDb.drivers.forEach(driver=>{
-        if(normalized(driver.iqamaNumber)!==normalized(payload.oldDriverIqama)&&String(driver.driverName||"").toLowerCase()!==String(payload.oldDriverName||"").toLowerCase())return;
-        driver.driverName=payload.driverName;driver.iqamaNumber=payload.iqamaNumber;driver.mobileNumber=payload.mobileNumber;
-        const vehicle=vehicles.find(item=>normalized(item.oldPlate)===normalized(driver.plateNumber));
-        if(vehicle&&vehicle.plateNumber)driver.plateNumber=vehicle.plateNumber;
-      });
-    }else if(payload.action==="deleteDriver"){
-      testDb.drivers=testDb.drivers.filter(driver=>normalized(driver.iqamaNumber)!==normalized(payload.iqamaNumber));
-    }else if(payload.action==="addGuard"){
-      if(!testDb.guards.some(guard=>String(guard.securityId)===String(payload.securityId)))testDb.guards.push({securityName:payload.securityName,securityId:payload.securityId});
-    }else if(payload.action==="editGuard"){
-      testDb.guards.forEach(guard=>{if(String(guard.securityName).toLowerCase()===String(payload.oldSecurityName||"").toLowerCase()){guard.securityName=payload.securityName;guard.securityId=payload.securityId;}});
-    }else if(payload.action==="deleteGuard"){
-      testDb.guards=testDb.guards.filter(guard=>String(guard.securityId)!==String(payload.securityId));
-    }
-    return jsonResponse({status:"success"});
-  };
-}
-</script>
 </head>
 <body>
 <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none;position:fixed;top:20px;right:50%;transform:translateX(50%);z-index:2147483647;background:#1a1a1a;color:#fff;border:1px solid #333;padding:10px 24px;border-radius:50px;font-weight:bold;cursor:pointer;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,0.8)"><div style="width:12px;height:12px;background:#ff4444;border-radius:50%;box-shadow:0 0 10px #ff4444;animation:pulse 1s infinite alternate"></div><span style="font-size:1.1rem;letter-spacing:0.5px">New Update Available! Click to Refresh</span></div>
@@ -612,7 +601,6 @@ if(window.DOCK_TEST_MODE){
 <li class="nav-item" id="nav-history" onclick="switchView('history',this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
 <li class="nav-item" id="nav-drivers" onclick="switchView('drivers',this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
 <li class="nav-item" id="nav-security" onclick="switchView('security',this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
-<li class="nav-item" id="nav-test" onclick="switchView('test',this)"><span class="nav-icon">🧪</span><span class="nav-text" data-i18n="Test">Test</span></li>
 </ul>
 <div class="sidebar-footer">
 <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700;color:var(--success-color);margin-top:1px">Operational</div></div><div class="health-dot"></div></div>
@@ -830,38 +818,7 @@ if(window.DOCK_TEST_MODE){
 </div>
 <div class="drivers-grid" id="securityRegistryContainer"></div>
 </div>
-<div id="view-test" class="app-view">
-<div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Test Environment">Test Environment</h1><p data-i18n="Isolated demo workspace">Isolated demo workspace</p></div></div>
-<div class="card test-environment-notice">
-<div class="test-environment-heading"><span aria-hidden="true">🛡️</span><div><h2 data-i18n="Safe test mode">Safe test mode</h2><p data-i18n="This workspace uses sample records only. Changes stay in this browser session and are never sent to the shared spreadsheet.">This workspace uses sample records only. Changes stay in this browser session and are never sent to the shared spreadsheet.</p></div></div>
-<div class="test-environment-actions">
-<button id="startTestEnvironmentButton" class="submit-btn-global test-environment-button" onclick="startDockTestEnvironment()" data-i18n="Start Test App">Start Test App</button>
-<button id="resetTestEnvironmentButton" class="btn-modal-cancel test-environment-button" onclick="resetDockTestEnvironment()" style="display:none" data-i18n="Reset Sample Data">Reset Sample Data</button>
 </div>
-<iframe id="dockTestEnvironmentFrame" class="test-environment-frame" title="Isolated Noon SLP test application" loading="lazy" style="display:none"></iframe>
-</div>
-</div>
-</div>
-<script>
-window.startDockTestEnvironment=function(){
-  const frame=document.getElementById("dockTestEnvironmentFrame");
-  const resetButton=document.getElementById("resetTestEnvironmentButton");
-  if(!frame)throw new Error("The isolated test application frame is missing.");
-  if(!frame.src){
-    const url=new URL(window.location.href);
-    url.searchParams.set("dockTestMode","1");
-    url.hash="";
-    frame.src=url.href;
-  }
-  frame.style.display="block";
-  if(resetButton)resetButton.style.display="inline-flex";
-};
-window.resetDockTestEnvironment=function(){
-  const frame=document.getElementById("dockTestEnvironmentFrame");
-  if(!frame||!frame.src){window.startDockTestEnvironment();return;}
-  frame.src=frame.src;
-};
-</script>
 <div class="modal-overlay" id="driverProfileModal">
 <div class="modal-window">
 <div class="modal-header-container"><h2 id="modalTitleName" data-i18n="Driver Details">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
@@ -1143,7 +1100,7 @@ const chartColors=['var(--accent-color)','#3fb950','#79c0ff','#d2a8ff','#f85149'
 function debounce(func,wait){let timeout;return function(...args){clearTimeout(timeout);timeout=setTimeout(()=>func.apply(this,args),wait);};}
 function formatEnglishDate(dateObj){if(!dateObj||isNaN(dateObj.getTime()))return "--";const mm=dateObj.getMonth()+1;const dd=dateObj.getDate();const yyyy=dateObj.getFullYear();let hr=dateObj.getHours();const min=String(dateObj.getMinutes()).padStart(2,'0');const sec=String(dateObj.getSeconds()).padStart(2,'0');const ampm=hr>=12?'PM':'AM';hr=hr%12||12;return `${mm}/${dd}/${yyyy}, ${hr}:${min}:${sec} ${ampm}`;}
 function parseFlexibleDate(val){if(!val)return new Date(NaN);let s=String(val).trim();if(s.includes('T')&&s.includes('Z'))return new Date(s);let d=new Date(s);if(!isNaN(d.getTime()))return d;const map={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};s=s.replace(/[٠-٩]/g,m=>map[m]);s=s.replace(/ص/gi,' AM').replace(/م/gi,' PM');s=s.replace(/،/g,',').replace(/[\u200E\u200F\u202A-\u202E]/g,'');let parts=s.match(/(\d{4})\/(\d{1,2})\/.*?(\d{1,2}).*?(\d{1,2}):(\d{1,2}):(\d{1,2})\s*(AM|PM)/i);if(parts)return new Date(`${parts[2]}/${parts[3]}/${parts[1]} ${parts[4]}:${parts[5]}:${parts[6]} ${parts[7]}`);d=new Date(s);if(!isNaN(d.getTime()))return d;s=s.replace(/\s+AM/g,' AM').replace(/\s+PM/g,' PM');return new Date(s);}
-const translations={"Dashboard":"لوحة القيادة","Analytics":"التحليلات","Check-in Truck":"تسجيل دخول شاحنة","Active Trucks":"الشاحنات النشطة","History Log":"سجل الحركة","Drivers Database":"قاعدة بيانات السائقين","Security Guard Database":"قاعدة بيانات حراس الأمن","Centralized registry of security personnel.":"سجل مركزي لموظفي الأمن.","Search guards...":"البحث عن حراس...","Noon ID":"هوية نون","Name":"الاسم","Guard":"حارس","Admin":"مسؤول","Weekly":"أسبوعياً","Monthly":"شهرياً","6 Months":"6 أشهر","1 Year":"سنة واحدة","Vehicle Processing Growth":"نمو معالجة المركبات","Noon":"نون","Dock Security Platform":"منصة أمن الأرصفة","Guest User":"مستخدم ضيف","Not signed in":"غير مسجل الدخول","System Health":"صحة النظام","Operational":"قيد التشغيل","Fullscreen":"ملء الشاشة","Exit Fullscreen":"إنهاء ملء الشاشة","Menu":"القائمة","Language: EN / AR":"اللغة: عربي / EN","Active Now":"نشط الآن","Completed Today":"اكتمل اليوم","Total Check-Ins":"إجمالي التسجيلات","Currently Occupied Docks":"الأرصفة المشغولة حالياً","Docks In Use":"أرصفة مستخدمة","All docks are currently clear.":"جميع الأرصفة فارغة حالياً.","DEEP-DIVE ANALYTICS HUB":"مركز التحليلات العميقة","Movement Cohorts":"فئات الحركة","Peak Operating Hours":"ساعات الذروة","Dock Utilization Ranking":"تصنيف استخدام الأرصفة","No Data":"لا توجد بيانات","Truck Entry Form":"نموذج دخول الشاحنة","Number Plate Photo":"صورة لوحة الأرقام","Iqama (ID Card) Scanner":"ماسح الإقامة (بطاقة الهوية)","Use Camera":"استخدام الكاميرا","New Driver":"سائق جديد","Existing Driver":"سائق حالي","Co-Driver":"سائق مساعد","Search Driver By Name or Plate... *":"ابحث عن السائق بالاسم أو اللوحة... *","Driver Name *":"اسم السائق *","Iqama Number *":"رقم الإقامة *","Truck Plate Number *":"رقم لوحة الشاحنة *","Mobile Number":"رقم الجوال","Security & Facility Details":"تفاصيل الأمن والمنشأة","Security Name *":"اسم رجل الأمن *","Security ID *":"هوية الأمن *","Dock Number *":"رقم الرصيف *","Purpose / Direction *":"الغرض / الاتجاه *","Dispatching / Receiving *":"إرسال / استلام *","Dispatching":"إرسال","Receiving":"استلام","Seal or transction number":"رقم الختم أو رقم المعاملة","Seal/Transaction":"رقم الختم / المعاملة","Noon Employee ID":"معرف موظف نون","Quantity (Boxes/Pallets)":"الكمية (صناديق/طبالي)","Check In Truck":"إدخال الشاحنة","Active Trucks in Facility":"الشاحنات النشطة في المنشأة","Currently Checked-In Vehicles":"المركبات المسجلة حالياً","Total Inside":"الإجمالي بالداخل","Search records...":"البحث في السجلات...","Driver":"السائق","Plate":"اللوحة","Direction":"الاتجاه","Type":"النوع","Dock":"الرصيف","Check-In Time":"وقت الدخول","Duration":"المدة","Security":"الأمن","Action":"الإجراء","NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.":"لا توجد شاحنات نشطة في الجلسة الحالية.","Movement History":"سجل الحركة","Site Movement Activity":"نشاط حركة الموقع","Export to Excel":"تصدير إلى إكسل","Filter by driver, plate, or security ID...":"تصفية حسب السائق أو اللوحة...","Today":"اليوم","Last 7 Days":"آخر 7 أيام","Custom":"مخصص","All Time":"كل الوقت","TO":"إلى","Apply":"تطبيق","Check Out":"وقت الخروج","No historical logs parsed inside database.":"لا توجد سجلات تاريخية في قاعدة البيانات.","Drivers Registry":"سجل السائقين","Centralized database of authorized personnel.":"قاعدة بيانات مركزية للموظفين المعتمدين.","Search name, id, number...":"البحث بالاسم، الهوية، الرقم...","Driver Details":"تفاصيل السائق","Security Guard Details":"تفاصيل حارس الأمن","Full Legal Name":"الاسم القانوني الكامل","Iqama/National ID":"الإقامة / الهوية الوطنية","Primary Vehicle Plate":"لوحة المركبة الأساسية","Registered Date":"تاريخ التسجيل","Close Window":"إغلاق النافذة","Edit Driver Record":"تعديل سجل السائق","Edit Guard Record":"تعديل سجل الحارس","Delete":"حذف","Cancel":"إلغاء","Save Updates":"حفظ التحديثات","Completing SLP cycle...":"إكمال دورة SLP...","ATTACH DEPARTURE SEAL *":"إرفاق ختم المغادرة *","CONFIRM CHECK OUT":"تأكيد تسجيل الخروج","CHECK OUT":"تسجيل الخروج","DISCARD CHANGES":"تجاهل التغييرات","Capture":"التقاط","Hold Still...":"ثبت يدك...","Inside":"بالداخل","OUTBOUND":"مغادرة","INBOUND":"دخول","SIGN OUT":"خروج","View Records":"عرض السجلات","Verified":"مُوثّق","Check out":"تسجيل الخروج","Edit":"تعديل","Assigned Docks *":"الأرصفة المعينة *","Select Dock...":"اختر الرصيف...","Docks Selected":"أرصفة محددة","You cannot log out. You must check out your active trucks at your assigned docks first.":"لا يمكنك تسجيل الخروج. يجب عليك تسجيل خروج الشاحنات النشطة في الأرصفة المعينة لك أولاً.","has been active for ":"نشط منذ "," minutes.":" دقيقة.","Extend 30 min":"تمديد 30 دقيقة","Auto-checked out.":"تم تسجيل الخروج تلقائيًا.","Shift Handover":"تسليم المناوبة","Only guards with assigned docks can perform a shift handover.":"يمكن فقط للحراس المعينين بأرصفة إجراء تسليم المناوبة.","Your assigned docks are completely clear. No handover required. You may sign out.":"أرصفتك فارغة تماماً. لا حاجة للتسليم. يمكنك تسجيل الخروج.","Please enter the incoming guard's Name and ID.":"يرجى إدخال اسم ورقم هوية الحارس القادم.","What's New":"ما الجديد","Test Demo":"تجربة العرض","Test Dock Alert":"اختبار تنبيه الرصيف","Version History & Updates":"سجل الإصدارات والتحديثات","Add Co-Driver":"إضافة سائق مساعد"};
+const translations={"Dashboard":"لوحة القيادة","Analytics":"التحليلات","Check-in Truck":"تسجيل دخول شاحنة","Active Trucks":"الشاحنات النشطة","History Log":"سجل الحركة","Drivers Database":"قاعدة بيانات السائقين","Security Guard Database":"قاعدة بيانات حراس الأمن","Centralized registry of security personnel.":"سجل مركزي لموظفي الأمن.","Search guards...":"البحث عن حراس...","Noon ID":"هوية نون","Name":"الاسم","Guard":"حارس","Admin":"مسؤول","Weekly":"أسبوعياً","Monthly":"شهرياً","6 Months":"6 أشهر","1 Year":"سنة واحدة","Vehicle Processing Growth":"نمو معالجة المركبات","Noon":"نون","Dock Security Platform":"منصة أمن الأرصفة","Guest User":"مستخدم ضيف","Not signed in":"غير مسجل الدخول","System Health":"صحة النظام","Operational":"قيد التشغيل","Fullscreen":"ملء الشاشة","Exit Fullscreen":"إنهاء ملء الشاشة","Menu":"القائمة","Language: EN / AR":"اللغة: عربي / EN","Active Now":"نشط الآن","Completed Today":"اكتمل اليوم","Total Check-Ins":"إجمالي التسجيلات","Currently Occupied Docks":"الأرصفة المشغولة حالياً","Docks In Use":"أرصفة مستخدمة","All docks are currently clear.":"جميع الأرصفة فارغة حالياً.","DEEP-DIVE ANALYTICS HUB":"مركز التحليلات العميقة","Movement Cohorts":"فئات الحركة","Peak Operating Hours":"ساعات الذروة","Dock Utilization Ranking":"تصنيف استخدام الأرصفة","No Data":"لا توجد بيانات","Truck Entry Form":"نموذج دخول الشاحنة","Number Plate Photo":"صورة لوحة الأرقام","Iqama (ID Card) Scanner":"ماسح الإقامة (بطاقة الهوية)","Use Camera":"استخدام الكاميرا","New Driver":"سائق جديد","Existing Driver":"سائق حالي","Co-Driver":"سائق مساعد","Search Driver By Name or Plate... *":"ابحث عن السائق بالاسم أو اللوحة... *","Driver Name *":"اسم السائق *","Iqama Number *":"رقم الإقامة *","Truck Plate Number *":"رقم لوحة الشاحنة *","Mobile Number":"رقم الجوال","Security & Facility Details":"تفاصيل الأمن والمنشأة","Security Name *":"اسم رجل الأمن *","Security ID *":"هوية الأمن *","Dock Number *":"رقم الرصيف *","Purpose / Direction *":"الغرض / الاتجاه *","Dispatching / Receiving *":"إرسال / استلام *","Dispatching":"إرسال","Receiving":"استلام","Seal or transction number":"رقم الختم أو رقم المعاملة","Seal/Transaction":"رقم الختم / المعاملة","Noon Employee ID":"معرف موظف نون","Quantity (Boxes/Pallets)":"الكمية (صناديق/طبالي)","Check In Truck":"إدخال الشاحنة","Active Trucks in Facility":"الشاحنات النشطة في المنشأة","Currently Checked-In Vehicles":"المركبات المسجلة حالياً","Total Inside":"الإجمالي بالداخل","Search records...":"البحث في السجلات...","Driver":"السائق","Plate":"اللوحة","Direction":"الاتجاه","Type":"النوع","Dock":"الرصيف","Check-In Time":"وقت الدخول","Duration":"المدة","Security":"الأمن","Action":"الإجراء","NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.":"لا توجد شاحنات نشطة في الجلسة الحالية.","Movement History":"سجل الحركة","Site Movement Activity":"نشاط حركة الموقع","Export to Excel":"تصدير إلى إكسل","Filter by driver, plate, or security ID...":"تصفية حسب السائق أو اللوحة...","Today":"اليوم","Last 7 Days":"آخر 7 أيام","Custom":"مخصص","All Time":"كل الوقت","TO":"إلى","Apply":"تطبيق","Check Out":"وقت الخروج","No historical logs parsed inside database.":"لا توجد سجلات تاريخية في قاعدة البيانات.","Drivers Registry":"سجل السائقين","Centralized database of authorized personnel.":"قاعدة بيانات مركزية للموظفين المعتمدين.","Search name, id, number...":"البحث بالاسم، الهوية، الرقم...","Driver Details":"تفاصيل السائق","Security Guard Details":"تفاصيل حارس الأمن","Full Legal Name":"الاسم القانوني الكامل","Iqama/National ID":"الإقامة / الهوية الوطنية","Primary Vehicle Plate":"لوحة المركبة الأساسية","Registered Date":"تاريخ التسجيل","Close Window":"إغلاق النافذة","Edit Driver Record":"تعديل سجل السائق","Edit Guard Record":"تعديل سجل الحارس","Delete":"حذف","Cancel":"إلغاء","Save Updates":"حفظ التحديثات","Completing SLP cycle...":"إكمال دورة SLP...","ATTACH DEPARTURE SEAL *":"إرفاق ختم المغادرة *","CONFIRM CHECK OUT":"تأكيد تسجيل الخروج","CHECK OUT":"تسجيل الخروج","DISCARD CHANGES":"تجاهل التغييرات","Capture":"التقاط","Hold Still...":"ثبت يدك...","Inside":"بالداخل","OUTBOUND":"مغادرة","INBOUND":"دخول","SIGN OUT":"خروج","View Records":"عرض السجلات","Verified":"مُوثّق","Check out":"تسجيل الخروج","Edit":"تعديل","Assigned Docks *":"الأرصفة المعينة *","Select Dock...":"اختر الرصيف...","Docks Selected":"أرصفة محددة","You cannot log out. You must check out your active trucks at your assigned docks first.":"لا يمكنك تسجيل الخروج. يجب عليك تسجيل خروج الشاحنات النشطة في الأرصفة المعينة لك أولاً.","has been active for ":"نشط منذ "," minutes.":" دقيقة.","Extend 30 min":"تمديد 30 دقيقة","Auto-checked out.":"تم تسجيل الخروج تلقائيًا.","Shift Handover":"تسليم المناوبة","Only guards with assigned docks can perform a shift handover.":"يمكن فقط للحراس المعينين بأرصفة إجراء تسليم المناوبة.","Your assigned docks are completely clear. No handover required. You may sign out.":"أرصفتك فارغة تماماً. لا حاجة للتسليم. يمكنك تسجيل الخروج.","Please enter the incoming guard's Name and ID.":"يرجى إدخال اسم ورقم هوية الحارس القادم.","Add Co-Driver":"إضافة سائق مساعد"};
 function tr(key){return currentLang==='en'?key:(translations[key]||key);}
 translations["Welcome to Noon SLP"]="\u0645\u0631\u062d\u0628\u064b\u0627 \u0628\u0643 \u0641\u064a Noon SLP";
 translations["Sign in"]="\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644";
@@ -1166,7 +1123,7 @@ window.toggleLoginDock=function(dockNum,btn){if(loginSelectedDocks.includes(dock
 function switchLoginMode(mode,btn){currentLoginMode=mode;document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('loginNoonId',(mode==='admin')?'none':'block');setDisp('loginIdWrapper',(mode==='admin')?'none':'block');setDisp('loginDocksContainer',(mode==='admin')?'none':'block');setDisp('adminPasswordContainer',(mode==='admin')?'block':'none');if(mode==='admin'){document.getElementById('loginNameSuggestions').classList.remove('open');document.getElementById('loginIdSuggestions').classList.remove('open');}}
 window.switchLoginMode=switchLoginMode;
 function populateCheckInDocks(role,docksArray){const dockSelect=document.getElementById('dockNumber');if(!dockSelect)return;dockSelect.innerHTML=`<option value="" disabled selected>${tr('Select Dock...')}</option>`;let docksToRender=[];if(role==='admin'||!docksArray||docksArray.length===0){for(let i=15;i<=90;i++)docksToRender.push(i);}else{docksToRender=docksArray.sort((a,b)=>a-b);}docksToRender.forEach(d=>{dockSelect.innerHTML+=`<option value="${d}">${d}</option>`;});dockSelect.innerHTML+=`<option value="Others">${tr('Others / آخر')}</option>`;const customInput=document.getElementById('dockNumberCustom');if(customInput)customInput.style.display='none';}
-function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-test',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}
+function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}
 window.logoutUser=function(){if(userRole==='guard'&&loginSelectedDocks&&loginSelectedDocks.length>0){let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length>0){alert(tr("You cannot log out. You must check out your active trucks at your assigned docks first."));return;}}localStorage.removeItem('noonSlpUserSession');location.reload();};
 window.openHandoverModal=function(){if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0){alert(tr("Only guards with assigned docks can perform a shift handover."));return;}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length===0){alert(tr("Your assigned docks are completely clear. No handover required. You may sign out."));return;}const countEl=document.getElementById('handoverTruckCount');if(countEl)countEl.innerText=myActiveTrucks.length;document.getElementById('handoverModal').classList.add('modal-active');};
 window.closeHandoverModal=function(){document.getElementById('handoverModal').classList.remove('modal-active');};
@@ -1318,7 +1275,7 @@ async function handleCheckoutPhoto(inputEl,statusContainerId,scanType){const fil
 window.handleCheckoutPhoto=handleCheckoutPhoto;
 function exportHistoryToExcel(){if(!globalLogsCache||globalLogsCache.length===0){alert('No data to export.');return;}const headers=['Driver','Iqama Number','Plate','Direction','Dock','Noon Employee ID','Boxes/Pallets','Seal Number','Check In Truck','Check Out','Security'];const csvLines=[headers.join(',')];globalLogsCache.forEach(r=>{let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'Inside');const line=[r.driverName||'',r.iqamaNumber||'',r.plateNumber||'',r.direction||'',r.dockNumber||'',r.noonEmployeeId||'',r.boxCount||'0',r.sealNumber||'--',safeCheckInStr,safeCheckOutStr,r.securityName||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');csvLines.push(line);});const csvContent=csvLines.join('\n');const blob=new Blob(["\uFEFF"+csvContent],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`movement-history-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 window.exportHistoryToExcel=exportHistoryToExcel;
-const CURRENT_APP_VERSION="10.0";
+const CURRENT_APP_VERSION="10.1";
 function checkForNewCode(){fetch(window.location.href.split('#')[0].split('?')[0]+'?cachebust='+new Date().getTime(),{cache:'no-store'}).then(r=>r.text()).then(html=>{const match=html.match(/const\s+CURRENT_APP_VERSION\s*=\s*"([^"]+)";/);if(match&&match[1]!==CURRENT_APP_VERSION){const btn=document.getElementById('updateAppBtn');if(btn)btn.style.display='flex';}}).catch(()=>{});}
 const renderHistoryWhenVisible=applyHistoryFilters;
 applyHistoryFilters=function(){if(document.getElementById('view-history').classList.contains('active-view'))renderHistoryWhenVisible();};
@@ -1943,37 +1900,7 @@ window.handleOcrSmartChoice=function(choice){
     document.getElementById("ocrSmartAddCarBtn").style.display="none";
   }
 };
-const originalExecuteLogin=executeLogin;
-window.executeLogin=function(...args){
-  originalExecuteLogin(...args);
-  const testNav=document.getElementById("nav-test");
-  if(testNav)testNav.style.display=window.DOCK_TEST_MODE?"none":args[3]==="admin"?"flex":"none";
-};
-const originalProcessOcrRequestJSONP=processOcrRequestJSONP;
-processOcrRequestJSONP=function(base64Data,scanType){
-  if(window.DOCK_TEST_MODE){
-    const text=scanType==="IQAMA"?"DEMO DRIVER A 2000000001":scanType==="PLATE"?"4117 JRA":"TEST GUARD ONE TEST-001";
-    return Promise.resolve({status:"success",text});
-  }
-  return originalProcessOcrRequestJSONP(base64Data,scanType);
-};
-translations["Test"]="اختبار";
 translations["Brightness"]="السطوع";
-translations["Test Environment"]="بيئة الاختبار";
-translations["Isolated demo workspace"]="مساحة اختبار معزولة";
-translations["Safe test mode"]="وضع اختبار آمن";
-translations["This workspace uses sample records only. Changes stay in this browser session and are never sent to the shared spreadsheet."]="تستخدم هذه المساحة بيانات تجريبية فقط. تبقى التغييرات في جلسة المتصفح ولا تُرسل إلى جدول البيانات المشترك.";
-translations["Start Test App"]="بدء تطبيق الاختبار";
-translations["Reset Sample Data"]="إعادة تعيين البيانات التجريبية";
-document.addEventListener("DOMContentLoaded",()=>{
-  if(!window.DOCK_TEST_MODE)return;
-  const testNav=document.getElementById("nav-test");
-  temporaryCapturedImage="isolated-test-truck-photo";
-  temporaryCapturedItemImage="isolated-test-item-photo";
-  temporaryCapturedIqamaImage="isolated-test-iqama-photo";
-  executeLogin("TEST ADMIN","test@example.invalid","","admin",true,[]);
-  if(testNav)testNav.style.display="none";
-});
 </script>
 </body>
 </html>
