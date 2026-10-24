@@ -390,6 +390,15 @@ input::placeholder,textarea::placeholder{color:#fff!important;opacity:1}
 .vehicle-choice-list{display:flex;flex-direction:column;gap:.65rem;max-height:50vh;overflow:auto}
 .vehicle-choice-button{width:100%;padding:.8rem 1rem;border:1px solid var(--accent-color);border-radius:7px;background:#1b1a16;color:#fff;font-weight:800;cursor:pointer}
 .vehicle-choice-button:hover{background:#302817}
+html{scroll-behavior:smooth}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,.input-box-styled,.header-search-input,.driver-registry-card,.metric-card-slate,.card,.scan-box-dashed,.vehicle-choice-button,.nav-item,.dock-badge-inactive{transition:background-color .22s ease,border-color .22s ease,color .22s ease,box-shadow .22s ease,transform .22s ease}
+.card,.metric-card-slate,.driver-registry-card,.scan-box-dashed,.dashboard-hero,.modal-window,.suggestions-dropdown{border-color:rgba(217,177,74,.28)!important;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.025)}
+.driver-registry-card:hover,.metric-card-slate:hover,.vehicle-choice-button:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.28),0 0 12px rgba(217,177,74,.07)}
+.input-box-styled,.header-search-input{border-color:#3b3933!important}
+.input-box-styled:focus,.header-search-input:focus{border-color:rgba(240,208,127,.85)!important;box-shadow:0 0 0 3px rgba(217,177,74,.12)!important}
+.modal-overlay{backdrop-filter:blur(3px)}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
 </head>
 <body>
@@ -1366,7 +1375,6 @@ window.runInstantConflictCheck=function(event){
   if(window.isIqamaOcrInProgress)return;
   if(!event||!event.target)return;
   const target=event.target;
-  const name=String(document.getElementById("driverName").value||"").trim();
   const iqama=String(document.getElementById("iqamaNumber").value||"").trim();
   const digits=String(document.getElementById("plateNumberDigits").value||"").trim();
   const letters=String(document.getElementById("plateNumberLetters").value||"").trim();
@@ -1381,7 +1389,7 @@ window.runInstantConflictCheck=function(event){
   }
   if(!profile&&currentMode!=="existing"&&iqama){
     const idProfile=findDriverByIqama(iqama);
-    if(idProfile&&normalizeDriverValue(idProfile.name)===normalizeDriverValue(name)){
+    if(idProfile){
       profile=idProfile;
       source="identity";
     }
@@ -1407,21 +1415,15 @@ document.getElementById("addDriverCarLetters").addEventListener("input",event=>{
 const existingDriverForm=document.getElementById("entryForm");
 existingDriverForm.addEventListener("submit",event=>{
   if(window.currentDriverMode==="existing")return;
-  const name=String(document.getElementById("driverName").value||"").trim();
   const iqama=String(document.getElementById("iqamaNumber").value||"").trim();
   const plate=(document.getElementById("plateNumberDigits").value+" "+document.getElementById("plateNumberLetters").value).trim();
   const idProfile=findDriverByIqama(iqama);
   const plateProfile=findDriverByPlate(plate);
-  if((idProfile&&normalizeDriverValue(idProfile.name)===normalizeDriverValue(name))||plateProfile){
+  if(idProfile||plateProfile){
     event.preventDefault();
     event.stopImmediatePropagation();
     showDriverMatchPrompt(plateProfile||idProfile,plateProfile?"plate":"identity",plateProfile?plate:"");
     return;
-  }
-  if(idProfile){
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    alert(currentLang==="ar"?"رقم الإقامة مسجل باسم مختلف. تحقق من بيانات السائق.":"This Iqama number is registered under a different name. Check the driver details.");
   }
 },true);
 
