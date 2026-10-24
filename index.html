@@ -435,13 +435,16 @@ button,input,select,textarea{font-weight:400}
 .badge{font-weight:700!important;letter-spacing:.015em}
 .chart-legend li{font-weight:500}
 .chart-legend li span{font-weight:600}
-.whats-new-release-header{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:.85rem}
-.whats-new-release-header h2{color:var(--accent-color);font-size:1.05rem;font-weight:600}
-.whats-new-release-header span{flex:0 0 auto;color:var(--text-muted);font-size:.75rem}
-.whats-new-feature-list{padding-left:1.25rem;color:var(--text-main);font-size:.88rem;line-height:1.65}
-.whats-new-feature-list li+li{margin-top:.3rem}
-.whats-new-feature-list strong{font-weight:600}
-.whats-new-demo-button{width:auto;padding:.5rem 1.5rem;margin-top:1rem}
+.test-environment-notice{padding:1.2rem}
+.test-environment-heading{display:flex;align-items:flex-start;gap:.85rem}
+.test-environment-heading>span{font-size:1.5rem}
+.test-environment-heading h2{color:var(--accent-color);font-size:1rem;font-weight:600;margin-bottom:.25rem}
+.test-environment-heading p{line-height:1.5}
+.test-environment-actions{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:1rem}
+.test-environment-button{width:auto;margin:0;padding:.55rem 1rem}
+.test-environment-frame{width:100%;height:min(78vh,900px);min-height:620px;margin-top:1rem;border:1px solid var(--border-color);border-radius:8px;background:#090909}
+.test-mode-banner{display:none;padding:.55rem .75rem;margin:.35rem 0 .6rem;border:1px solid rgba(217,177,74,.55);border-radius:7px;background:#201a0e;color:#f0d07f;font-size:.72rem;font-weight:600;line-height:1.4}
+.test-mode-banner select{display:block;width:100%;margin-top:.4rem;padding:.35rem;background:#11110f;color:#fff;border:1px solid rgba(217,177,74,.45);border-radius:5px}
 @media(max-width:760px){
  .main-content{padding:.9rem .75rem;margin-top:3.25rem}
  .view-header-row{flex-wrap:wrap;align-items:center;gap:.75rem}
@@ -454,10 +457,100 @@ button,input,select,textarea{font-weight:400}
  #view-history .card>div:first-child>div{width:100%}
  #view-history .filter-tabs-container{justify-content:flex-start}
  .custom-date-row{flex-wrap:wrap;justify-content:flex-start}
- .whats-new-release-header{align-items:flex-start;flex-direction:column;gap:.25rem}
+ .test-environment-frame{height:78vh;min-height:540px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
+<script>
+window.DOCK_TEST_MODE=new URLSearchParams(window.location.search).get("dockTestMode")==="1";
+if(window.DOCK_TEST_MODE){
+  const isolatedStorage=new Map();
+  const memoryStorage={
+    get length(){return isolatedStorage.size;},
+    clear(){isolatedStorage.clear();},
+    getItem(key){return isolatedStorage.has(String(key))?isolatedStorage.get(String(key)):null;},
+    key(index){return Array.from(isolatedStorage.keys())[index]||null;},
+    removeItem(key){isolatedStorage.delete(String(key));},
+    setItem(key,value){isolatedStorage.set(String(key),String(value));}
+  };
+  Object.defineProperty(window,"localStorage",{configurable:true,value:memoryStorage});
+  const makeTestTime=hoursAgo=>new Date(Date.now()-hoursAgo*3600000).toISOString();
+  const testDb={
+    drivers:[
+      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"4117 JRA",mobileNumber:"550000001"},
+      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"1234 FSB",mobileNumber:"550000001"},
+      {driverName:"DEMO DRIVER B",iqamaNumber:"2000000002",plateNumber:"4296 HAY",mobileNumber:"550000002"},
+      {driverName:"DEMO DRIVER C",iqamaNumber:"2000000003",plateNumber:"2093 SJA",mobileNumber:"550000003"},
+      {driverName:"DEMO DRIVER D",iqamaNumber:"2000000004",plateNumber:"1881 ATA",mobileNumber:"550000004"},
+      {driverName:"DEMO DRIVER E",iqamaNumber:"2000000005",plateNumber:"9685 RSR",mobileNumber:"550000005"}
+    ],
+    guards:[
+      {securityName:"TEST GUARD ONE",securityId:"TEST-001"},
+      {securityName:"TEST GUARD TWO",securityId:"TEST-002"}
+    ],
+    logs:[
+      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"4117 JRA",dockNumber:"28",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1001",boxCount:"6 Boxes",sealNumber:"--",checkInTime:makeTestTime(42),checkOutTime:"",securityName:"TEST GUARD ONE",securityId:"TEST-001"},
+      {driverName:"DEMO DRIVER B",iqamaNumber:"2000000002",plateNumber:"4296 HAY",dockNumber:"25",direction:"RTV HANDOVER",dispatchType:"Dispatching",noonEmployeeId:"TEST-1002",boxCount:"12 Pallets",sealNumber:"TEST-SEAL-02",checkInTime:makeTestTime(18),checkOutTime:"",securityName:"TEST GUARD TWO",securityId:"TEST-002"},
+      {driverName:"DEMO DRIVER C",iqamaNumber:"2000000003",plateNumber:"2093 SJA",dockNumber:"31",direction:"LIQUIDATION",dispatchType:"Receiving",noonEmployeeId:"TEST-1003",boxCount:"3 Boxes",sealNumber:"--",checkInTime:makeTestTime(3),checkOutTime:"",securityName:"TEST GUARD ONE",securityId:"TEST-001"},
+      {driverName:"DEMO DRIVER D",iqamaNumber:"2000000004",plateNumber:"1881 ATA",dockNumber:"42",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1004",boxCount:"20 Boxes",sealNumber:"--",checkInTime:makeTestTime(1),checkOutTime:"",securityName:"TEST GUARD TWO",securityId:"TEST-002"},
+      {driverName:"DEMO DRIVER E",iqamaNumber:"2000000005",plateNumber:"9685 RSR",dockNumber:"39",direction:"ST CFC",dispatchType:"Dispatching",noonEmployeeId:"TEST-1005",boxCount:"8 Pallets",sealNumber:"TEST-SEAL-05",checkInTime:makeTestTime(6),checkOutTime:makeTestTime(5.5),securityName:"TEST GUARD ONE",securityId:"TEST-001"},
+      {driverName:"DEMO DRIVER A",iqamaNumber:"2000000001",plateNumber:"1234 FSB",dockNumber:"35",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1006",boxCount:"2 Boxes",sealNumber:"--",checkInTime:makeTestTime(27),checkOutTime:makeTestTime(26.5),securityName:"TEST GUARD TWO",securityId:"TEST-002"},
+      {driverName:"DEMO DRIVER B",iqamaNumber:"2000000002",plateNumber:"4296 HAY",dockNumber:"22",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1007",boxCount:"5 Boxes",sealNumber:"--",checkInTime:makeTestTime(54),checkOutTime:makeTestTime(53),securityName:"TEST GUARD ONE",securityId:"TEST-001"},
+      {driverName:"DEMO DRIVER C",iqamaNumber:"2000000003",plateNumber:"2093 SJA",dockNumber:"40",direction:"RTV HANDOVER",dispatchType:"Dispatching",noonEmployeeId:"TEST-1008",boxCount:"4 Pallets",sealNumber:"TEST-SEAL-08",checkInTime:makeTestTime(110),checkOutTime:makeTestTime(108),securityName:"TEST GUARD TWO",securityId:"TEST-002"},
+      {driverName:"DEMO DRIVER D",iqamaNumber:"2000000004",plateNumber:"1881 ATA",dockNumber:"24",direction:"INBOUND",dispatchType:"Receiving",noonEmployeeId:"TEST-1009",boxCount:"10 Boxes",sealNumber:"--",checkInTime:makeTestTime(30*24),checkOutTime:makeTestTime(30*24-1),securityName:"TEST GUARD ONE",securityId:"TEST-001"}
+    ]
+  };
+  window.__DOCK_TEST_DB__=testDb;
+  const jsonResponse=data=>Promise.resolve(new Response(JSON.stringify(data),{status:200,headers:{"Content-Type":"application/json"}}));
+  const textResponse=text=>Promise.resolve(new Response(text,{status:200,headers:{"Content-Type":"text/html"}}));
+  const normalized=value=>String(value||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
+  window.fetch=(input,options={})=>{
+    const url=typeof input==="string"?input:input.url;
+    if(!url.includes("script.google.com/macros/s/")){
+      const requested=new URL(url,window.location.href);
+      if(requested.origin===window.location.origin&&requested.pathname===window.location.pathname)return textResponse('const CURRENT_APP_VERSION = "10.0";');
+      return Promise.reject(new Error("Network access is disabled in isolated test mode."));
+    }
+    if(url.includes("AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc")){
+      const type=new URL(url).searchParams.get("scanType")||"";
+      const text=type==="IQAMA"?"DEMO DRIVER A 2000000001":type==="PLATE"?"4117 JRA":"TEST GUARD ONE TEST-001";
+      return jsonResponse({status:"success",text});
+    }
+    let payload={};
+    if(options.body){try{payload=JSON.parse(options.body);}catch(error){return jsonResponse({status:"error",message:"Invalid test request payload."});}}
+    const identity=normalized(payload.oldDriverIqama||payload.iqamaNumber);
+    if(payload.action==="getLogs")return jsonResponse({status:"success",logs:testDb.logs,drivers:testDb.drivers,guards:testDb.guards});
+    if(payload.action==="checkin"){
+      testDb.logs.unshift({...payload,checkInTime:payload.checkInTime||new Date().toISOString(),checkOutTime:""});
+      if(!testDb.drivers.some(driver=>normalized(driver.iqamaNumber)===identity&&normalized(driver.plateNumber)===normalized(payload.plateNumber)))testDb.drivers.push({driverName:payload.driverName,iqamaNumber:payload.iqamaNumber,plateNumber:payload.plateNumber,mobileNumber:payload.mobileNumber});
+    }else if(payload.action==="checkout"){
+      const entry=testDb.logs.find(log=>normalized(log.plateNumber)===normalized(payload.plateNumber)&&!log.checkOutTime);
+      if(entry){entry.checkOutTime=new Date().toISOString();if(payload.sealNumber)entry.sealNumber=payload.sealNumber;}
+    }else if(payload.action==="addDriver"){
+      if(!testDb.drivers.some(driver=>normalized(driver.iqamaNumber)===identity&&normalized(driver.plateNumber)===normalized(payload.plateNumber)))testDb.drivers.push({driverName:payload.driverName,iqamaNumber:payload.iqamaNumber,plateNumber:payload.plateNumber,mobileNumber:payload.mobileNumber});
+    }else if(payload.action==="addDriverCar"){
+      testDb.drivers.push({driverName:payload.driverName,iqamaNumber:payload.iqamaNumber,plateNumber:payload.plateNumber,mobileNumber:payload.mobileNumber});
+    }else if(payload.action==="editDriver"){
+      const vehicles=Array.isArray(payload.vehicles)?payload.vehicles:[{oldPlate:payload.oldDriverPlate,plateNumber:payload.plateNumber}];
+      testDb.drivers.forEach(driver=>{
+        if(normalized(driver.iqamaNumber)!==normalized(payload.oldDriverIqama)&&String(driver.driverName||"").toLowerCase()!==String(payload.oldDriverName||"").toLowerCase())return;
+        driver.driverName=payload.driverName;driver.iqamaNumber=payload.iqamaNumber;driver.mobileNumber=payload.mobileNumber;
+        const vehicle=vehicles.find(item=>normalized(item.oldPlate)===normalized(driver.plateNumber));
+        if(vehicle&&vehicle.plateNumber)driver.plateNumber=vehicle.plateNumber;
+      });
+    }else if(payload.action==="deleteDriver"){
+      testDb.drivers=testDb.drivers.filter(driver=>normalized(driver.iqamaNumber)!==normalized(payload.iqamaNumber));
+    }else if(payload.action==="addGuard"){
+      if(!testDb.guards.some(guard=>String(guard.securityId)===String(payload.securityId)))testDb.guards.push({securityName:payload.securityName,securityId:payload.securityId});
+    }else if(payload.action==="editGuard"){
+      testDb.guards.forEach(guard=>{if(String(guard.securityName).toLowerCase()===String(payload.oldSecurityName||"").toLowerCase()){guard.securityName=payload.securityName;guard.securityId=payload.securityId;}});
+    }else if(payload.action==="deleteGuard"){
+      testDb.guards=testDb.guards.filter(guard=>String(guard.securityId)!==String(payload.securityId));
+    }
+    return jsonResponse({status:"success"});
+  };
+}
+</script>
 </head>
 <body>
 <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none;position:fixed;top:20px;right:50%;transform:translateX(50%);z-index:2147483647;background:#1a1a1a;color:#fff;border:1px solid #333;padding:10px 24px;border-radius:50px;font-weight:bold;cursor:pointer;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,0.8)"><div style="width:12px;height:12px;background:#ff4444;border-radius:50%;box-shadow:0 0 10px #ff4444;animation:pulse 1s infinite alternate"></div><span style="font-size:1.1rem;letter-spacing:0.5px">New Update Available! Click to Refresh</span></div>
@@ -513,7 +606,7 @@ button,input,select,textarea{font-weight:400}
 <li class="nav-item" id="nav-history" onclick="switchView('history',this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
 <li class="nav-item" id="nav-drivers" onclick="switchView('drivers',this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
 <li class="nav-item" id="nav-security" onclick="switchView('security',this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
-<li class="nav-item" id="nav-whatsnew" onclick="switchView('whatsnew',this)"><span class="nav-icon">✨</span><span class="nav-text" data-i18n="What's New">What's New</span></li>
+<li class="nav-item" id="nav-test" onclick="switchView('test',this)"><span class="nav-icon">🧪</span><span class="nav-text" data-i18n="Test">Test</span></li>
 </ul>
 <div class="sidebar-footer">
 <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700;color:var(--success-color);margin-top:1px">Operational</div></div><div class="health-dot"></div></div>
@@ -731,28 +824,38 @@ button,input,select,textarea{font-weight:400}
 </div>
 <div class="drivers-grid" id="securityRegistryContainer"></div>
 </div>
-<div id="view-whatsnew" class="app-view">
-<div class="view-header-row"><div class="view-header-title"><h1 data-i18n="What's New">What's New</h1><p data-i18n="Version History & Updates">Version History & Updates</p></div></div>
-<div class="card whats-new-release" style="margin-bottom:1rem;">
-<div class="whats-new-release-header"><h2>Version 9.9 - Dock Alerts & Multi-Vehicle Drivers</h2><span>Oct 2026</span></div>
-<ul class="whats-new-feature-list">
-<li><strong>Dock Alerts:</strong> Guards receive an audible alert when a truck reaches its dock time limit. They can extend the timer; inactive-dock notifications and automatic checkout are also supported.</li>
-<li><strong>Multiple Cars per Driver:</strong> Register more than one truck plate under a driver. Matching an existing driver by Iqama works during manual entry and OCR, with options to use the existing driver, add a co-driver, or add a car. Drivers with multiple vehicles can choose the correct one.</li>
-<li><strong>Edit Every Registered Car:</strong> Admins can update all vehicle plates on one driver edit form without losing the other cars linked to that driver.</li>
-<li><strong>Clearer, Responsive Screens:</strong> Smoothed typography and improved the movement-history layout so timestamps and controls fit more reliably across screen sizes.</li>
-</ul>
-<button class="submit-btn-global whats-new-demo-button" onclick="demoTimerAlert()" data-i18n="Test Dock Alert">Test Dock Alert</button>
+<div id="view-test" class="app-view">
+<div class="view-header-row"><div class="view-header-title"><h1 data-i18n="Test Environment">Test Environment</h1><p data-i18n="Isolated demo workspace">Isolated demo workspace</p></div></div>
+<div class="card test-environment-notice">
+<div class="test-environment-heading"><span aria-hidden="true">🛡️</span><div><h2 data-i18n="Safe test mode">Safe test mode</h2><p data-i18n="This workspace uses sample records only. Changes stay in this browser session and are never sent to the shared spreadsheet.">This workspace uses sample records only. Changes stay in this browser session and are never sent to the shared spreadsheet.</p></div></div>
+<div class="test-environment-actions">
+<button id="startTestEnvironmentButton" class="submit-btn-global test-environment-button" onclick="startDockTestEnvironment()" data-i18n="Start Test App">Start Test App</button>
+<button id="resetTestEnvironmentButton" class="btn-modal-cancel test-environment-button" onclick="resetDockTestEnvironment()" style="display:none" data-i18n="Reset Sample Data">Reset Sample Data</button>
 </div>
-<div class="card whats-new-release" style="margin-bottom:1rem;">
-<div class="whats-new-release-header"><h2>Version 9.8 - RTL Tablet CSS Fix</h2><span>Sept 2026</span></div>
-<ul class="whats-new-feature-list">
-<li><strong>Database Protection:</strong> The backend scans the database and rejects duplicate Iqama and truck-plate submissions.</li>
-<li><strong>RTL Mobile Layout:</strong> Fixed the Arabic tablet layout gap when the menu is closed.</li>
-<li><strong>Camera Performance:</strong> Reduced camera initialization effects for a smoother scanning experience.</li>
-</ul>
+<iframe id="dockTestEnvironmentFrame" class="test-environment-frame" title="Isolated Noon SLP test application" loading="lazy" style="display:none"></iframe>
 </div>
 </div>
 </div>
+<script>
+window.startDockTestEnvironment=function(){
+  const frame=document.getElementById("dockTestEnvironmentFrame");
+  const resetButton=document.getElementById("resetTestEnvironmentButton");
+  if(!frame)throw new Error("The isolated test application frame is missing.");
+  if(!frame.src){
+    const url=new URL(window.location.href);
+    url.searchParams.set("dockTestMode","1");
+    url.hash="";
+    frame.src=url.href;
+  }
+  frame.style.display="block";
+  if(resetButton)resetButton.style.display="inline-flex";
+};
+window.resetDockTestEnvironment=function(){
+  const frame=document.getElementById("dockTestEnvironmentFrame");
+  if(!frame||!frame.src){window.startDockTestEnvironment();return;}
+  frame.src=frame.src;
+};
+</script>
 <div class="modal-overlay" id="driverProfileModal">
 <div class="modal-window">
 <div class="modal-header-container"><h2 id="modalTitleName" data-i18n="Driver Details">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
@@ -1045,8 +1148,7 @@ window.toggleLoginDock=function(dockNum,btn){if(loginSelectedDocks.includes(dock
 function switchLoginMode(mode,btn){currentLoginMode=mode;document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('loginNoonId',(mode==='admin')?'none':'block');setDisp('loginIdWrapper',(mode==='admin')?'none':'block');setDisp('loginDocksContainer',(mode==='admin')?'none':'block');setDisp('adminPasswordContainer',(mode==='admin')?'block':'none');if(mode==='admin'){document.getElementById('loginNameSuggestions').classList.remove('open');document.getElementById('loginIdSuggestions').classList.remove('open');}}
 window.switchLoginMode=switchLoginMode;
 function populateCheckInDocks(role,docksArray){const dockSelect=document.getElementById('dockNumber');if(!dockSelect)return;dockSelect.innerHTML=`<option value="" disabled selected>${tr('Select Dock...')}</option>`;let docksToRender=[];if(role==='admin'||!docksArray||docksArray.length===0){for(let i=15;i<=90;i++)docksToRender.push(i);}else{docksToRender=docksArray.sort((a,b)=>a-b);}docksToRender.forEach(d=>{dockSelect.innerHTML+=`<option value="${d}">${d}</option>`;});dockSelect.innerHTML+=`<option value="Others">${tr('Others / آخر')}</option>`;const customInput=document.getElementById('dockNumberCustom');if(customInput)customInput.style.display='none';}
-function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-whatsnew',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}
-window.demoTimerAlert=function(){let dummyTruck={driverName:"Demo Driver",plateNumber:"9999 DEM",securityName:loggedInUser.name,dockNumber:"90",dispatchType:"Receiving"};window.alertQueue.push({type:'30min',truck:dummyTruck,mins:30});processAlertQueue();};
+function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-test',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}
 window.logoutUser=function(){if(userRole==='guard'&&loginSelectedDocks&&loginSelectedDocks.length>0){let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length>0){alert(tr("You cannot log out. You must check out your active trucks at your assigned docks first."));return;}}localStorage.removeItem('noonSlpUserSession');location.reload();};
 window.openHandoverModal=function(){if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0){alert(tr("Only guards with assigned docks can perform a shift handover."));return;}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length===0){alert(tr("Your assigned docks are completely clear. No handover required. You may sign out."));return;}const countEl=document.getElementById('handoverTruckCount');if(countEl)countEl.innerText=myActiveTrucks.length;document.getElementById('handoverModal').classList.add('modal-active');};
 window.closeHandoverModal=function(){document.getElementById('handoverModal').classList.remove('modal-active');};
@@ -1193,7 +1295,7 @@ async function handleCheckoutPhoto(inputEl,statusContainerId,scanType){const fil
 window.handleCheckoutPhoto=handleCheckoutPhoto;
 function exportHistoryToExcel(){if(!globalLogsCache||globalLogsCache.length===0){alert('No data to export.');return;}const headers=['Driver','Iqama Number','Plate','Direction','Dock','Noon Employee ID','Boxes/Pallets','Seal Number','Check In Truck','Check Out','Security'];const csvLines=[headers.join(',')];globalLogsCache.forEach(r=>{let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'Inside');const line=[r.driverName||'',r.iqamaNumber||'',r.plateNumber||'',r.direction||'',r.dockNumber||'',r.noonEmployeeId||'',r.boxCount||'0',r.sealNumber||'--',safeCheckInStr,safeCheckOutStr,r.securityName||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');csvLines.push(line);});const csvContent=csvLines.join('\n');const blob=new Blob(["\uFEFF"+csvContent],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`movement-history-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 window.exportHistoryToExcel=exportHistoryToExcel;
-const CURRENT_APP_VERSION="9.9";
+const CURRENT_APP_VERSION="10.0";
 function checkForNewCode(){fetch(window.location.href.split('#')[0].split('?')[0]+'?cachebust='+new Date().getTime(),{cache:'no-store'}).then(r=>r.text()).then(html=>{const match=html.match(/const\s+CURRENT_APP_VERSION\s*=\s*"([^"]+)";/);if(match&&match[1]!==CURRENT_APP_VERSION){const btn=document.getElementById('updateAppBtn');if(btn)btn.style.display='flex';}}).catch(()=>{});}
 const renderHistoryWhenVisible=applyHistoryFilters;
 applyHistoryFilters=function(){if(document.getElementById('view-history').classList.contains('active-view'))renderHistoryWhenVisible();};
@@ -1818,6 +1920,36 @@ window.handleOcrSmartChoice=function(choice){
     document.getElementById("ocrSmartAddCarBtn").style.display="none";
   }
 };
+const originalExecuteLogin=executeLogin;
+window.executeLogin=function(...args){
+  originalExecuteLogin(...args);
+  const testNav=document.getElementById("nav-test");
+  if(testNav)testNav.style.display=window.DOCK_TEST_MODE?"none":args[3]==="admin"?"flex":"none";
+};
+const originalProcessOcrRequestJSONP=processOcrRequestJSONP;
+processOcrRequestJSONP=function(base64Data,scanType){
+  if(window.DOCK_TEST_MODE){
+    const text=scanType==="IQAMA"?"DEMO DRIVER A 2000000001":scanType==="PLATE"?"4117 JRA":"TEST GUARD ONE TEST-001";
+    return Promise.resolve({status:"success",text});
+  }
+  return originalProcessOcrRequestJSONP(base64Data,scanType);
+};
+translations["Test"]="اختبار";
+translations["Test Environment"]="بيئة الاختبار";
+translations["Isolated demo workspace"]="مساحة اختبار معزولة";
+translations["Safe test mode"]="وضع اختبار آمن";
+translations["This workspace uses sample records only. Changes stay in this browser session and are never sent to the shared spreadsheet."]="تستخدم هذه المساحة بيانات تجريبية فقط. تبقى التغييرات في جلسة المتصفح ولا تُرسل إلى جدول البيانات المشترك.";
+translations["Start Test App"]="بدء تطبيق الاختبار";
+translations["Reset Sample Data"]="إعادة تعيين البيانات التجريبية";
+document.addEventListener("DOMContentLoaded",()=>{
+  if(!window.DOCK_TEST_MODE)return;
+  const testNav=document.getElementById("nav-test");
+  temporaryCapturedImage="isolated-test-truck-photo";
+  temporaryCapturedItemImage="isolated-test-item-photo";
+  temporaryCapturedIqamaImage="isolated-test-iqama-photo";
+  executeLogin("TEST ADMIN","test@example.invalid","","admin",true,[]);
+  if(testNav)testNav.style.display="none";
+});
 </script>
 </body>
 </html>
