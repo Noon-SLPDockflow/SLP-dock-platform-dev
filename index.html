@@ -222,7 +222,7 @@ tr:hover td{background-color:rgba(255,255,255,0.02)}
 .toggle-container{display:flex;justify-content:center;background:#210b12;border:1px solid rgba(199,122,82,0.28);border-radius:8px;padding:3px;margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto}
 .toggle-btn{flex:1;background:transparent;border:none;color:var(--text-muted);padding:0.5rem 0.85rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
 .toggle-btn.active{background:var(--accent-color);color:#000}
-.analytics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-bottom:1.5rem}
+.analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;margin-bottom:1.5rem}
 @media (max-width:1100px){.analytics-grid{grid-template-columns:1fr}}
 .chart-card{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.25rem;display:flex;flex-direction:column}
 .chart-card h3{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:1.5rem}
@@ -398,6 +398,43 @@ button,.input-box-styled,.header-search-input,.driver-registry-card,.metric-card
 .input-box-styled,.header-search-input{border-color:#3b3933!important}
 .input-box-styled:focus,.header-search-input:focus{border-color:rgba(240,208,127,.85)!important;box-shadow:0 0 0 3px rgba(217,177,74,.12)!important}
 .modal-overlay{backdrop-filter:blur(3px)}
+body{font-family:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;font-weight:400;line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+.view-header-title h1{font-weight:650;letter-spacing:.005em}
+.view-header-title p,.chart-card h3{font-weight:550;letter-spacing:.025em}
+.chart-card h3{font-size:.75rem;line-height:1.4}
+.tab-filter-item{font-weight:600;letter-spacing:.015em}
+.chart-card{min-width:0;overflow:hidden}
+#historyLogTable{table-layout:fixed;width:100%;min-width:1120px}
+#historyLogTable th:nth-child(1),#historyLogTable td:nth-child(1){width:16%}
+#historyLogTable th:nth-child(2),#historyLogTable td:nth-child(2){width:8%}
+#historyLogTable th:nth-child(3),#historyLogTable td:nth-child(3){width:9%}
+#historyLogTable th:nth-child(4),#historyLogTable td:nth-child(4){width:4%}
+#historyLogTable th:nth-child(5),#historyLogTable td:nth-child(5){width:8%}
+#historyLogTable th:nth-child(6),#historyLogTable td:nth-child(6){width:7%}
+#historyLogTable th:nth-child(7),#historyLogTable td:nth-child(7){width:8%}
+#historyLogTable th:nth-child(8),#historyLogTable td:nth-child(8),
+#historyLogTable th:nth-child(9),#historyLogTable td:nth-child(9){width:12%;min-width:126px;white-space:normal;overflow-wrap:anywhere;text-overflow:clip}
+#historyLogTable th:nth-child(10),#historyLogTable td:nth-child(10){width:6%}
+#historyLogTable th:nth-child(11),#historyLogTable td:nth-child(11){width:10%}
+#historyLogTable th{font-size:.68rem;font-weight:600;letter-spacing:.015em}
+#historyLogTable td{font-size:.78rem;font-weight:500;line-height:1.35}
+#historyLogTable td strong{font-weight:500}
+.badge{font-weight:700!important;letter-spacing:.015em}
+.chart-legend li{font-weight:500}
+.chart-legend li span{font-weight:600}
+@media(max-width:760px){
+ .main-content{padding:.9rem .75rem;margin-top:3.25rem}
+ .view-header-row{flex-wrap:wrap;align-items:center;gap:.75rem}
+ .view-header-title{min-width:0}
+ .view-header-title h1{font-size:1.3rem}
+ .header-search-box-container{width:100%;max-width:100%}
+ #view-history>.card{padding:.85rem!important}
+ #view-history .card>div:first-child{align-items:stretch!important}
+ #view-history .card>div:first-child>.header-search-box-container{width:100%!important}
+ #view-history .card>div:first-child>div{width:100%}
+ #view-history .filter-tabs-container{justify-content:flex-start}
+ .custom-date-row{flex-wrap:wrap;justify-content:flex-start}
+}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
 </head>
