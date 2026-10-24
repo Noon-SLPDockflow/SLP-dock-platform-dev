@@ -387,6 +387,9 @@ input::placeholder,textarea::placeholder{color:#fff!important;opacity:1}
 .badge.purple{background:#581c87!important;color:#f3e8ff!important;border-color:#c084fc!important}
 .badge.blue{background:#713f12!important;color:#fef3c7!important;border-color:#facc15!important}
 @media(max-width:760px){.login-brand-name{font-size:clamp(2rem,8vw,2.5rem)}.login-brand-subtitle{font-size:clamp(1.35rem,5.5vw,1.65rem)}}
+.vehicle-choice-list{display:flex;flex-direction:column;gap:.65rem;max-height:50vh;overflow:auto}
+.vehicle-choice-button{width:100%;padding:.8rem 1rem;border:1px solid var(--accent-color);border-radius:7px;background:#1b1a16;color:#fff;font-weight:800;cursor:pointer}
+.vehicle-choice-button:hover{background:#302817}
 </style>
 </head>
 <body>
@@ -694,6 +697,8 @@ input::placeholder,textarea::placeholder{color:#fff!important;opacity:1}
 </div>
 <div class="modal-body-content">
 <input type="hidden" id="editDriverOldName">
+<input type="hidden" id="editDriverOldIqama">
+<input type="hidden" id="editDriverOldPlate">
 <div class="form-group">
 <label class="badge-style" data-i18n="Driver Name *">Driver Name *</label>
 <input type="text" id="editDriverName" class="input-box-styled" required>
@@ -837,6 +842,49 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 <button class="submit-btn-global" style="margin-top:0; background: #2ea043; color: #fff;" onclick="handleOcrSmartChoice('existing')" data-i18n="Existing Driver">⏱️ Existing Driver</button>
 <button class="submit-btn-global" style="margin-top:0; background: var(--accent-color); color: #000;" onclick="handleOcrSmartChoice('codriver')" data-i18n="Add Co-Driver">👥 Add Co-Driver</button>
 </div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="driverMatchModal" style="z-index:10000000">
+<div class="modal-window" style="max-width:420px;border-color:var(--accent-color)">
+<div class="modal-header-container"><h2>🚘 Driver Already Registered</h2><button class="btn-modal-close" onclick="closeDriverMatchModal()">✕</button></div>
+<div class="modal-body-content" style="padding:1.5rem;text-align:center">
+<p id="driverMatchMessage" style="margin-bottom:1.25rem;line-height:1.5"></p>
+<div style="display:flex;flex-direction:column;gap:.65rem">
+<button class="submit-btn-global" style="margin-top:0" onclick="handleDriverMatchChoice('existing')">Use Existing Driver</button>
+<button class="submit-btn-global" style="margin-top:0" onclick="handleDriverMatchChoice('addCar')">Add Another Car</button>
+<button class="btn-modal-cancel" onclick="closeDriverMatchModal()">Cancel</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="vehicleChooserModal" style="z-index:10000001">
+<div class="modal-window" style="max-width:420px;border-color:var(--accent-color)">
+<div class="modal-header-container"><h2>Choose a Vehicle</h2><button class="btn-modal-close" onclick="closeVehicleChooser()">✕</button></div>
+<div class="modal-body-content" style="padding:1.5rem">
+<p id="vehicleChooserMessage" style="margin:0 0 1rem;text-align:center"></p>
+<div id="vehicleChoiceList" class="vehicle-choice-list"></div>
+<button class="btn-modal-cancel" style="display:block;margin:1rem auto 0" onclick="closeVehicleChooser()">Cancel</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="addDriverCarModal" style="z-index:10000002">
+<div class="modal-window" style="max-width:440px;border-color:var(--accent-color)">
+<div class="modal-header-container"><h2>Add Another Car</h2><button class="btn-modal-close" onclick="closeAddDriverCarModal()">✕</button></div>
+<div class="modal-body-content" style="padding:1.5rem">
+<p id="addDriverCarMessage" style="margin:0 0 1rem;text-align:center"></p>
+<label class="badge-style" for="addDriverCarDigits">Plate Number *</label>
+<div style="display:flex;gap:.6rem">
+<input type="number" id="addDriverCarDigits" class="input-box-styled" placeholder="1234" required style="width:50%;font-family:monospace">
+<input type="text" id="addDriverCarLetters" class="input-box-styled" placeholder="ABC" required maxlength="3" style="width:50%;font-family:monospace;text-transform:uppercase">
+</div>
+</div>
+<div class="modal-footer-container">
+<button class="btn-modal-cancel" onclick="closeAddDriverCarModal()">Cancel</button>
+<button id="saveDriverCarButton" class="submit-btn-global" style="margin-top:0;width:auto;padding:.5rem 1.25rem" onclick="saveDriverCar()">Save Car</button>
 </div>
 </div>
 </div>
@@ -1079,6 +1127,498 @@ const renderSecurityWhenVisible=compileSecurityRegistryCards;
 compileSecurityRegistryCards=function(){updateRegistryTotalCounts();if(document.getElementById('view-security').classList.contains('active-view'))renderSecurityWhenVisible();};
 const switchViewAndRender=window.switchView;
 window.switchView=function(viewId,element){switchViewAndRender(viewId,element);if(!window.hasFetchedLogs)return;if(viewId==='history')renderHistoryWhenVisible();if(viewId==='analytics')renderAnalyticsWhenVisible();if(viewId==='drivers')renderDriversWhenVisible();if(viewId==='security')renderSecurityWhenVisible();};
+</script>
+<script>
+function normalizeDriverValue(value){return String(value||"").trim().toLowerCase().replace(/\s+/g," ");}
+function normalizeVehiclePlate(value){return String(value||"").replace(/[^a-z0-9]/gi,"").toLowerCase();}
+function getDriverPlates(driver){
+  const candidates=Array.isArray(driver.plates)?driver.plates:[driver.plate||driver.plateNumber||""];
+  const seen=new Set();
+  return candidates.map(value=>String(value||"").trim()).filter(value=>{
+    const key=normalizeVehiclePlate(value);
+    if(!key||seen.has(key))return false;
+    seen.add(key);
+    return true;
+  });
+}
+function groupDriverRecords(records){
+  const profiles=new Map();
+  (records||[]).forEach(record=>{
+    const name=String(record.name||record.driverName||"").trim();
+    const id=String(record.id||record.iqamaNumber||"").trim();
+    const phone=String(record.phone||record.mobileNumber||"N/A").trim()||"N/A";
+    if(!name)return;
+    const identity=normalizeDriverValue(id);
+    const key=identity&&identity!=="n/a"&&identity!=="--"?"id:"+identity:"name:"+normalizeDriverValue(name);
+    let profile=profiles.get(key);
+    if(!profile){
+      profile={name:name,id:id||"--",phone:phone,plates:[],plate:""};
+      profiles.set(key,profile);
+    }else if((profile.phone==="N/A"||!profile.phone)&&phone!=="N/A"){
+      profile.phone=phone;
+    }
+    getDriverPlates(record).forEach(plate=>{
+      if(!profile.plates.some(existing=>normalizeVehiclePlate(existing)===normalizeVehiclePlate(plate)))profile.plates.push(plate);
+    });
+  });
+  return Array.from(profiles.values()).map(profile=>({...profile,plate:profile.plates[0]||"--"}));
+}
+function findDriverByIqama(iqama){
+  const key=normalizeDriverValue(iqama);
+  return driversRegistryList.find(driver=>normalizeDriverValue(driver.id)===key&&key&&key!=="n/a"&&key!=="--");
+}
+function findDriverByPlate(plate){
+  const key=normalizeVehiclePlate(plate);
+  if(!key)return null;
+  return driversRegistryList.find(driver=>getDriverPlates(driver).some(value=>normalizeVehiclePlate(value)===key))||null;
+}
+function plateParts(value){
+  const text=String(value||"").trim();
+  const digits=(text.match(/\d+/)||[])[0]||"";
+  const letters=(text.match(/[A-Za-z]+/g)||[]).join("").toUpperCase();
+  return {digits:digits,letters:letters};
+}
+function clearDriverInputValidity(){
+  ["driverName","iqamaNumber","plateNumberDigits","plateNumberLetters"].forEach(id=>{
+    const input=document.getElementById(id);
+    if(input)input.setCustomValidity("");
+  });
+}
+function translateVehicleModals(){
+  const arabic=currentLang==="ar";
+  const matchModal=document.getElementById("driverMatchModal");
+  if(matchModal){
+    matchModal.querySelector(".modal-header-container h2").textContent=arabic?"🚘 السائق مسجل بالفعل":"🚘 Driver Already Registered";
+    const buttons=matchModal.querySelectorAll(".modal-body-content button");
+    buttons[0].textContent=arabic?"استخدام السائق الحالي":"Use Existing Driver";
+    buttons[1].textContent=arabic?"إضافة سيارة أخرى":"Add Another Car";
+    buttons[2].textContent=arabic?"إلغاء":"Cancel";
+  }
+  const chooser=document.getElementById("vehicleChooserModal");
+  if(chooser){
+    chooser.querySelector(".modal-header-container h2").textContent=arabic?"اختر مركبة":"Choose a Vehicle";
+    chooser.querySelector(".modal-body-content > button").textContent=arabic?"إلغاء":"Cancel";
+  }
+  const addModal=document.getElementById("addDriverCarModal");
+  if(addModal){
+    addModal.querySelector(".modal-header-container h2").textContent=arabic?"إضافة سيارة أخرى":"Add Another Car";
+    addModal.querySelector("label").textContent=arabic?"رقم اللوحة *":"Plate Number *";
+    const buttons=addModal.querySelectorAll(".modal-footer-container button");
+    buttons[0].textContent=arabic?"إلغاء":"Cancel";
+    buttons[1].textContent=arabic?"حفظ السيارة":"Save Car";
+  }
+}
+function showDriverMatchPrompt(profile,source,matchedPlate){
+  if(!profile||document.getElementById("driverMatchModal").classList.contains("modal-active"))return;
+  const modal=document.getElementById("driverMatchModal");
+  const message=document.getElementById("driverMatchMessage");
+  if(!modal||!message)return;
+  translateVehicleModals();
+  window.driverMatchContext={profile:profile,source:source,matchedPlate:matchedPlate||"",context:"checkin"};
+  message.textContent=currentLang==="ar"
+    ? `السائق ${profile.name} مسجل بالفعل. هل تريد استخدام ملفه الحالي أو إضافة سيارة أخرى؟`
+    : `${profile.name} is already registered. Use the existing driver profile or add another car?`;
+  modal.classList.add("modal-active");
+}
+function closeDriverMatchModal(){
+  const modal=document.getElementById("driverMatchModal");
+  if(modal)modal.classList.remove("modal-active");
+  window.driverMatchContext=null;
+}
+function openVehicleChooser(profile,context){
+  const plates=getDriverPlates(profile);
+  if(plates.length<2){selectExistingDriverProfile(profile,plates[0]||profile.plate,context);return;}
+  const modal=document.getElementById("vehicleChooserModal");
+  const message=document.getElementById("vehicleChooserMessage");
+  const list=document.getElementById("vehicleChoiceList");
+  if(!modal||!list)return;
+  translateVehicleModals();
+  window.vehicleChooserContext={profile:profile,context:context||"checkin"};
+  message.textContent=currentLang==="ar"?`اختر مركبة للسائق ${profile.name}`:`Choose a vehicle for ${profile.name}`;
+  list.replaceChildren();
+  plates.forEach(plate=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="vehicle-choice-button";
+    button.textContent=plate;
+    button.addEventListener("click",()=>{
+      const chooserContext=window.vehicleChooserContext;
+      closeVehicleChooser();
+      if(chooserContext)selectExistingDriverProfile(chooserContext.profile,plate,chooserContext.context);
+    });
+    list.appendChild(button);
+  });
+  modal.classList.add("modal-active");
+}
+function closeVehicleChooser(){
+  const modal=document.getElementById("vehicleChooserModal");
+  if(modal)modal.classList.remove("modal-active");
+  window.vehicleChooserContext=null;
+}
+function selectExistingDriverProfile(profile,plate,context){
+  clearDriverInputValidity();
+  if(context!=="checkin")return;
+  const selectedPlate=plate||getDriverPlates(profile)[0]||"";
+  window.selectedDriverProfile={...profile,plates:getDriverPlates(profile),plate:selectedPlate};
+  const existingButton=document.getElementById("toggleExistingDriverBtn");
+  if(window.currentDriverMode!=="existing"&&existingButton)setDriverMode("existing",existingButton);
+  const searchBox=document.getElementById("driverSearchBox");
+  if(searchBox){searchBox.value=profile.name;searchBox.required=true;}
+  updateSelectedDriverUI();
+}
+function handleDriverMatchChoice(choice){
+  const context=window.driverMatchContext;
+  if(!context)return;
+  closeDriverMatchModal();
+  if(choice==="existing"){
+    openVehicleChooser(context.profile,"checkin");
+    return;
+  }
+  if(choice==="addCar"){
+    const enteredPlate=(document.getElementById("plateNumberDigits").value+" "+document.getElementById("plateNumberLetters").value).trim();
+    const prefill=findDriverByPlate(enteredPlate)? "":enteredPlate;
+    openAddDriverCarModal(context.profile,"checkin",prefill);
+  }
+}
+function openAddDriverCarModal(profile,context,prefillPlate){
+  translateVehicleModals();
+  window.addDriverCarContext={profile:profile,context:context||"registry"};
+  const message=document.getElementById("addDriverCarMessage");
+  if(message)message.textContent=`${profile.name} · Iqama ${profile.id}`;
+  const parts=plateParts(prefillPlate);
+  document.getElementById("addDriverCarDigits").value=parts.digits;
+  document.getElementById("addDriverCarLetters").value=parts.letters;
+  document.getElementById("addDriverCarModal").classList.add("modal-active");
+}
+function closeAddDriverCarModal(){
+  document.getElementById("addDriverCarModal").classList.remove("modal-active");
+  window.addDriverCarContext=null;
+}
+async function saveDriverCar(){
+  const context=window.addDriverCarContext;
+  if(!context)return;
+  const digits=document.getElementById("addDriverCarDigits").value.trim();
+  const letters=document.getElementById("addDriverCarLetters").value.trim().toUpperCase();
+  if(!digits||!letters){
+    alert(currentLang==="ar"?"يرجى إدخال أرقام وحروف اللوحة.":"Enter both the plate numbers and letters.");
+    return;
+  }
+  const plate=`${digits} ${letters}`;
+  const saveButton=document.getElementById("saveDriverCarButton");
+  saveButton.disabled=true;
+  const originalText=saveButton.textContent;
+  saveButton.textContent="Saving...";
+  try{
+    const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"addDriverCar",driverName:context.profile.name,iqamaNumber:context.profile.id,plateNumber:plate,mobileNumber:context.profile.phone})});
+    const result=await response.json();
+    if(!response.ok||result.status!=="success")throw new Error(result.message||"Could not save the vehicle.");
+    const profile=driversRegistryList.find(driver=>normalizeDriverValue(driver.id)===normalizeDriverValue(context.profile.id));
+    if(!profile)throw new Error("Vehicle was saved, but the driver is not present in the current list. Refresh the registry.");
+    profile.plates=getDriverPlates(profile);
+    profile.plates.push(plate);
+    profile.plate=profile.plates[0];
+    const saveContext=context.context;
+    closeAddDriverCarModal();
+    compileDriversRegistryCards();
+    if(saveContext==="checkin")selectExistingDriverProfile(profile,plate,"checkin");
+  }catch(error){
+    console.error("Add vehicle error:",error);
+    alert(error.message||"Could not save the vehicle. Please try again.");
+  }finally{
+    saveButton.disabled=false;
+    saveButton.textContent=originalText;
+  }
+}
+window.closeDriverMatchModal=closeDriverMatchModal;
+window.handleDriverMatchChoice=handleDriverMatchChoice;
+window.closeVehicleChooser=closeVehicleChooser;
+window.closeAddDriverCarModal=closeAddDriverCarModal;
+window.saveDriverCar=saveDriverCar;
+window.openAddDriverCarModal=openAddDriverCarModal;
+const originalSetDriverMode=window.setDriverMode;
+window.setDriverMode=function(mode,button){
+  if(mode!=="existing")window.selectedDriverProfile=null;
+  return originalSetDriverMode(mode,button);
+};
+
+window.runInstantConflictCheck=function(event){
+  if(!event||!event.target)return;
+  const target=event.target;
+  const name=String(document.getElementById("driverName").value||"").trim();
+  const iqama=String(document.getElementById("iqamaNumber").value||"").trim();
+  const digits=String(document.getElementById("plateNumberDigits").value||"").trim();
+  const letters=String(document.getElementById("plateNumberLetters").value||"").trim();
+  const currentMode=window.currentDriverMode;
+  const plate=(`${digits} ${letters}`).trim();
+  let profile=null;
+  let source="";
+  let matchedPlate="";
+  if(currentMode!=="existing"&&currentMode!=="codriver"&&digits&&letters){
+    profile=findDriverByPlate(plate);
+    if(profile){source="plate";matchedPlate=plate;}
+  }
+  if(!profile&&currentMode!=="existing"&&iqama){
+    const idProfile=findDriverByIqama(iqama);
+    if(idProfile&&normalizeDriverValue(idProfile.name)===normalizeDriverValue(name)){
+      profile=idProfile;
+      source="identity";
+    }
+  }
+  target.setCustomValidity("");
+  if(profile){
+    const promptKey=`${source}:${normalizeDriverValue(profile.id)}:${normalizeVehiclePlate(matchedPlate)}`;
+    if(window.lastDriverMatchPromptKey!==promptKey){
+      window.lastDriverMatchPromptKey=promptKey;
+      showDriverMatchPrompt(profile,source,matchedPlate);
+    }
+  }else{
+    window.lastDriverMatchPromptKey="";
+  }
+};
+document.getElementById("driverName").addEventListener("input",event=>window.runInstantConflictCheck(event));
+document.getElementById("iqamaNumber").addEventListener("input",event=>window.runInstantConflictCheck(event));
+document.getElementById("plateNumberDigits").addEventListener("input",event=>window.runInstantConflictCheck(event));
+document.getElementById("plateNumberLetters").addEventListener("input",event=>window.runInstantConflictCheck(event));
+document.getElementById("addDriverCarDigits").addEventListener("input",event=>{event.target.value=event.target.value.replace(/[^0-9]/g,"");});
+document.getElementById("addDriverCarLetters").addEventListener("input",event=>{event.target.value=event.target.value.toUpperCase().replace(/[^A-Z]/g,"");});
+
+const existingDriverForm=document.getElementById("entryForm");
+existingDriverForm.addEventListener("submit",event=>{
+  if(window.currentDriverMode==="existing")return;
+  const name=String(document.getElementById("driverName").value||"").trim();
+  const iqama=String(document.getElementById("iqamaNumber").value||"").trim();
+  const plate=(document.getElementById("plateNumberDigits").value+" "+document.getElementById("plateNumberLetters").value).trim();
+  const idProfile=findDriverByIqama(iqama);
+  const plateProfile=findDriverByPlate(plate);
+  if((idProfile&&normalizeDriverValue(idProfile.name)===normalizeDriverValue(name))||plateProfile){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showDriverMatchPrompt(plateProfile||idProfile,plateProfile?"plate":"identity",plateProfile?plate:"");
+    return;
+  }
+  if(idProfile){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    alert(currentLang==="ar"?"رقم الإقامة مسجل باسم مختلف. تحقق من بيانات السائق.":"This Iqama number is registered under a different name. Check the driver details.");
+  }
+},true);
+
+window.renderDriverSuggestions=function(value){
+  const list=document.getElementById("driverSuggestionsList");
+  if(!list)return;
+  list.replaceChildren();
+  if(!value){list.classList.remove("open");return;}
+  const query=String(value).toLowerCase();
+  const matches=driversRegistryList.filter(driver=>{
+    return String(driver.name||"").toLowerCase().includes(query)||
+      String(driver.id||"").toLowerCase().includes(query)||
+      getDriverPlates(driver).some(plate=>plate.toLowerCase().includes(query));
+  }).slice(0,8);
+  matches.forEach(profile=>{
+    const item=document.createElement("div");
+    item.className="suggestion-item";
+    const name=document.createElement("strong");
+    name.textContent=profile.name;
+    const details=document.createElement("small");
+    details.textContent=`Vehicles: ${getDriverPlates(profile).join(", ")||"--"} | ID: ${profile.id}`;
+    item.append(name,document.createElement("br"),details);
+    item.addEventListener("click",()=>{
+      list.classList.remove("open");
+      if(getDriverPlates(profile).length>1)openVehicleChooser(profile,"checkin");
+      else selectExistingDriverProfile(profile,getDriverPlates(profile)[0],"checkin");
+    });
+    list.appendChild(item);
+  });
+  if(matches.length)list.classList.add("open");
+  else list.classList.remove("open");
+};
+
+window.handleLogsResponseWithVehicles=window.handleLogsResponse;
+window.handleLogsResponse=function(payload){
+  window.handleLogsResponseWithVehicles(payload);
+  driversRegistryList=groupDriverRecords(driversRegistryList);
+  compileDriversRegistryCards();
+};
+
+function makeVehiclePlateElement(plate){
+  const parts=plateParts(plate);
+  const bumper=document.createElement("span");
+  bumper.className="plate-bumper notranslate";
+  bumper.translate="no";
+  const number=document.createElement("span");
+  number.className="plate-num";
+  number.textContent=parts.digits||"--";
+  const letters=document.createElement("span");
+  letters.className="plate-let";
+  letters.textContent=parts.letters;
+  bumper.append(number,letters);
+  return bumper;
+}
+window.compileDriversRegistryCards=function(){
+  const container=document.getElementById("driversRegistryContainer");
+  if(!container)return;
+  if(typeof updateRegistryTotalCounts==="function")updateRegistryTotalCounts();
+  container.replaceChildren();
+  const isAdmin=userRole==="admin";
+  driversRegistryList.forEach(profile=>{
+    const card=document.createElement("div");
+    card.className="driver-registry-card driver-card";
+    card.dataset.name=String(profile.name||"").toLowerCase();
+    card.dataset.iqama=String(profile.id||"").toLowerCase();
+    card.dataset.plate=getDriverPlates(profile).join(" ").toLowerCase();
+    const header=document.createElement("div");
+    header.className="driver-card-header";
+    const avatar=document.createElement("div");
+    avatar.className="driver-avatar-img";
+    avatar.textContent="👤";
+    const meta=document.createElement("div");
+    meta.className="driver-meta";
+    const heading=document.createElement("h3");
+    heading.textContent=profile.name;
+    const badges=document.createElement("div");
+    badges.className="driver-badges";
+    const verified=document.createElement("span");
+    verified.className="tag-badge verified";
+    verified.textContent="Verified";
+    badges.appendChild(verified);
+    meta.append(heading,badges);
+    header.append(avatar,meta);
+    const details=document.createElement("div");
+    details.className="driver-card-info-grid";
+    const fields=[["Driver Name",profile.name],["Plate Number",...getDriverPlates(profile)],["Iqama Number",profile.id],["Phone Number",profile.phone]];
+    fields.forEach(([label,value,...extra])=>{
+      const cell=document.createElement("div");
+      const labelText=document.createElement("p");
+      labelText.className="info-block";
+      labelText.textContent=label;
+      cell.appendChild(labelText);
+      if(label==="Plate Number"){
+        const plates=extra.length?[value,...extra]:getDriverPlates(profile);
+        const plateList=document.createElement("div");
+        plateList.style.display="flex";
+        plateList.style.flexWrap="wrap";
+        plateList.style.gap=".3rem";
+        plates.forEach(plate=>plateList.appendChild(makeVehiclePlateElement(plate)));
+        cell.appendChild(plateList);
+      }else{
+        const valueText=document.createElement("p");
+        valueText.textContent=value||"--";
+        cell.appendChild(valueText);
+      }
+      details.appendChild(cell);
+    });
+    const actions=document.createElement("div");
+    actions.className="card-actions-wrapper";
+    const viewButton=document.createElement("button");
+    viewButton.className="btn-card-action";
+    viewButton.textContent="View Records";
+    viewButton.addEventListener("click",()=>window.openDriverProfileModal(profile.name,profile.id,getDriverPlates(profile),"--",profile.phone));
+    actions.appendChild(viewButton);
+    const addButton=document.createElement("button");
+    addButton.className="btn-card-action edit-btn";
+    addButton.textContent="Add Car";
+    addButton.addEventListener("click",()=>openAddDriverCarModal(profile,"registry",""));
+    actions.appendChild(addButton);
+    if(isAdmin){
+      const editButton=document.createElement("button");
+      editButton.className="btn-card-action edit-btn";
+      editButton.textContent="Edit";
+      editButton.addEventListener("click",()=>window.openEditDriverModal(profile.name,profile.id,profile.plate,profile.phone));
+      actions.appendChild(editButton);
+      const deleteButton=document.createElement("button");
+      deleteButton.className="btn-card-action";
+      deleteButton.textContent="Delete";
+      deleteButton.style.borderColor="rgba(248,81,73,0.4)";
+      deleteButton.addEventListener("click",()=>window.deleteDriver(profile.name,profile.id,deleteButton));
+      actions.appendChild(deleteButton);
+    }
+    card.append(header,details,actions);
+    container.appendChild(card);
+  });
+  window.filterRegistryCards();
+};
+window.filterRegistryCards=function(){
+  const query=String(document.getElementById("driverRegistrySearch")?.value||"").toLowerCase().trim();
+  document.querySelectorAll(".driver-card").forEach(card=>{
+    const haystack=[card.dataset.name,card.dataset.plate,card.dataset.iqama].join(" ");
+    card.style.display=haystack.includes(query)?"flex":"none";
+  });
+};
+const previousSwitchView=window.switchView;
+window.switchView=function(viewId,element){
+  previousSwitchView(viewId,element);
+  if(viewId==="drivers"&&window.hasFetchedLogs)window.compileDriversRegistryCards();
+};
+
+window.openDriverProfileModal=function(name,iqama,plates,date,phone){
+  document.getElementById("modalDataName").textContent=name;
+  document.getElementById("modalDataIqama").textContent=iqama;
+  document.getElementById("modalDataDate").textContent=date||"--";
+  document.getElementById("modalDataMobile").textContent=phone||"N/A";
+  const box=document.getElementById("modalDataPlate");
+  box.replaceChildren();
+  const list=Array.isArray(plates)?plates:[String(plates||"--")];
+  list.forEach(plate=>{
+    const tag=document.createElement("div");
+    tag.className="modal-plate-tag";
+    tag.textContent=plate;
+    box.appendChild(tag);
+  });
+  document.getElementById("driverProfileModal").classList.add("modal-active");
+};
+
+window.openEditDriverModal=function(name,iqama,plate,mobile){
+  document.getElementById("editDriverOldName").value=name;
+  document.getElementById("editDriverOldIqama").value=iqama;
+  document.getElementById("editDriverOldPlate").value=plate;
+  document.getElementById("editDriverName").value=name;
+  document.getElementById("editDriverIqama").value=iqama!=="--"?iqama:"";
+  const parts=plateParts(plate);
+  document.getElementById("editDriverPlateNumbers").value=parts.digits;
+  document.getElementById("editDriverPlateLetters").value=parts.letters;
+  document.getElementById("editDriverMobile").value=mobile!=="--"?mobile:"";
+  document.getElementById("editDriverModal").classList.add("modal-active");
+};
+window.saveDriverEdit=async function(){
+  const oldName=document.getElementById("editDriverOldName").value;
+  const oldIqama=document.getElementById("editDriverOldIqama").value;
+  const oldPlate=document.getElementById("editDriverOldPlate").value;
+  const name=document.getElementById("editDriverName").value.trim();
+  const iqama=document.getElementById("editDriverIqama").value.trim();
+  const digits=document.getElementById("editDriverPlateNumbers").value.trim();
+  const letters=document.getElementById("editDriverPlateLetters").value.trim().toUpperCase();
+  const mobile=document.getElementById("editDriverMobile").value.trim()||"N/A";
+  if(!name||!iqama||!digits||!letters){alert("Please fill in all required fields.");return;}
+  const button=document.querySelector("#editDriverModal .submit-btn-global");
+  const original=button.textContent;
+  button.disabled=true;
+  button.textContent="Saving...";
+  try{
+    const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"editDriver",oldDriverName:oldName,oldDriverIqama:oldIqama,oldDriverPlate:oldPlate,driverName:name,iqamaNumber:iqama,plateNumber:`${digits} ${letters}`,mobileNumber:mobile})});
+    const result=await response.json();
+    if(!response.ok||result.status!=="success")throw new Error(result.message||"Could not update the driver.");
+    const profile=driversRegistryList.find(driver=>normalizeDriverValue(driver.id)===normalizeDriverValue(oldIqama));
+    if(profile){
+      profile.name=name;
+      profile.id=iqama;
+      profile.phone=mobile;
+      profile.plates=getDriverPlates(profile).map(value=>normalizeVehiclePlate(value)===normalizeVehiclePlate(oldPlate)?`${digits} ${letters}`:value);
+      profile.plate=profile.plates[0]||"";
+      if(window.selectedDriverProfile&&normalizeDriverValue(window.selectedDriverProfile.id)===normalizeDriverValue(oldIqama)){
+        window.selectedDriverProfile={...profile,plate:normalizeVehiclePlate(window.selectedDriverProfile.plate)===normalizeVehiclePlate(oldPlate)?`${digits} ${letters}`:window.selectedDriverProfile.plate};
+        updateSelectedDriverUI();
+      }
+    }
+    document.getElementById("editDriverModal").classList.remove("modal-active");
+    window.compileDriversRegistryCards();
+  }catch(error){
+    console.error("Edit driver error:",error);
+    alert(error.message||"Could not update the driver.");
+  }finally{
+    button.disabled=false;
+    button.textContent=original;
+  }
+};
 </script>
 </body>
 </html>
