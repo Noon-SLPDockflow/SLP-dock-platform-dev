@@ -834,13 +834,14 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 <div class="modal-overlay" id="ocrSmartMatchModal" style="z-index:9999999">
 <div class="modal-window" style="max-width:400px; border-color:var(--accent-color);">
 <div class="modal-header-container" style="background: rgba(231,201,138,0.12); border-bottom-color: var(--accent-color);">
-<h2 style="color:var(--accent-color); font-size:1.1rem;">🔍 Plate Recognized</h2>
+<h2 id="ocrSmartMatchTitle" style="color:var(--accent-color); font-size:1.1rem;">🔍 Plate Recognized</h2>
 </div>
 <div class="modal-body-content" style="padding: 2rem; text-align: center;">
 <p id="ocrSmartMatchMessage" style="color:#fff; font-size: 1rem; margin-bottom: 1.5rem; line-height: 1.5;"></p>
 <div style="display: flex; flex-direction: column; gap: 1rem;">
 <button class="submit-btn-global" style="margin-top:0; background: #2ea043; color: #fff;" onclick="handleOcrSmartChoice('existing')" data-i18n="Existing Driver">⏱️ Existing Driver</button>
 <button class="submit-btn-global" style="margin-top:0; background: var(--accent-color); color: #000;" onclick="handleOcrSmartChoice('codriver')" data-i18n="Add Co-Driver">👥 Add Co-Driver</button>
+<button id="ocrSmartAddCarBtn" class="submit-btn-global" style="display:none;margin-top:0;background:#805c13;color:#fff" onclick="handleOcrSmartChoice('addCar')">🚘 Add New Vehicle</button>
 </div>
 </div>
 </div>
@@ -1342,6 +1343,7 @@ window.setDriverMode=function(mode,button){
 };
 
 window.runInstantConflictCheck=function(event){
+  if(window.isIqamaOcrInProgress)return;
   if(!event||!event.target)return;
   const target=event.target;
   const name=String(document.getElementById("driverName").value||"").trim();
@@ -1617,6 +1619,76 @@ window.saveDriverEdit=async function(){
   }finally{
     button.disabled=false;
     button.textContent=original;
+  }
+};
+const originalRunLocalOcrEngine=window.runLocalOcrEngine;
+window.runLocalOcrEngine=async function(file,statusLabelId,scanType){
+  window.isIqamaOcrInProgress=scanType==="IQAMA";
+  try{
+    await originalRunLocalOcrEngine(file,statusLabelId,scanType);
+  }finally{
+    window.isIqamaOcrInProgress=false;
+  }
+  const addCarButton=document.getElementById("ocrSmartAddCarBtn");
+  const title=document.getElementById("ocrSmartMatchTitle");
+  if(scanType==="PLATE"){
+    if(addCarButton)addCarButton.style.display="none";
+    if(title)title.textContent="🔍 Plate Recognized";
+    return;
+  }
+  if(scanType!=="IQAMA")return;
+  const iqama=String(document.getElementById("iqamaNumber").value||"").trim();
+  const profile=findDriverByIqama(iqama);
+  if(!profile)return;
+  window.tempOcrSmartPlate={
+    digits:"",
+    letters:"",
+    kind:"iqama",
+    driver:profile
+  };
+  const modal=document.getElementById("ocrSmartMatchModal");
+  const message=document.getElementById("ocrSmartMatchMessage");
+  if(title)title.textContent="🪪 Iqama Recognized";
+  if(message)message.textContent=`${profile.name} (Iqama ${profile.id}) is already registered. Choose how to continue.`;
+  if(addCarButton)addCarButton.style.display="block";
+  if(modal)modal.classList.add("modal-active");
+};
+const originalOcrSmartChoice=window.handleOcrSmartChoice;
+window.handleOcrSmartChoice=function(choice){
+  const ocrData=window.tempOcrSmartPlate||{};
+  if(ocrData.kind!=="iqama"){
+    const addCarButton=document.getElementById("ocrSmartAddCarBtn");
+    if(addCarButton)addCarButton.style.display="none";
+    return originalOcrSmartChoice(choice);
+  }
+  document.getElementById("ocrSmartMatchModal").classList.remove("modal-active");
+  const profile=ocrData.driver;
+  if(choice==="existing"){
+    openVehicleChooser(profile,"checkin");
+    return;
+  }
+  if(choice==="addCar"){
+    const plate=(document.getElementById("plateNumberDigits").value+" "+document.getElementById("plateNumberLetters").value).trim();
+    openAddDriverCarModal(profile,"checkin",plate);
+    return;
+  }
+  if(choice==="codriver"){
+    const codriverButton=document.getElementById("toggleCoDriverBtn");
+    if(codriverButton)setDriverMode("codriver",codriverButton);
+    document.getElementById("driverName").value=profile.name;
+    document.getElementById("iqamaNumber").value=profile.id;
+    document.getElementById("mobileNumber").value=profile.phone==="N/A"?"":profile.phone;
+    document.getElementById("driverSearchBox").value=profile.name;
+    document.getElementById("driverSearchBox").required=false;
+    const plateContainer=document.getElementById("plateNumberContainer");
+    const plateDigits=document.getElementById("plateNumberDigits");
+    const plateLetters=document.getElementById("plateNumberLetters");
+    if(plateContainer&&(!plateDigits.value||!plateLetters.value)){
+      plateContainer.style.display="block";
+      plateDigits.required=true;
+      plateLetters.required=true;
+    }
+    document.getElementById("ocrSmartAddCarBtn").style.display="none";
   }
 };
 </script>
