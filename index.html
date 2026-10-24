@@ -854,6 +854,7 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 <p id="driverMatchMessage" style="margin-bottom:1.25rem;line-height:1.5"></p>
 <div style="display:flex;flex-direction:column;gap:.65rem">
 <button class="submit-btn-global" style="margin-top:0" onclick="handleDriverMatchChoice('existing')">Use Existing Driver</button>
+<button class="submit-btn-global" style="margin-top:0;background:#805c13;color:#fff" onclick="handleDriverMatchChoice('codriver')">Add Co-Driver</button>
 <button class="submit-btn-global" style="margin-top:0" onclick="handleDriverMatchChoice('addCar')">Add Another Car</button>
 <button class="btn-modal-cancel" onclick="closeDriverMatchModal()">Cancel</button>
 </div>
@@ -1192,8 +1193,9 @@ function translateVehicleModals(){
     matchModal.querySelector(".modal-header-container h2").textContent=arabic?"🚘 السائق مسجل بالفعل":"🚘 Driver Already Registered";
     const buttons=matchModal.querySelectorAll(".modal-body-content button");
     buttons[0].textContent=arabic?"استخدام السائق الحالي":"Use Existing Driver";
-    buttons[1].textContent=arabic?"إضافة سيارة أخرى":"Add Another Car";
-    buttons[2].textContent=arabic?"إلغاء":"Cancel";
+    buttons[1].textContent=arabic?"إضافة سائق مساعد":"Add Co-Driver";
+    buttons[2].textContent=arabic?"إضافة سيارة أخرى":"Add Another Car";
+    buttons[3].textContent=arabic?"إلغاء":"Cancel";
   }
   const chooser=document.getElementById("vehicleChooserModal");
   if(chooser){
@@ -1271,6 +1273,24 @@ function handleDriverMatchChoice(choice){
   const context=window.driverMatchContext;
   if(!context)return;
   closeDriverMatchModal();
+  if(choice==="codriver"){
+    const codriverButton=document.getElementById("toggleCoDriverBtn");
+    if(codriverButton)setDriverMode("codriver",codriverButton);
+    document.getElementById("driverName").value=context.profile.name;
+    document.getElementById("iqamaNumber").value=context.profile.id==="--"?"":context.profile.id;
+    document.getElementById("mobileNumber").value=context.profile.phone==="N/A"?"":context.profile.phone;
+    document.getElementById("driverSearchBox").value=context.profile.name;
+    document.getElementById("driverSearchBox").required=false;
+    const plateContainer=document.getElementById("plateNumberContainer");
+    const plateDigits=document.getElementById("plateNumberDigits");
+    const plateLetters=document.getElementById("plateNumberLetters");
+    if(plateContainer&&(!plateDigits.value||!plateLetters.value)){
+      plateContainer.style.display="block";
+      plateDigits.required=true;
+      plateLetters.required=true;
+    }
+    return;
+  }
   if(choice==="existing"){
     openVehicleChooser(context.profile,"checkin");
     return;
