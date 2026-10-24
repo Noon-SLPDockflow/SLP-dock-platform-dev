@@ -544,11 +544,13 @@ button:focus-visible,.nav-item:focus-visible,input:focus-visible,select:focus-vi
  .camera-light-controls{gap:.45rem;font-size:.72rem}
  .camera-light-controls input{width:min(45vw,220px)}
 }
-#introOverlay{background:radial-gradient(ellipse at 78% 48%,rgba(216,183,90,.08),transparent 42%),#0b0c0e}
-#introOverlay .login-container{background:#101214!important}
-#introOverlay .login-form-panel{position:relative;isolation:isolate;gap:.1rem;padding:clamp(1.5rem,4vw,3.75rem);background:linear-gradient(145deg,#151819 0%,#101214 62%,#0d0f10)!important}
-#introOverlay .login-form-panel::before{content:"";position:absolute;inset:clamp(1.15rem,3vw,2.75rem);z-index:-1;border:1px solid rgba(216,183,90,.12);border-radius:22px;background:linear-gradient(155deg,rgba(29,32,33,.88),rgba(17,19,20,.94));box-shadow:0 24px 60px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.035);pointer-events:none}
-#introOverlay .login-form-panel>*{position:relative}
+#introOverlay{background:#0b0b0a}
+#introOverlay .login-container{background:#0b0b0a!important}
+#introOverlay .login-form-panel{position:relative;isolation:isolate;gap:.1rem;padding:clamp(1.5rem,4vw,3.75rem);background:#050505!important}
+#introOverlay .login-form-panel::before,#introOverlay .login-form-panel::after{content:"";position:absolute;pointer-events:none}
+#introOverlay .login-form-panel::before{inset:0;z-index:0;background:radial-gradient(circle at 92% 10%,transparent 0 67px,rgba(216,183,90,.24) 68px,transparent 69px 84px,rgba(216,183,90,.13) 85px,transparent 86px),radial-gradient(circle at 7% 91%,transparent 0 92px,rgba(216,183,90,.18) 93px,transparent 94px 111px,rgba(216,183,90,.1) 112px,transparent 113px),radial-gradient(ellipse at 12% 16%,rgba(216,183,90,.09),transparent 34%),radial-gradient(circle,rgba(216,183,90,.13) .7px,transparent 1px);background-size:auto,auto,auto,20px 20px}
+#introOverlay .login-form-panel::after{content:none}
+#introOverlay .login-form-panel>*{position:relative;z-index:1}
 #introOverlay .login-signin-heading{margin-bottom:1.1rem;color:#f0d78a!important;font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif;font-size:clamp(1.9rem,3vw,2.35rem);font-weight:700;letter-spacing:-.035em;text-shadow:0 3px 18px rgba(216,183,90,.12)}
 #introOverlay .login-form-panel>div:has(>#loginLangBtn){margin-bottom:.75rem!important}
 #introOverlay .login-form-panel #loginLangBtn{min-height:36px;padding:.45rem .75rem!important;border-color:rgba(216,183,90,.22)!important;background:rgba(255,255,255,.035)!important;color:#d8c68c!important;border-radius:9px!important;transition:background .2s ease,border-color .2s ease}
@@ -556,7 +558,7 @@ button:focus-visible,.nav-item:focus-visible,input:focus-visible,select:focus-vi
 #introOverlay .login-form-panel .login-tabs{gap:.45rem;margin-bottom:1rem;padding:.3rem;background:#101214;border:1px solid rgba(255,255,255,.075);border-radius:11px}
 #introOverlay .login-form-panel .login-tab{min-height:42px;border-radius:8px;color:#b8b8b2;letter-spacing:.055em}
 #introOverlay .login-form-panel .login-tab.active{background:linear-gradient(135deg,#a98738,#dcc26f);color:#19160e;box-shadow:0 4px 14px rgba(216,183,90,.18)}
-#introOverlay #customLoginBox{gap:.75rem!important;padding:1.05rem;background:rgba(9,11,12,.36);border:1px solid rgba(255,255,255,.065);border-radius:13px}
+#introOverlay #customLoginBox{gap:.75rem!important;padding:1.05rem;background:radial-gradient(circle at 50% 50%,transparent 0 30px,rgba(216,183,90,.16) 31px,transparent 32px) right 12px top 12px/76px 76px no-repeat,radial-gradient(circle at 50% 50%,transparent 0 42px,rgba(216,183,90,.12) 43px,transparent 44px) left 8px bottom 10px/104px 104px no-repeat,radial-gradient(circle at 0 0,rgba(216,183,90,.075) 0 1px,transparent 1.5px),radial-gradient(ellipse at 85% 100%,rgba(216,183,90,.07),transparent 42%),linear-gradient(145deg,#090909,#050505 72%);background-size:76px 76px,104px 104px,18px 18px,auto,auto;border:1px solid rgba(216,183,90,.16);border-radius:13px;box-shadow:0 16px 36px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.025)}
 #introOverlay #customLoginBox .input-box-styled{min-height:46px;padding:.75rem .9rem;border-color:rgba(255,255,255,.12)!important;background:#111416!important;color:#f5f4ef!important;border-radius:9px}
 #introOverlay #customLoginBox .input-box-styled::placeholder{color:#969891!important;opacity:1}
 #introOverlay #customLoginBox .input-box-styled:focus{border-color:rgba(216,183,90,.72)!important;background:#171a1c!important;box-shadow:0 0 0 3px rgba(216,183,90,.12)!important}
@@ -570,26 +572,25 @@ button:focus-visible,.nav-item:focus-visible,input:focus-visible,select:focus-vi
 #introOverlay .login-form-panel #customSignInBtn{min-height:48px;margin-top:.2rem!important;background:linear-gradient(135deg,#b48f37,#e0c56f)!important;color:#19160e!important;border:1px solid rgba(240,215,138,.35);border-radius:10px;box-shadow:0 8px 22px rgba(181,144,52,.16),inset 0 1px 0 rgba(255,255,255,.16);letter-spacing:.075em}
 #introOverlay .login-form-panel #customSignInBtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
 #introOverlay .login-form-panel #customSignInBtn:active{transform:translateY(0)}
-#introOverlay .login-brand-panel{background:radial-gradient(ellipse at 50% 44%,rgba(216,183,90,.14),transparent 44%),linear-gradient(145deg,#1b1e1e,#111315 64%,#0b0c0e)!important}
-#introOverlay .login-brand-panel::before,#introOverlay .login-brand-panel::after{border-color:rgba(216,183,90,.16)}
+#introOverlay .login-brand-panel{background:radial-gradient(ellipse at 50% 42%,rgba(76,67,45,.3),transparent 50%),linear-gradient(145deg,#201e18,#141310 58%,#090909)!important}
+#introOverlay .login-brand-panel::before,#introOverlay .login-brand-panel::after{border-color:rgba(216,183,90,.2)}
 #introOverlay .login-brand-logo{width:min(78%,420px);max-height:min(52vh,420px);filter:drop-shadow(0 20px 32px rgba(0,0,0,.55))}
 #introOverlay .login-brand-title{margin-top:1rem}
 #introOverlay .login-brand-name{color:#f0d78a;font-size:clamp(2.5rem,4.6vw,4rem);letter-spacing:.045em}
 #introOverlay .login-brand-subtitle{color:#e8e5db;font-size:clamp(1.65rem,3vw,2.35rem)}
 html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 @media(max-width:760px){
- #introOverlay .login-container{min-height:100vh;min-height:100dvh;background:#0b0c0e!important}
- #introOverlay .login-brand-panel{min-height:270px;padding:1.1rem 1.4rem;background:radial-gradient(ellipse at 50% 42%,rgba(216,183,90,.12),transparent 48%),linear-gradient(145deg,#1b1e1e,#111315 64%,#0b0c0e)!important}
+ #introOverlay .login-container{min-height:100vh;min-height:100dvh;background:#0b0b0a!important}
+ #introOverlay .login-brand-panel{min-height:270px;padding:1.1rem 1.4rem;background:radial-gradient(ellipse at 50% 42%,rgba(76,67,45,.3),transparent 50%),linear-gradient(145deg,#201e18,#141310 58%,#090909)!important}
  #introOverlay .login-brand-logo{width:min(48%,180px);max-height:130px}
  #introOverlay .login-brand-title{margin-top:.55rem}
  #introOverlay .login-brand-name{font-size:clamp(1.95rem,8vw,2.55rem)}
  #introOverlay .login-brand-subtitle{font-size:clamp(1.35rem,5.6vw,1.7rem)}
- #introOverlay .login-form-panel{padding:1.35rem clamp(1.1rem,5vw,1.75rem) 1.8rem;background:linear-gradient(145deg,#151819,#0e1011)!important}
- #introOverlay .login-form-panel::before{inset:.55rem .7rem .8rem;border-radius:18px}
+ #introOverlay .login-form-panel{padding:1.35rem clamp(1.1rem,5vw,1.75rem) 1.8rem;background:#050505!important}
  #introOverlay .login-signin-heading{font-size:1.8rem;margin-bottom:.65rem;color:#f0d78a!important}
  #introOverlay .login-form-panel>div:has(>#loginLangBtn){margin-bottom:.55rem!important}
  #introOverlay .login-form-panel .login-tabs{margin-bottom:.75rem}
- #introOverlay #customLoginBox{gap:.65rem!important;padding:.85rem}
+ #introOverlay #customLoginBox{gap:.65rem!important;padding:.85rem;background-size:18px 18px,auto,auto}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
