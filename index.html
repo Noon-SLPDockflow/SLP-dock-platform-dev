@@ -399,6 +399,19 @@ button,.input-box-styled,.header-search-input,.driver-registry-card,.metric-card
 .input-box-styled:focus,.header-search-input:focus{border-color:rgba(240,208,127,.85)!important;box-shadow:0 0 0 3px rgba(217,177,74,.12)!important}
 .modal-overlay{backdrop-filter:blur(3px)}
 body{font-family:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;font-weight:400;line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+body,button,input,select,textarea{font-family:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;letter-spacing:.01em}
+h1,h2,h3,h4,strong,b,th,.nav-item,.submit-btn-global,.btn-card-action,.badge,.tab-filter-item{font-weight:600}
+button,input,select,textarea{font-weight:400}
+.brand-text h2,.metric-card-slate .num,.driver-meta h3,.accordion-title,.btn-excel,.hero-title-box h1,.hero-title-box h2{font-weight:600}
+.submit-btn-global,.btn-card-action,.btn-excel,.btn-modal-cancel,.nav-item{font-weight:600}
+.badge-style,.info-block p:last-child,.info-block data,.metric-card-slate .label,.modal-header-container h2,.btn-checkout-action{font-weight:500}
+.nav-item.active,.btn-excel,.submit-btn-global{font-weight:600}
+.edit-driver-vehicle-list{display:flex;flex-direction:column;gap:.55rem}
+.edit-driver-vehicle-row{display:flex;align-items:center;gap:.55rem}
+.edit-driver-vehicle-row input{min-width:0}
+.edit-driver-vehicle-row .edit-driver-vehicle-index{flex:0 0 1.6rem;color:var(--text-muted);font-size:.75rem;font-weight:500;text-align:center}
+.edit-driver-vehicle-row .edit-driver-vehicle-plate{display:flex;gap:.55rem;min-width:0;flex:1}
+.edit-driver-vehicle-row .edit-driver-vehicle-plate input{width:50%;font-family:monospace;letter-spacing:.04em}
 .view-header-title h1{font-weight:650;letter-spacing:.005em}
 .view-header-title p,.chart-card h3{font-weight:550;letter-spacing:.025em}
 .chart-card h3{font-size:.75rem;line-height:1.4}
@@ -755,10 +768,7 @@ body{font-family:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-ser
 </div>
 <div class="form-group">
 <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
-<div style="display:flex;gap:8px">
-<input type="number" id="editDriverPlateNumbers" class="input-box-styled" placeholder="1234" required style="width:50%;font-family:monospace" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-<input type="text" id="editDriverPlateLetters" class="input-box-styled" placeholder="ABC" required style="width:50%;font-family:monospace" maxlength="3" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')">
-</div>
+<div id="editDriverVehicleList" class="edit-driver-vehicle-list"></div>
 </div>
 <div class="form-group">
 <label class="badge-style" data-i18n="Mobile Number">Mobile Number</label>
@@ -1584,7 +1594,7 @@ window.compileDriversRegistryCards=function(){
       const editButton=document.createElement("button");
       editButton.className="btn-card-action edit-btn";
       editButton.textContent="Edit";
-      editButton.addEventListener("click",()=>window.openEditDriverModal(profile.name,profile.id,profile.plate,profile.phone));
+      editButton.addEventListener("click",()=>window.openEditDriverModal(profile.name,profile.id,getDriverPlates(profile),profile.phone));
       actions.appendChild(editButton);
       const deleteButton=document.createElement("button");
       deleteButton.className="btn-card-action";
@@ -1628,15 +1638,48 @@ window.openDriverProfileModal=function(name,iqama,plates,date,phone){
   document.getElementById("driverProfileModal").classList.add("modal-active");
 };
 
-window.openEditDriverModal=function(name,iqama,plate,mobile){
+window.openEditDriverModal=function(name,iqama,plates,mobile){
+  const vehicleList=document.getElementById("editDriverVehicleList");
+  const vehiclePlates=(Array.isArray(plates)?plates:[plates]).filter(Boolean);
+  if(!vehiclePlates.length)vehiclePlates.push("");
   document.getElementById("editDriverOldName").value=name;
   document.getElementById("editDriverOldIqama").value=iqama;
-  document.getElementById("editDriverOldPlate").value=plate;
+  document.getElementById("editDriverOldPlate").value=vehiclePlates[0];
   document.getElementById("editDriverName").value=name;
   document.getElementById("editDriverIqama").value=iqama!=="--"?iqama:"";
-  const parts=plateParts(plate);
-  document.getElementById("editDriverPlateNumbers").value=parts.digits;
-  document.getElementById("editDriverPlateLetters").value=parts.letters;
+  vehicleList.replaceChildren();
+  vehiclePlates.forEach((plate,index)=>{
+    const row=document.createElement("div");
+    row.className="edit-driver-vehicle-row";
+    const number=document.createElement("span");
+    number.className="edit-driver-vehicle-index";
+    number.textContent=`${index+1}.`;
+    const fields=document.createElement("div");
+    fields.className="edit-driver-vehicle-plate";
+    const parts=plateParts(plate);
+    const digits=document.createElement("input");
+    digits.type="text";
+    digits.inputMode="numeric";
+    digits.className="input-box-styled edit-driver-plate-digits";
+    digits.placeholder="1234";
+    digits.required=true;
+    digits.value=parts.digits;
+    digits.setAttribute("aria-label",`Vehicle ${index+1} plate number`);
+    digits.addEventListener("input",()=>{digits.value=digits.value.replace(/[^0-9]/g,"");});
+    const letters=document.createElement("input");
+    letters.type="text";
+    letters.className="input-box-styled edit-driver-plate-letters";
+    letters.placeholder="ABC";
+    letters.maxLength=3;
+    letters.required=true;
+    letters.value=parts.letters;
+    letters.setAttribute("aria-label",`Vehicle ${index+1} plate letters`);
+    letters.addEventListener("input",()=>{letters.value=letters.value.toUpperCase().replace(/[^A-Z]/g,"");});
+    fields.append(digits,letters);
+    row.append(number,fields);
+    row.dataset.oldPlate=plate;
+    vehicleList.appendChild(row);
+  });
   document.getElementById("editDriverMobile").value=mobile!=="--"?mobile:"";
   document.getElementById("editDriverModal").classList.add("modal-active");
 };
@@ -1646,16 +1689,20 @@ window.saveDriverEdit=async function(){
   const oldPlate=document.getElementById("editDriverOldPlate").value;
   const name=document.getElementById("editDriverName").value.trim();
   const iqama=document.getElementById("editDriverIqama").value.trim();
-  const digits=document.getElementById("editDriverPlateNumbers").value.trim();
-  const letters=document.getElementById("editDriverPlateLetters").value.trim().toUpperCase();
   const mobile=document.getElementById("editDriverMobile").value.trim()||"N/A";
-  if(!name||!iqama||!digits||!letters){alert("Please fill in all required fields.");return;}
+  const vehicles=Array.from(document.querySelectorAll("#editDriverVehicleList .edit-driver-vehicle-row")).map(row=>({
+    oldPlate:row.dataset.oldPlate,
+    digits:row.querySelector(".edit-driver-plate-digits").value.trim(),
+    letters:row.querySelector(".edit-driver-plate-letters").value.trim().toUpperCase()
+  }));
+  if(!name||!iqama||vehicles.length===0||vehicles.some(vehicle=>!vehicle.digits||!vehicle.letters)){alert("Please fill in all required fields.");return;}
+  const updatedVehicles=vehicles.map(vehicle=>({oldPlate:vehicle.oldPlate,plateNumber:`${vehicle.digits} ${vehicle.letters}`}));
   const button=document.querySelector("#editDriverModal .submit-btn-global");
   const original=button.textContent;
   button.disabled=true;
   button.textContent="Saving...";
   try{
-    const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"editDriver",oldDriverName:oldName,oldDriverIqama:oldIqama,oldDriverPlate:oldPlate,driverName:name,iqamaNumber:iqama,plateNumber:`${digits} ${letters}`,mobileNumber:mobile})});
+    const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"editDriver",oldDriverName:oldName,oldDriverIqama:oldIqama,oldDriverPlate:oldPlate,vehicles:updatedVehicles,driverName:name,iqamaNumber:iqama,mobileNumber:mobile})});
     const result=await response.json();
     if(!response.ok||result.status!=="success")throw new Error(result.message||"Could not update the driver.");
     const profile=driversRegistryList.find(driver=>normalizeDriverValue(driver.id)===normalizeDriverValue(oldIqama));
@@ -1663,10 +1710,10 @@ window.saveDriverEdit=async function(){
       profile.name=name;
       profile.id=iqama;
       profile.phone=mobile;
-      profile.plates=getDriverPlates(profile).map(value=>normalizeVehiclePlate(value)===normalizeVehiclePlate(oldPlate)?`${digits} ${letters}`:value);
+      profile.plates=updatedVehicles.map(vehicle=>vehicle.plateNumber);
       profile.plate=profile.plates[0]||"";
       if(window.selectedDriverProfile&&normalizeDriverValue(window.selectedDriverProfile.id)===normalizeDriverValue(oldIqama)){
-        window.selectedDriverProfile={...profile,plate:normalizeVehiclePlate(window.selectedDriverProfile.plate)===normalizeVehiclePlate(oldPlate)?`${digits} ${letters}`:window.selectedDriverProfile.plate};
+        window.selectedDriverProfile={...profile,plate:profile.plates.find(value=>normalizeVehiclePlate(value)===normalizeVehiclePlate(window.selectedDriverProfile.plate))||profile.plates[0]||""};
         updateSelectedDriverUI();
       }
     }
