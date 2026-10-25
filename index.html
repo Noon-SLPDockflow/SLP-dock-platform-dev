@@ -751,7 +751,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 </div>
 
 <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Driver Name *">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required></div>
-<div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" required></div>
+<div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" inputmode="numeric" autocomplete="off" required></div>
 <div class="form-group new-driver-field" id="plateNumberContainer">
 <label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label>
 <div style="display:flex;gap:8px">
@@ -1214,7 +1214,7 @@ function updateScannerVisibility(){const isNew=window.currentDriverMode==='new'|
 function setDriverMode(mode,btn){window.currentDriverMode=mode;const container=document.querySelector('.toggle-container');if(container){container.querySelectorAll('.toggle-btn').forEach(b=>{b.style.background='transparent';b.style.color='var(--text-muted)';b.classList.remove('active');});}btn.style.background='var(--accent-color)';btn.style.color='#000';btn.classList.add('active');const lookup=document.getElementById('driverLookupGroup');const plateCont=document.getElementById('plateNumberContainer');const selBox=document.getElementById('selectedDriverBox');const reqFields=['driverName','iqamaNumber','plateNumberDigits','plateNumberLetters'];document.querySelectorAll('#entryForm input').forEach(input=>{if(input.setCustomValidity)input.setCustomValidity('');});if(mode==='existing'){if(lookup)lookup.style.display='block';document.getElementById('driverSearchBox').required=true;document.querySelectorAll('.new-driver-field').forEach(f=>f.style.display='none');reqFields.forEach(id=>{const el=document.getElementById(id);if(el)el.required=false;});if(window.selectedDriverProfile&&selBox)selBox.classList.add('active');}else if(mode==='codriver'){if(lookup)lookup.style.display='block';if(selBox)selBox.classList.remove('active');document.getElementById('driverSearchBox').required=true;document.querySelectorAll('.new-driver-field').forEach(f=>f.style.display='block');if(plateCont)plateCont.style.display='none';reqFields.forEach(id=>{const el=document.getElementById(id);if(el)el.required=true;});document.getElementById('plateNumberDigits').required=false;document.getElementById('plateNumberLetters').required=false;}else{if(lookup)lookup.style.display='none';if(selBox)selBox.classList.remove('active');document.getElementById('driverSearchBox').required=false;document.querySelectorAll('.new-driver-field').forEach(f=>f.style.display='block');if(plateCont)plateCont.style.display='block';reqFields.forEach(id=>{const el=document.getElementById(id);if(el)el.required=true;});}updateScannerVisibility();}
 window.setDriverMode=setDriverMode;
 window.handleOcrSmartChoice=function(choice){document.getElementById('ocrSmartMatchModal').classList.remove('modal-active');let d=window.tempOcrSmartPlate.digits;let l=window.tempOcrSmartPlate.letters;let combined=(d+" "+l).trim();if(choice==='existing'){setDriverMode('existing',document.getElementById('toggleExistingDriverBtn'));document.getElementById('driverSearchBox').value=combined;renderDriverSuggestions(combined);}else if(choice==='codriver'){setDriverMode('codriver',document.getElementById('toggleCoDriverBtn'));document.getElementById('plateNumberDigits').value=d;document.getElementById('plateNumberLetters').value=l;document.getElementById('driverName').value='';document.getElementById('iqamaNumber').value='';document.getElementById('mobileNumber').value='';document.getElementById('driverSearchBox').value=combined;}};
-const entryForm=document.getElementById('entryForm');if(entryForm){entryForm.addEventListener('submit',(e)=>{e.preventDefault();if(window.isCheckInLocked)return;const btn=document.querySelector('#entryForm .submit-btn-global');const unlockForm=()=>{window.isCheckInLocked=false;if(btn){btn.innerText=tr("Check In Truck");btn.disabled=false;}};try{window.isCheckInLocked=true;if(btn){btn.innerText="⏳ Processing...";btn.disabled=true;}const isNew=window.currentDriverMode==='new'||window.currentDriverMode==='codriver';let dName=document.getElementById('driverName')?.value||'';let iqNum=document.getElementById('iqamaNumber')?.value||'';let pDigits=document.getElementById('plateNumberDigits')?.value||'';let pLetters=document.getElementById('plateNumberLetters')?.value||'';if((window.currentDriverMode==='codriver'||window.currentDriverMode==='existing')&&(!pDigits||!pLetters)){let sVal=document.getElementById('driverSearchBox')?.value||'';let mD=sVal.match(/\d+/);let mL=sVal.match(/[A-Za-z]+/g);if(!pDigits&&mD)pDigits=mD[0];if(!pLetters&&mL)pLetters=mL.join('');}let combinedPlate=(pDigits+' '+pLetters).trim();let mobileNum=document.getElementById('mobileNumber')?.value||'N/A';if(!isNew){if(!pDigits||!pLetters||!dName||!iqNum){alert(currentLang==='ar'?"يرجى البحث عن السائق واختياره من القائمة أولاً.":"Please search and select a driver from the dropdown list first.");return unlockForm();}}if(!pDigits||!pLetters){alert(currentLang==='ar'?"يرجى ملء كل من أرقام وحروف اللوحة.":"Please fill in both the Numbers and Alphabets for the Truck Plate.");return unlockForm();}if(isNew&&driversRegistryList.length>0){const iqVal=iqNum.trim().toLowerCase();const plVal=combinedPlate.replace(/\s+/g,'').toLowerCase();let iqamaConflicted=driversRegistryList.some(d=>String(d.id||'').toLowerCase()===iqVal&&iqVal!=='n/a');let plateConflicted=false;if(window.currentDriverMode==='new'){plateConflicted=driversRegistryList.some(d=>String(d.plate||'').replace(/\s+/g,'').toLowerCase()===plVal&&plVal!=='n/a');}if(iqamaConflicted||plateConflicted){alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");return unlockForm();}}let dockVal=document.getElementById('dockNumber')?.value||'';if(dockVal==='Others'){const dCust=document.getElementById('dockNumberCustom');if(dCust)dockVal=dCust.value;}dockVal=String(dockVal||'').replace(/[^0-9]/g,'').trim();if(!dockVal){alert('Please enter a valid numeric Dock Number.');return unlockForm();}const isDockOccupied=globalLogsCache.some(r=>!r.checkOutTime&&String(r.dockNumber).trim()===dockVal);if(isDockOccupied){alert(currentLang==='ar'?`خطأ: الرصيف رقم (${dockVal}) مستخدم حالياً من قبل شاحنة أخرى.`:`Error: Dock ${dockVal} is currently occupied by another active truck. Please choose a different dock.`);return unlockForm();}const cleanTargetPlate=combinedPlate.replace(/\s+/g,'').toLowerCase();const isTruckAlreadyInside=globalLogsCache.some(r=>!r.checkOutTime&&String(r.plateNumber).replace(/\s+/g,'').toLowerCase()===cleanTargetPlate);if(isTruckAlreadyInside){alert(currentLang==='ar'?`خطأ: هذه الشاحنة مسجلة وموجودة حالياً بالداخل.`:`Error: This truck (${combinedPlate}) is already checked in and active inside the facility.`);return unlockForm();}const isReceivingDispatch=document.getElementById('dispatchSelect')?.value==='Receiving';if(isNew){if(!temporaryCapturedImage){alert(currentLang==='ar'?"يرجى إرفاق صورة لوحة الشاحنة.":"Please attach the Number Plate Photo.");return unlockForm();}if(!temporaryCapturedIqamaImage){alert(currentLang==='ar'?"يرجى إرفاق صورة الإقامة.":"Please attach the Iqama (ID Card) Photo.");return unlockForm();}if(isReceivingDispatch&&!temporaryCapturedItemImage){alert(currentLang==='ar'?"يرجى إرفاق صورة العنصر.":"Please attach the Item Picture.");return unlockForm();}}else{if(isReceivingDispatch){if(!temporaryCapturedImage){alert(currentLang==='ar'?"يرجى إرفاق صورة لوحة الشاحنة.":"Please attach the Number Plate Photo.");return unlockForm();}if(!temporaryCapturedItemImage){alert(currentLang==='ar'?"يرجى إرفاق صورة العنصر.":"Please attach the Item Picture.");return unlockForm();}}}if(!isReceivingDispatch){let sealInputVal=document.getElementById('sealNumber')?.value||'';if(!sealInputVal.trim()){alert(currentLang==='ar'?"يرجى إدخال رقم الختم / المعاملة.":"Please enter the Seal / Transaction number.");return unlockForm();}}let directionVal=document.getElementById('direction')?.value||'';if(directionVal==='Others'){const customDir=document.getElementById('directionCustom');if(customDir)directionVal=customDir.value.trim();}let countVal=document.getElementById('boxCount')?.value||"0";let typeVal=document.getElementById('boxType')?.value||"Boxes";let displayUnit=countVal==="1"?(typeVal==="Boxes"?"Box":"Pallet"):typeVal;let finalBoxCountStr=countVal+" "+displayUnit;window.syncLockUntil=Date.now()+15000;if(isNew){driversRegistryList.push({name:String(dName),id:String(iqNum),plate:String(combinedPlate),phone:String(mobileNum)});compileDriversRegistryCards();}const payload={action:'checkin',driverName:dName,iqamaNumber:iqNum,plateNumber:combinedPlate,mobileNumber:mobileNum,securityName:document.getElementById('securityNameField')?.value||'',dockNumber:dockVal,direction:directionVal,dispatchType:document.getElementById('dispatchSelect')?.value||'',noonEmployeeId:document.getElementById('noonEmployeeId')?.value||"N/A",boxCount:finalBoxCountStr,sealNumber:document.getElementById('sealNumber')?.value||"--",securityId:document.getElementById('securityNameId')?.value||'',truckPhoto:temporaryCapturedImage||"",itemPhoto:temporaryCapturedItemImage||"",iqamaPhoto:temporaryCapturedIqamaImage||""};payload.checkInTime=new Date().toISOString();globalLogsCache.unshift(payload);window.handleLogsResponse({logs:globalLogsCache});entryForm.reset();const selBox=document.getElementById('selectedDriverBox');if(selBox)selBox.classList.remove('active');window.selectedDriverProfile=null;const secNameField=document.getElementById('securityNameField');const secIdField=document.getElementById('securityNameId');if(secNameField)secNameField.value=loggedInUser.name;if(secIdField)secIdField.value=loggedInUser.noonId||'';temporaryCapturedImage=null;temporaryCapturedItemImage=null;temporaryCapturedIqamaImage=null;updateScannerVisibility();setTimeout(unlockForm,2500);let navItem=Array.from(document.querySelectorAll('.nav-item')).find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes('active-trucks'));switchView('active-trucks',navItem);if(isNew){fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'addDriver',driverName:dName,iqamaNumber:iqNum,plateNumber:combinedPlate,mobileNumber:mobileNum})}).catch(e=>console.error(e));}fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(e=>console.error(e));}catch(err){console.error("Check-in Error:",err);alert(currentLang==='ar'?"حدث خطأ في النظام. يرجى المحاولة مرة أخرى.":"A system error occurred. Please try again.");setTimeout(unlockForm,2500);}});}
+const entryForm=document.getElementById('entryForm');if(entryForm){entryForm.addEventListener('submit',(e)=>{e.preventDefault();if(window.isCheckInLocked)return;const btn=document.querySelector('#entryForm .submit-btn-global');const unlockForm=()=>{window.isCheckInLocked=false;if(btn){btn.innerText=tr("Check In Truck");btn.disabled=false;}};try{window.isCheckInLocked=true;if(btn){btn.innerText="⏳ Processing...";btn.disabled=true;}const isNew=window.currentDriverMode==='new'||window.currentDriverMode==='codriver';let dName=document.getElementById('driverName')?.value||'';let iqNum=document.getElementById('iqamaNumber')?.value||'';let pDigits=document.getElementById('plateNumberDigits')?.value||'';let pLetters=document.getElementById('plateNumberLetters')?.value||'';if((window.currentDriverMode==='codriver'||window.currentDriverMode==='existing')&&(!pDigits||!pLetters)){let sVal=document.getElementById('driverSearchBox')?.value||'';let mD=sVal.match(/\d+/);let mL=sVal.match(/[A-Za-z]+/g);if(!pDigits&&mD)pDigits=mD[0];if(!pLetters&&mL)pLetters=mL.join('');}let combinedPlate=(pDigits+' '+pLetters).trim();let mobileNum=document.getElementById('mobileNumber')?.value||'N/A';if(!isNew){if(!pDigits||!pLetters||!dName||!iqNum){alert(currentLang==='ar'?"يرجى البحث عن السائق واختياره من القائمة أولاً.":"Please search and select a driver from the dropdown list first.");return unlockForm();}}if(!pDigits||!pLetters){alert(currentLang==='ar'?"يرجى ملء كل من أرقام وحروف اللوحة.":"Please fill in both the Numbers and Alphabets for the Truck Plate.");return unlockForm();}if(isNew&&driversRegistryList.length>0){const iqamaConflicted=Boolean(findDriverByIqama(iqNum));const plVal=combinedPlate.replace(/\s+/g,'').toLowerCase();let plateConflicted=false;if(window.currentDriverMode==='new'){plateConflicted=driversRegistryList.some(d=>String(d.plate||'').replace(/\s+/g,'').toLowerCase()===plVal&&plVal!=='n/a');}if(iqamaConflicted||plateConflicted){alert("⚠️ Duplicate Found: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");return unlockForm();}}let dockVal=document.getElementById('dockNumber')?.value||'';if(dockVal==='Others'){const dCust=document.getElementById('dockNumberCustom');if(dCust)dockVal=dCust.value;}dockVal=String(dockVal||'').replace(/[^0-9]/g,'').trim();if(!dockVal){alert('Please enter a valid numeric Dock Number.');return unlockForm();}const isDockOccupied=globalLogsCache.some(r=>!r.checkOutTime&&String(r.dockNumber).trim()===dockVal);if(isDockOccupied){alert(currentLang==='ar'?`خطأ: الرصيف رقم (${dockVal}) مستخدم حالياً من قبل شاحنة أخرى.`:`Error: Dock ${dockVal} is currently occupied by another active truck. Please choose a different dock.`);return unlockForm();}const cleanTargetPlate=combinedPlate.replace(/\s+/g,'').toLowerCase();const isTruckAlreadyInside=globalLogsCache.some(r=>!r.checkOutTime&&String(r.plateNumber).replace(/\s+/g,'').toLowerCase()===cleanTargetPlate);if(isTruckAlreadyInside){alert(currentLang==='ar'?`خطأ: هذه الشاحنة مسجلة وموجودة حالياً بالداخل.`:`Error: This truck (${combinedPlate}) is already checked in and active inside the facility.`);return unlockForm();}const isReceivingDispatch=document.getElementById('dispatchSelect')?.value==='Receiving';if(isNew){if(!temporaryCapturedImage){alert(currentLang==='ar'?"يرجى إرفاق صورة لوحة الشاحنة.":"Please attach the Number Plate Photo.");return unlockForm();}if(!temporaryCapturedIqamaImage){alert(currentLang==='ar'?"يرجى إرفاق صورة الإقامة.":"Please attach the Iqama (ID Card) Photo.");return unlockForm();}if(isReceivingDispatch&&!temporaryCapturedItemImage){alert(currentLang==='ar'?"يرجى إرفاق صورة العنصر.":"Please attach the Item Picture.");return unlockForm();}}else{if(isReceivingDispatch){if(!temporaryCapturedImage){alert(currentLang==='ar'?"يرجى إرفاق صورة لوحة الشاحنة.":"Please attach the Number Plate Photo.");return unlockForm();}if(!temporaryCapturedItemImage){alert(currentLang==='ar'?"يرجى إرفاق صورة العنصر.":"Please attach the Item Picture.");return unlockForm();}}}if(!isReceivingDispatch){let sealInputVal=document.getElementById('sealNumber')?.value||'';if(!sealInputVal.trim()){alert(currentLang==='ar'?"يرجى إدخال رقم الختم / المعاملة.":"Please enter the Seal / Transaction number.");return unlockForm();}}let directionVal=document.getElementById('direction')?.value||'';if(directionVal==='Others'){const customDir=document.getElementById('directionCustom');if(customDir)directionVal=customDir.value.trim();}let countVal=document.getElementById('boxCount')?.value||"0";let typeVal=document.getElementById('boxType')?.value||"Boxes";let displayUnit=countVal==="1"?(typeVal==="Boxes"?"Box":"Pallet"):typeVal;let finalBoxCountStr=countVal+" "+displayUnit;window.syncLockUntil=Date.now()+15000;if(isNew){driversRegistryList.push({name:String(dName),id:String(iqNum),plate:String(combinedPlate),phone:String(mobileNum)});compileDriversRegistryCards();}const payload={action:'checkin',driverName:dName,iqamaNumber:iqNum,plateNumber:combinedPlate,mobileNumber:mobileNum,securityName:document.getElementById('securityNameField')?.value||'',dockNumber:dockVal,direction:directionVal,dispatchType:document.getElementById('dispatchSelect')?.value||'',noonEmployeeId:document.getElementById('noonEmployeeId')?.value||"N/A",boxCount:finalBoxCountStr,sealNumber:document.getElementById('sealNumber')?.value||"--",securityId:document.getElementById('securityNameId')?.value||'',truckPhoto:temporaryCapturedImage||"",itemPhoto:temporaryCapturedItemImage||"",iqamaPhoto:temporaryCapturedIqamaImage||""};payload.checkInTime=new Date().toISOString();globalLogsCache.unshift(payload);window.handleLogsResponse({logs:globalLogsCache});entryForm.reset();const selBox=document.getElementById('selectedDriverBox');if(selBox)selBox.classList.remove('active');window.selectedDriverProfile=null;const secNameField=document.getElementById('securityNameField');if(secNameField)secNameField.value=loggedInUser.name;if(secIdField)secIdField.value=loggedInUser.noonId||'';temporaryCapturedImage=null;temporaryCapturedItemImage=null;temporaryCapturedIqamaImage=null;updateScannerVisibility();setTimeout(unlockForm,2500);let navItem=Array.from(document.querySelectorAll('.nav-item')).find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes('active-trucks'));switchView('active-trucks',navItem);if(isNew){fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'addDriver',driverName:dName,iqamaNumber:iqNum,plateNumber:combinedPlate,mobileNumber:mobileNum})}).catch(e=>console.error(e));}fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(e=>console.error(e));}catch(err){console.error("Check-in Error:",err);alert(currentLang==='ar'?"حدث خطأ في النظام. يرجى المحاولة مرة أخرى.":"A system error occurred. Please try again.");setTimeout(unlockForm,2500);}});}
 function promptSignOut(driverName,plateNumber,securityName,dockNumber,dispatchType){currentSignOutContext={driverName,plateNumber,dockNumber,dispatchType};const subtext=document.getElementById('signOutModalSubtext');if(subtext)subtext.innerText="Vehicle: "+plateNumber;const sc=document.getElementById('checkoutScanners');if(sc)sc.style.display=(dispatchType==='Receiving')?'none':'grid';const sealCont=document.getElementById('checkoutSealContainer');if(sealCont)sealCont.style.display=(dispatchType==='Dispatching')?'none':'block';const modal=document.getElementById('signOutModal');if(modal)modal.classList.add('modal-active');}
 window.promptSignOut=promptSignOut;
 function closeSignOutModal(){const modal=document.getElementById('signOutModal');if(modal)modal.classList.remove('modal-active');tempCheckoutTruckPhoto=null;tempCheckoutItemPhoto=null;const ts=document.getElementById('checkoutTruckStatus');if(ts){ts.innerHTML="Truck Picture (with plate) *";ts.style.color="";}const is=document.getElementById('checkoutItemStatus');if(is){is.innerHTML="Item Picture *";is.style.color="";}const seal=document.getElementById('signOutSeal');if(seal)seal.value='';}
@@ -1352,6 +1352,7 @@ window.switchView=function(viewId,element){switchViewAndRender(viewId,element);i
 </script>
 <script>
 function normalizeDriverValue(value){return String(value||"").trim().toLowerCase().replace(/\s+/g," ");}
+function normalizeIqama(value){return String(value||"").replace(/[٠-٩۰-۹]/g,d=>String("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹".indexOf(d)%10)).replace(/\D/g,"");}
 function normalizeVehiclePlate(value){return String(value||"").replace(/[^a-z0-9]/gi,"").toLowerCase();}
 function getDriverPlates(driver){
   const candidates=Array.isArray(driver.plates)?driver.plates:[driver.plate||driver.plateNumber||""];
@@ -1370,7 +1371,8 @@ function groupDriverRecords(records){
     const id=String(record.id||record.iqamaNumber||"").trim();
     const phone=String(record.phone||record.mobileNumber||"N/A").trim()||"N/A";
     if(!name)return;
-    const identity=normalizeDriverValue(id);
+    const normalizedId=normalizeIqama(id);
+    const identity=normalizedId.length===10?normalizedId:normalizeDriverValue(id);
     const key=identity&&identity!=="n/a"&&identity!=="--"?"id:"+identity:"name:"+normalizeDriverValue(name);
     let profile=profiles.get(key);
     if(!profile){
@@ -1386,8 +1388,9 @@ function groupDriverRecords(records){
   return Array.from(profiles.values()).map(profile=>({...profile,plate:profile.plates[0]||"--"}));
 }
 function findDriverByIqama(iqama){
-  const key=normalizeDriverValue(iqama);
-  return driversRegistryList.find(driver=>normalizeDriverValue(driver.id)===key&&key&&key!=="n/a"&&key!=="--");
+  const key=normalizeIqama(iqama);
+  if(key.length!==10)return null;
+  return driversRegistryList.find(driver=>normalizeIqama(driver.id)===key)||null;
 }
 function findDriverByPlate(plate){
   const key=normalizeVehiclePlate(plate);
@@ -1450,7 +1453,11 @@ function closeDriverMatchModal(){
 }
 function openVehicleChooser(profile,context){
   const plates=getDriverPlates(profile);
-  if(plates.length<2){selectExistingDriverProfile(profile,plates[0]||profile.plate,context);return;}
+  if(plates.length<2){
+    if(context==="codriver")startCoDriverEntry(profile,plates[0]||profile.plate);
+    else selectExistingDriverProfile(profile,plates[0]||profile.plate,context);
+    return;
+  }
   const modal=document.getElementById("vehicleChooserModal");
   const message=document.getElementById("vehicleChooserMessage");
   const list=document.getElementById("vehicleChoiceList");
@@ -1467,7 +1474,10 @@ function openVehicleChooser(profile,context){
     button.addEventListener("click",()=>{
       const chooserContext=window.vehicleChooserContext;
       closeVehicleChooser();
-      if(chooserContext)selectExistingDriverProfile(chooserContext.profile,plate,chooserContext.context);
+      if(chooserContext){
+        if(chooserContext.context==="codriver")startCoDriverEntry(chooserContext.profile,plate);
+        else selectExistingDriverProfile(chooserContext.profile,plate,chooserContext.context);
+      }
     });
     list.appendChild(button);
   });
@@ -1489,26 +1499,38 @@ function selectExistingDriverProfile(profile,plate,context){
   if(searchBox){searchBox.value=profile.name;searchBox.required=true;}
   updateSelectedDriverUI();
 }
+function startCoDriverEntry(profile,plate){
+  if(!profile)return;
+  clearDriverInputValidity();
+  const codriverButton=document.getElementById("toggleCoDriverBtn");
+  if(codriverButton)setDriverMode("codriver",codriverButton);
+  const driverName=document.getElementById("driverName");
+  const iqama=document.getElementById("iqamaNumber");
+  const mobile=document.getElementById("mobileNumber");
+  const searchBox=document.getElementById("driverSearchBox");
+  const selectedBox=document.getElementById("selectedDriverBox");
+  const plateContainer=document.getElementById("plateNumberContainer");
+  const plateDigits=document.getElementById("plateNumberDigits");
+  const plateLetters=document.getElementById("plateNumberLetters");
+  if(driverName)driverName.value="";
+  if(iqama)iqama.value="";
+  if(mobile)mobile.value="";
+  if(searchBox){searchBox.value="";searchBox.required=false;}
+  if(selectedBox)selectedBox.classList.remove("active");
+  document.getElementById("driverSuggestionsList")?.classList.remove("open");
+  window.selectedDriverProfile=null;
+  window.lastDriverMatchPromptKey="";
+  const parts=plateParts(plate||getDriverPlates(profile)[0]||"");
+  if(plateDigits){plateDigits.value=parts.digits;plateDigits.required=true;}
+  if(plateLetters){plateLetters.value=parts.letters;plateLetters.required=true;}
+  if(plateContainer)plateContainer.style.display="block";
+}
 function handleDriverMatchChoice(choice){
   const context=window.driverMatchContext;
   if(!context)return;
   closeDriverMatchModal();
   if(choice==="codriver"){
-    const codriverButton=document.getElementById("toggleCoDriverBtn");
-    if(codriverButton)setDriverMode("codriver",codriverButton);
-    document.getElementById("driverName").value=context.profile.name;
-    document.getElementById("iqamaNumber").value=context.profile.id==="--"?"":context.profile.id;
-    document.getElementById("mobileNumber").value=context.profile.phone==="N/A"?"":context.profile.phone;
-    document.getElementById("driverSearchBox").value=context.profile.name;
-    document.getElementById("driverSearchBox").required=false;
-    const plateContainer=document.getElementById("plateNumberContainer");
-    const plateDigits=document.getElementById("plateNumberDigits");
-    const plateLetters=document.getElementById("plateNumberLetters");
-    if(plateContainer&&(!plateDigits.value||!plateLetters.value)){
-      plateContainer.style.display="block";
-      plateDigits.required=true;
-      plateLetters.required=true;
-    }
+    openVehicleChooser(context.profile,"codriver");
     return;
   }
   if(choice==="existing"){
@@ -1587,6 +1609,7 @@ window.runInstantConflictCheck=function(event){
   if(!event||!event.target)return;
   const target=event.target;
   const iqama=String(document.getElementById("iqamaNumber").value||"").trim();
+  const iqamaComplete=normalizeIqama(iqama).length===10;
   const digits=String(document.getElementById("plateNumberDigits").value||"").trim();
   const letters=String(document.getElementById("plateNumberLetters").value||"").trim();
   const currentMode=window.currentDriverMode;
@@ -1598,7 +1621,7 @@ window.runInstantConflictCheck=function(event){
     profile=findDriverByPlate(plate);
     if(profile){source="plate";matchedPlate=plate;}
   }
-  if(!profile&&currentMode!=="existing"&&iqama){
+  if(!profile&&currentMode!=="existing"&&iqamaComplete){
     const idProfile=findDriverByIqama(iqama);
     if(idProfile){
       profile=idProfile;
@@ -1943,21 +1966,7 @@ window.handleOcrSmartChoice=function(choice){
     return;
   }
   if(choice==="codriver"){
-    const codriverButton=document.getElementById("toggleCoDriverBtn");
-    if(codriverButton)setDriverMode("codriver",codriverButton);
-    document.getElementById("driverName").value=profile.name;
-    document.getElementById("iqamaNumber").value=profile.id;
-    document.getElementById("mobileNumber").value=profile.phone==="N/A"?"":profile.phone;
-    document.getElementById("driverSearchBox").value=profile.name;
-    document.getElementById("driverSearchBox").required=false;
-    const plateContainer=document.getElementById("plateNumberContainer");
-    const plateDigits=document.getElementById("plateNumberDigits");
-    const plateLetters=document.getElementById("plateNumberLetters");
-    if(plateContainer&&(!plateDigits.value||!plateLetters.value)){
-      plateContainer.style.display="block";
-      plateDigits.required=true;
-      plateLetters.required=true;
-    }
+    openVehicleChooser(profile,"codriver");
     document.getElementById("ocrSmartAddCarBtn").style.display="none";
   }
 };
