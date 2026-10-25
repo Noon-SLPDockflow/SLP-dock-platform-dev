@@ -576,17 +576,21 @@ button:focus-visible,.nav-item:focus-visible,input:focus-visible,select:focus-vi
 #introOverlay .login-brand-panel{background:radial-gradient(ellipse at 50% 42%,rgba(185,192,201,.09),transparent 50%),linear-gradient(145deg,#1b1e22,#14171a 58%,#090a0c)!important}
 #introOverlay .login-brand-panel::before,#introOverlay .login-brand-panel::after{border-color:rgba(216,183,90,.2)}
 #introOverlay .login-brand-logo{width:min(78%,420px);max-height:min(52vh,420px);filter:drop-shadow(0 20px 32px rgba(0,0,0,.55))}
-#introOverlay .login-brand-title{margin-top:1rem}
-#introOverlay .login-brand-name{color:#f0d78a;font-size:clamp(2.5rem,4.6vw,4rem);letter-spacing:.045em}
-#introOverlay .login-brand-subtitle{color:#e8e5db;font-size:clamp(1.65rem,3vw,2.35rem)}
+#introOverlay .login-brand-title{width:100%;align-items:center;gap:.35rem;margin-top:1rem;text-align:center}
+#introOverlay .login-brand-name,#introOverlay .login-brand-subtitle{display:block;width:100%;text-align:center;unicode-bidi:isolate}
+#introOverlay .login-brand-name{color:#f0d78a;background:linear-gradient(110deg,#fff4ce 4%,#d7b866 48%,#fff0c4 92%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif;font-size:clamp(2.5rem,4.6vw,4rem);font-weight:850;line-height:1.08;letter-spacing:.12em;text-shadow:0 3px 16px rgba(216,183,90,.16)}
+#introOverlay .login-brand-subtitle{color:#f1eee7;font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.55rem,2.8vw,2.15rem);font-weight:700;line-height:1.2;letter-spacing:.12em;text-shadow:0 2px 8px rgba(0,0,0,.32)}
+#introOverlay .login-brand-subtitle::before{content:"";display:block;width:clamp(3rem,5vw,4.5rem);height:2px;margin:0 auto .4rem;background:linear-gradient(90deg,transparent,#c4a86b 24%,#f0d78a 50%,#c4a86b 76%,transparent);box-shadow:0 0 12px rgba(216,183,90,.3)}
+html[dir="rtl"] #introOverlay .login-brand-name,html[dir="rtl"] #introOverlay .login-brand-subtitle{direction:rtl;letter-spacing:normal}
 html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 @media(max-width:760px){
  #introOverlay .login-container{min-height:100vh;min-height:100dvh;background:#0b0b0a!important}
  #introOverlay .login-brand-panel{min-height:270px;padding:1.1rem 1.4rem;background:radial-gradient(ellipse at 50% 42%,rgba(185,192,201,.09),transparent 50%),linear-gradient(145deg,#1b1e22,#14171a 58%,#090a0c)!important}
  #introOverlay .login-brand-logo{width:min(48%,180px);max-height:130px}
  #introOverlay .login-brand-title{margin-top:.55rem}
- #introOverlay .login-brand-name{font-size:clamp(1.95rem,8vw,2.55rem)}
- #introOverlay .login-brand-subtitle{font-size:clamp(1.35rem,5.6vw,1.7rem)}
+ #introOverlay .login-brand-name{font-size:clamp(1.95rem,8vw,2.55rem);letter-spacing:.08em}
+ #introOverlay .login-brand-subtitle{font-size:clamp(1.35rem,5.6vw,1.7rem);letter-spacing:.07em}
+ #introOverlay .login-brand-subtitle::before{margin-bottom:.3rem}
  #introOverlay .login-form-panel{padding:1.35rem clamp(1.1rem,5vw,1.75rem) 1.8rem;background:#050505!important}
  #introOverlay .login-signin-heading{font-size:1.8rem;margin-bottom:.65rem;color:#f0d78a!important}
  #introOverlay .login-form-panel>div:has(>#loginLangBtn){margin-bottom:.55rem!important}
@@ -1171,7 +1175,10 @@ function getAvailableViews(){let views=[];document.querySelectorAll('.nav-links 
 window.swipeNext=function(){let activeView=document.querySelector('.app-view.active-view');if(!activeView)return;let currentId=activeView.id.replace('view-','');let views=getAvailableViews();let idx=views.indexOf(currentId);if(idx>=0&&idx<views.length-1){let nextView=views[idx+1];let navItem=Array.from(document.querySelectorAll('.nav-item')).find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(nextView));switchView(nextView,navItem);}};
 window.swipePrev=function(){let activeView=document.querySelector('.app-view.active-view');if(!activeView)return;let currentId=activeView.id.replace('view-','');let views=getAvailableViews();let idx=views.indexOf(currentId);if(idx>0){let prevView=views[idx-1];let navItem=Array.from(document.querySelectorAll('.nav-item')).find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(prevView));switchView(prevView,navItem);}};
 window.toggleSidebar=function(){const sidebar=document.getElementById('appSidebar');const floatBtn=document.getElementById('floatingOpenBtn');if(!sidebar)return;if(window.innerWidth<=1200){sidebar.classList.toggle('mobile-open');}else{sidebar.classList.toggle('hidden');const main=document.getElementById('mainContentArea');if(main)main.classList.toggle('expanded');if(sidebar.classList.contains('hidden')){if(floatBtn)floatBtn.style.display='flex';}else{if(floatBtn)floatBtn.style.display='none';}}};
-window.toggleFullscreen=function(){const fsBtnText=document.getElementById('fsBtnLabel'),fsIcon=document.getElementById('fsIcon');if(!document.fullscreenElement){document.documentElement.requestFullscreen().then(()=>{if(fsBtnText)fsBtnText.innerText=tr("Exit Fullscreen");if(fsIcon)fsIcon.innerText="📉";}).catch(()=>alert("Fullscreen error."));}else{document.exitFullscreen().then(()=>{if(fsBtnText)fsBtnText.innerText=tr("Fullscreen");if(fsIcon)fsIcon.innerText="🖥️";});}};
+window.syncFullscreenButton=function(){const isFullscreen=Boolean(document.fullscreenElement),fsBtnText=document.getElementById('fsBtnLabel'),fsIcon=document.getElementById('fsIcon');if(fsBtnText)fsBtnText.innerText=tr(isFullscreen?"Exit Fullscreen":"Fullscreen");if(fsIcon)fsIcon.innerText=isFullscreen?"📉":"🖥️";};
+document.addEventListener('fullscreenchange',window.syncFullscreenButton);
+window.addEventListener('focus',window.syncFullscreenButton);
+window.toggleFullscreen=async function(){try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch(error){console.error("Fullscreen toggle failed:",error);alert("Fullscreen error.");}finally{window.syncFullscreenButton();}};
 window.toggleLoginDockGrid=function(){const grid=document.getElementById('loginDocksGrid');const arrow=document.getElementById('dockDropdownArrow');if(grid.style.display==='none'){grid.style.display='grid';arrow.innerText='▲';}else{grid.style.display='none';arrow.innerText='▼';}};
 window.toggleLoginDock=function(dockNum,btn){if(loginSelectedDocks.includes(dockNum)){loginSelectedDocks=loginSelectedDocks.filter(d=>d!==dockNum);btn.classList.remove('selected');}else{loginSelectedDocks.push(dockNum);btn.classList.add('selected');}const label=document.getElementById('assignedDocksLabel');if(label){if(loginSelectedDocks.length>0){label.innerText=loginSelectedDocks.length+" "+tr("Docks Selected");label.style.color="#fff";}else{label.innerText=tr("Assigned Docks *");label.style.color="var(--text-muted)";}}};
 function switchLoginMode(mode,btn){currentLoginMode=mode;document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('loginNoonId',(mode==='admin')?'none':'block');setDisp('loginIdWrapper',(mode==='admin')?'none':'block');setDisp('loginDocksContainer',(mode==='admin')?'none':'block');setDisp('adminPasswordContainer',(mode==='admin')?'block':'none');if(mode==='admin'){document.getElementById('loginNameSuggestions').classList.remove('open');document.getElementById('loginIdSuggestions').classList.remove('open');}}
