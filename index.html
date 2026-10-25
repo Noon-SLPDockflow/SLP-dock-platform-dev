@@ -417,6 +417,9 @@ button,input,select,textarea{font-weight:400}
 .edit-driver-vehicle-row .edit-driver-vehicle-index{flex:0 0 1.6rem;color:var(--text-muted);font-size:.75rem;font-weight:500;text-align:center}
 .edit-driver-vehicle-row .edit-driver-vehicle-plate{display:flex;gap:.55rem;min-width:0;flex:1}
 .edit-driver-vehicle-row .edit-driver-vehicle-plate input{width:50%;font-family:monospace;letter-spacing:.04em}
+.edit-driver-vehicle-delete{flex:0 0 2rem;width:2rem;height:2rem;border:1px solid rgba(255,107,92,.32);border-radius:8px;background:rgba(255,107,92,.08);color:var(--danger-color);font-size:1.2rem;line-height:1;cursor:pointer}
+.edit-driver-vehicle-delete:hover:not(:disabled){background:rgba(255,107,92,.18);border-color:rgba(255,107,92,.6)}
+.edit-driver-vehicle-delete:disabled{opacity:.55;cursor:wait}
 .view-header-title h1{font-weight:650;letter-spacing:.005em}
 .view-header-title p,.chart-card h3{font-weight:550;letter-spacing:.025em}
 .chart-card h3{font-size:.75rem;line-height:1.4}
@@ -1828,7 +1831,6 @@ window.openDriverProfileModal=function(name,iqama,plates,date,phone){
 window.openEditDriverModal=function(name,iqama,plates,mobile){
   const vehicleList=document.getElementById("editDriverVehicleList");
   const vehiclePlates=(Array.isArray(plates)?plates:[plates]).filter(Boolean);
-  if(!vehiclePlates.length)vehiclePlates.push("");
   document.getElementById("editDriverOldName").value=name;
   document.getElementById("editDriverOldIqama").value=iqama;
   document.getElementById("editDriverOldPlate").value=vehiclePlates[0];
@@ -1865,6 +1867,16 @@ window.openEditDriverModal=function(name,iqama,plates,mobile){
     fields.append(digits,letters);
     row.append(number,fields);
     row.dataset.oldPlate=plate;
+    if(userRole==="admin"&&plate.trim()){
+      const deleteButton=document.createElement("button");
+      deleteButton.type="button";
+      deleteButton.className="edit-driver-vehicle-delete";
+      deleteButton.textContent="×";
+      deleteButton.title=currentLang==="ar"?"حذف هذه الشاحنة":"Delete this truck";
+      deleteButton.setAttribute("aria-label",deleteButton.title);
+      deleteButton.addEventListener("click",()=>window.deleteDriverVehicle(deleteButton));
+      row.appendChild(deleteButton);
+    }
     vehicleList.appendChild(row);
   });
   document.getElementById("editDriverMobile").value=mobile!=="--"?mobile:"";
@@ -1882,7 +1894,8 @@ window.saveDriverEdit=async function(){
     digits:row.querySelector(".edit-driver-plate-digits").value.trim(),
     letters:row.querySelector(".edit-driver-plate-letters").value.trim().toUpperCase()
   }));
-  if(!name||!iqama||vehicles.length===0||vehicles.some(vehicle=>!vehicle.digits||!vehicle.letters)){alert("Please fill in all required fields.");return;}
+  if(window.isDeletingDriverVehicle){alert(currentLang==="ar"?"يرجى الانتظار حتى يكتمل حذف الشاحنة.":"Please wait for the truck deletion to finish.");return;}
+  if(!name||!iqama||vehicles.some(vehicle=>!vehicle.digits||!vehicle.letters)){alert("Please fill in all required fields.");return;}
   const updatedVehicles=vehicles.map(vehicle=>({oldPlate:vehicle.oldPlate,plateNumber:`${vehicle.digits} ${vehicle.letters}`}));
   const button=document.querySelector("#editDriverModal .submit-btn-global");
   const original=button.textContent;
@@ -1898,7 +1911,7 @@ window.saveDriverEdit=async function(){
       profile.id=iqama;
       profile.phone=mobile;
       profile.plates=updatedVehicles.map(vehicle=>vehicle.plateNumber);
-      profile.plate=profile.plates[0]||"";
+      profile.plate=profile.plates[0]||"--";
       if(window.selectedDriverProfile&&normalizeDriverValue(window.selectedDriverProfile.id)===normalizeDriverValue(oldIqama)){
         window.selectedDriverProfile={...profile,plate:profile.plates.find(value=>normalizeVehiclePlate(value)===normalizeVehiclePlate(window.selectedDriverProfile.plate))||profile.plates[0]||""};
         updateSelectedDriverUI();
@@ -1912,6 +1925,46 @@ window.saveDriverEdit=async function(){
   }finally{
     button.disabled=false;
     button.textContent=original;
+  }
+};
+window.deleteDriverVehicle=async function(button){
+  if(userRole!=="admin")return;
+  const row=button.closest(".edit-driver-vehicle-row");
+  const plate=String(row?.dataset.oldPlate||"").trim();
+  const name=document.getElementById("editDriverOldName").value;
+  const iqama=document.getElementById("editDriverOldIqama").value;
+  if(!row||!plate)return;
+  const prompt=currentLang==="ar"?`هل تريد حذف الشاحنة ${plate}؟`:`Delete truck ${plate}?`;
+  if(!window.confirm(prompt))return;
+  const saveButton=document.querySelector("#editDriverModal .submit-btn-global");
+  const deleteButtons=document.querySelectorAll("#editDriverVehicleList .edit-driver-vehicle-delete");
+  window.isDeletingDriverVehicle=true;
+  deleteButtons.forEach(deleteButton=>{deleteButton.disabled=true;});
+  if(saveButton)saveButton.disabled=true;
+  try{
+    const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"deleteDriverCar",driverName:name,iqamaNumber:iqama,plateNumber:plate})});
+    const result=await response.json();
+    if(!response.ok||result.status!=="success")throw new Error(result.message||"Could not delete the truck.");
+    const profile=driversRegistryList.find(driver=>normalizeDriverValue(driver.id)===normalizeDriverValue(iqama));
+    if(profile){
+      profile.plates=getDriverPlates(profile).filter(value=>normalizeVehiclePlate(value)!==normalizeVehiclePlate(plate));
+      profile.plate=profile.plates[0]||"--";
+    }
+    if(window.selectedDriverProfile&&normalizeDriverValue(window.selectedDriverProfile.id)===normalizeDriverValue(iqama)){
+      window.selectedDriverProfile.plates=getDriverPlates(window.selectedDriverProfile).filter(value=>normalizeVehiclePlate(value)!==normalizeVehiclePlate(plate));
+      window.selectedDriverProfile.plate=window.selectedDriverProfile.plates[0]||"--";
+      updateSelectedDriverUI();
+    }
+    row.remove();
+    document.querySelectorAll("#editDriverVehicleList .edit-driver-vehicle-row .edit-driver-vehicle-index").forEach((index,indexPosition)=>{index.textContent=`${indexPosition+1}.`;});
+    window.compileDriversRegistryCards();
+  }catch(error){
+    console.error("Delete truck error:",error);
+    alert(error.message||"Could not delete the truck. Please try again.");
+  }finally{
+    window.isDeletingDriverVehicle=false;
+    deleteButtons.forEach(deleteButton=>{if(deleteButton.isConnected)deleteButton.disabled=false;});
+    if(saveButton)saveButton.disabled=false;
   }
 };
 const originalRunLocalOcrEngine=window.runLocalOcrEngine;
