@@ -607,6 +607,10 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
+<style>
+body.supervisor-mode #view-active-trucks th:last-child,
+body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
+</style>
 </head>
 <body>
 <div id="updateAppBtn" onclick="window.location.href = window.location.pathname + '?v=' + new Date().getTime()" style="display:none;position:fixed;top:20px;right:50%;transform:translateX(50%);z-index:2147483647;background:#1a1a1a;color:#fff;border:1px solid #333;padding:10px 24px;border-radius:50px;font-weight:bold;cursor:pointer;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,0.8)"><div style="width:12px;height:12px;background:#ff4444;border-radius:50%;box-shadow:0 0 10px #ff4444;animation:pulse 1s infinite alternate"></div><span style="font-size:1.1rem;letter-spacing:0.5px">New Update Available! Click to Refresh</span></div>
@@ -619,6 +623,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <div class="login-tabs">
 <button class="login-tab active" onclick="switchLoginMode('guard',this)">🛡️ <span data-i18n="Guard">Guard</span></button>
 <button class="login-tab" onclick="switchLoginMode('admin',this)">⚙️ <span data-i18n="Admin">Admin</span></button>
+<button class="login-tab" onclick="switchLoginMode('supervisor',this)">👔 <span data-i18n="Supervisor">Supervisor</span></button>
 </div>
 <div id="customLoginBox" style="display:flex;flex-direction:column;gap:0.85rem;width:100%">
 <div id="loginNameWrapper" style="position:relative;width:100%">
@@ -638,6 +643,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <div id="loginDocksGrid" class="dock-select-grid" style="display:none;margin-top:0.5rem"></div>
 </div>
 <div id="adminPasswordContainer" style="display:none;width:100%"><input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align:center;border-color:rgba(248,81,73,0.4)"></div>
+<div id="supervisorPasswordContainer" style="display:none;width:100%"><input type="password" id="supervisorPassword" class="input-box-styled" placeholder="Password" autocomplete="current-password"></div>
 <button id="customSignInBtn" class="submit-btn-global" style="margin-top:0.25rem" data-i18n="AUTHORIZE ACCESS">AUTHORIZE ACCESS</button>
 </div>
 <div id="authStatus" class="auth-status"><p id="authText" class="pulsing">AUTHENTICATING...</p></div>
@@ -662,6 +668,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <li class="nav-item" id="nav-history" onclick="switchView('history',this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
 <li class="nav-item" id="nav-drivers" onclick="switchView('drivers',this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
 <li class="nav-item" id="nav-security" onclick="switchView('security',this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
+<li class="nav-item" id="nav-supervisor-shifts" onclick="switchView('supervisor-shifts',this)" style="display:none"><span class="nav-icon">🕒</span><span class="nav-text">Shifts &amp; Attendance</span></li>
 <li class="nav-item" id="nav-photo-audit" onclick="openAdminPhotoAudit(this)" style="display:none"><span class="nav-icon">🧪</span><span class="nav-text">Audit</span></li>
 </ul>
 <div class="sidebar-footer">
@@ -882,6 +889,16 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 </div>
 <div class="drivers-grid" id="securityRegistryContainer"></div>
 </div>
+<div id="view-supervisor-shifts" class="app-view">
+<div class="view-header-title"><h1>Shifts &amp; Attendance</h1><p>Set each guard’s recurring shift and mark attendance for today. A Present mark is required to sign in.</p></div>
+<div class="card" style="margin-top:1rem;padding:1rem;overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;min-width:780px">
+<thead><tr><th style="text-align:left;padding:.75rem">Guard</th><th style="text-align:left;padding:.75rem">Shift start</th><th style="text-align:left;padding:.75rem">Shift end</th><th style="text-align:left;padding:.75rem">Updated by</th><th style="text-align:left;padding:.75rem">Today</th><th style="text-align:left;padding:.75rem">Actions</th></tr></thead>
+<tbody id="supervisorScheduleBody"></tbody>
+</table>
+</div>
+<div id="supervisorScheduleMessage" style="margin-top:.75rem;color:var(--text-muted)"></div>
+</div>
 <div id="view-photo-audit" class="app-view">
 <div class="view-header-row">
 <div class="view-header-title"><h1>Audit</h1><p>Admin-only photo review and automatic checkout reports.</p></div>
@@ -991,6 +1008,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 </div>
 <div class="modal-body-content">
 <input type="hidden" id="editGuardOldName">
+<input type="hidden" id="editGuardOldId">
 <div class="form-group">
 <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
 <input type="text" id="editGuardName" class="input-box-styled" required>
@@ -1422,6 +1440,23 @@ window.toggleLoginDockGrid=function(){const grid=document.getElementById('loginD
 window.toggleLoginDock=function(dockNum,btn){if(loginSelectedDocks.includes(dockNum)){loginSelectedDocks=loginSelectedDocks.filter(d=>d!==dockNum);btn.classList.remove('selected');}else{loginSelectedDocks.push(dockNum);btn.classList.add('selected');}const label=document.getElementById('assignedDocksLabel');if(label){if(loginSelectedDocks.length>0){label.innerText=loginSelectedDocks.length+" "+tr("Docks Selected");label.style.color="#fff";}else{label.innerText=tr("Assigned Docks *");label.style.color="var(--text-muted)";}}};
 function switchLoginMode(mode,btn){currentLoginMode=mode;document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('loginNoonId',(mode==='admin')?'none':'block');setDisp('loginIdWrapper',(mode==='admin')?'none':'block');setDisp('loginDocksContainer',(mode==='admin')?'none':'block');setDisp('adminPasswordContainer',(mode==='admin')?'block':'none');if(mode==='admin'){document.getElementById('loginNameSuggestions').classList.remove('open');document.getElementById('loginIdSuggestions').classList.remove('open');}}
 window.switchLoginMode=switchLoginMode;
+const switchLoginModeBase=switchLoginMode;
+switchLoginMode=function(mode,btn){
+  switchLoginModeBase(mode,btn);
+  const isGuard=mode==="guard";
+  const setDisplay=(id,visible)=>{const element=document.getElementById(id);if(element)element.style.display=visible?"block":"none";};
+  setDisplay("loginIdWrapper",isGuard);
+  setDisplay("loginDocksContainer",isGuard);
+  setDisplay("adminPasswordContainer",mode==="admin");
+  setDisplay("supervisorPasswordContainer",mode==="supervisor");
+  document.getElementById("loginNoonId").required=isGuard;
+  document.getElementById("loginEmail").required=isGuard||mode==="supervisor";
+  if(mode!=="guard"){
+    document.getElementById("loginNameSuggestions").classList.remove("open");
+    document.getElementById("loginIdSuggestions").classList.remove("open");
+  }
+};
+window.switchLoginMode=switchLoginMode;
 const authorizedGuardEmails=new Set(Array.from({length:14},(_,index)=>`ruh01dock.security${index+1}@noon.com`).concat(["fsbutt@noon.com","mmaali@noon.com"]));
 window.guardLoginError=function(name,email,noonId,assignedDocks){
   if(!String(name||"").trim())return "Please enter your name.";
@@ -1433,16 +1468,129 @@ window.guardLoginError=function(name,email,noonId,assignedDocks){
   return "";
 };
 document.addEventListener("click",event=>{
-  if(event.target.closest("#customSignInBtn")&&currentLoginMode==="guard"){
-    const error=window.guardLoginError(
-      document.getElementById("loginName").value,
-      document.getElementById("loginEmail").value,
-      document.getElementById("loginNoonId").value,
-      loginSelectedDocks
-    );
-    if(error){event.preventDefault();event.stopImmediatePropagation();alert(error);}
+  if(!event.target.closest("#customSignInBtn"))return;
+  if(currentLoginMode==="supervisor"){
+    event.preventDefault();event.stopImmediatePropagation();
+    const name=document.getElementById("loginName").value.trim();
+    const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+    const password=document.getElementById("supervisorPassword").value;
+    if(!name||!email||!password){alert("Enter your name, authorized supervisor email, and supervisor password.");return;}
+    const button=document.getElementById("customSignInBtn");button.disabled=true;
+    fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"supervisorLogin",name:name,email:email,password:password})})
+      .then(response=>response.json()).then(result=>{
+        if(result.status!=="success"){alert(result.message||"Supervisor sign-in failed.");return;}
+        window.supervisorToken=result.token;
+        enterSupervisorApp(result.name,result.email);
+      }).catch(error=>{console.error("Supervisor sign-in failed:",error);alert("Unable to verify supervisor sign-in. Please try again.");})
+      .finally(()=>{document.getElementById("supervisorPassword").value="";button.disabled=false;});
+    return;
+  }
+  if(currentLoginMode==="guard"){
+    event.preventDefault();event.stopImmediatePropagation();
+    const name=document.getElementById("loginName").value.trim();
+    const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+    const noonId=document.getElementById("loginNoonId").value.trim();
+    const error=window.guardLoginError(name,email,noonId,loginSelectedDocks);
+    if(error){alert(error);return;}
+    const button=document.getElementById("customSignInBtn");button.disabled=true;
+    fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"addGuard",securityName:name,securityId:noonId})})
+      .then(response=>response.json()).then(registration=>{
+        if(registration.status!=="success")throw new Error(registration.message||"Unable to register guard in the roster.");
+        return fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAttendance",securityName:name,securityId:noonId,email:email})});
+      }).then(response=>response.json()).then(result=>{
+        if(result.status!=="success"||!result.present){alert(result.message||"You are not marked Present for today. Please contact your supervisor.");return;}
+        executeLogin(name,email,noonId,"guard",false,loginSelectedDocks);
+      }).catch(error=>{console.error("Guard attendance verification failed:",error);alert(error.message||"Unable to verify attendance. Please try again.");})
+      .finally(()=>{button.disabled=false;});
   }
 },true);
+window.supervisorToken="";
+async function supervisorRequest(action,data={}){
+  const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,...data,supervisorToken:window.supervisorToken})});
+  const result=await response.json();
+  if(result.status!=="success")throw new Error(result.message||"Supervisor request failed.");
+  return result;
+}
+window.enterSupervisorApp=function(name,email){
+  loggedInUser={name,email,noonId:""};userRole="supervisor";loginSelectedDocks=[];
+  document.body.classList.add("supervisor-mode");
+  document.getElementById("nav-dashboard").style.display="none";
+  document.getElementById("nav-analytics").style.display="none";
+  document.getElementById("nav-checkin").style.display="none";
+  document.getElementById("nav-active-trucks").style.display="flex";
+  document.getElementById("nav-history").style.display="none";
+  document.getElementById("nav-drivers").style.display="none";
+  document.getElementById("nav-security").style.display="flex";
+  document.getElementById("nav-photo-audit").style.display="none";
+  document.getElementById("nav-handover").style.display="none";
+  document.getElementById("nav-supervisor-shifts").style.display="flex";
+  document.querySelector("#nav-security .nav-text").textContent="Guard List";
+  document.querySelector("#nav-active-trucks .nav-text").textContent="Active Trucks";
+  document.querySelector("#view-security h1").textContent="Guard List";
+  document.querySelector("#view-security .view-header-title p").textContent="View, edit, or remove guards in the security roster.";
+  document.getElementById("introOverlay").classList.add("hidden");
+  document.getElementById("introOverlay").style.display="none";
+  document.getElementById("customLoginBox").style.display="none";
+  document.querySelector(".login-tabs").style.display="none";
+  document.getElementById("authStatus").style.display="none";
+  window.switchView("security",document.getElementById("nav-security"));
+  fetchLogs();
+  window.loadSupervisorSchedule();
+};
+window.loadSupervisorSchedule=async function(){
+  const message=document.getElementById("supervisorScheduleMessage");
+  if(message)message.textContent="Loading today’s guard roster…";
+  try{
+    const result=await supervisorRequest("getSupervisorData");
+    securityRegistryList=result.data.guards||[];
+    window.renderSupervisorSchedule(result.data);
+    window.compileSecurityRegistryCards();
+  }catch(error){
+    console.error("Could not load supervisor schedule:",error);
+    if(message)message.textContent=error.message;
+  }
+};
+window.renderSupervisorSchedule=function(data){
+  const body=document.getElementById("supervisorScheduleBody");
+  const message=document.getElementById("supervisorScheduleMessage");
+  if(!body)return;
+  body.replaceChildren();
+  const shifts=new Map((data.shifts||[]).map(shift=>[String(shift.securityId),shift]));
+  const attendance=new Map((data.attendance||[]).map(entry=>[String(entry.securityId),entry]));
+  (data.guards||[]).forEach(guard=>{
+    const row=document.createElement("tr");
+    const guardCell=document.createElement("td");guardCell.textContent=`${guard.securityName||"--"} (${guard.securityId||"--"})`;guardCell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color);font-weight:700";row.appendChild(guardCell);
+    const shift=shifts.get(String(guard.securityId))||{};
+    const startCell=document.createElement("td"),start=document.createElement("input");start.type="time";start.value=shift.start||"";start.className="input-box-styled";start.setAttribute("aria-label",`Shift start for ${guard.securityName}`);startCell.appendChild(start);startCell.style.cssText="padding:.5rem;border-top:1px solid var(--border-color)";row.appendChild(startCell);
+    const endCell=document.createElement("td"),end=document.createElement("input");end.type="time";end.value=shift.end||"";end.className="input-box-styled";end.setAttribute("aria-label",`Shift end for ${guard.securityName}`);endCell.appendChild(end);endCell.style.cssText="padding:.5rem;border-top:1px solid var(--border-color)";row.appendChild(endCell);
+    const updatedBy=document.createElement("td");updatedBy.textContent=shift.updatedByEmail?`${shift.updatedByName} (${shift.updatedByEmail})`:"Not set";updatedBy.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";row.appendChild(updatedBy);
+    const today=document.createElement("td"),marked=attendance.get(String(guard.securityId)),present=Boolean(marked&&marked.status==="Present");today.textContent=marked?`${marked.status} · ${marked.markedByName} (${marked.markedByEmail})`:"Not marked";today.style.cssText=`padding:.75rem;border-top:1px solid var(--border-color);color:${present?"var(--success-color)":"var(--text-muted)"}`;row.appendChild(today);
+    const actions=document.createElement("td");actions.style.cssText="padding:.5rem;border-top:1px solid var(--border-color);white-space:nowrap";
+    const save=document.createElement("button");save.type="button";save.className="tab-filter-item";save.textContent="Save shift";save.addEventListener("click",async()=>{
+      try{await supervisorRequest("saveGuardShift",{securityName:guard.securityName,securityId:guard.securityId,start:start.value,end:end.value});await window.loadSupervisorSchedule();}
+      catch(error){alert(error.message);}
+    });actions.appendChild(save);
+    const mark=document.createElement("button");mark.type="button";mark.className="tab-filter-item";mark.style.marginLeft=".4rem";mark.textContent=present?"Undo present":"Mark present";mark.addEventListener("click",async()=>{
+      try{await supervisorRequest("markGuardPresent",{securityName:guard.securityName,securityId:guard.securityId,present:!present});await window.loadSupervisorSchedule();}
+      catch(error){alert(error.message);}
+    });actions.appendChild(mark);row.appendChild(actions);body.appendChild(row);
+  });
+  if(message)message.textContent=`Attendance date: ${data.date}. Presence can be marked before a shift starts. Guards need a Present mark today to sign in; shift times are for scheduling and do not block sign-in by time.`;
+  if(!data.guards||!data.guards.length){const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=6;cell.textContent="No guards are in the guard list yet.";cell.style.cssText="padding:1rem;text-align:center";row.appendChild(cell);body.appendChild(row);}
+};
+const supervisorAwareFetch=window.fetch.bind(window);
+window.fetch=function(input,init){
+  if(input===API_URL&&init&&typeof init.body==="string"){
+    const payload=JSON.parse(init.body);
+    if(userRole==="supervisor"&&(payload.action==="getLogs"||payload.action==="editGuard"||payload.action==="deleteGuard")){
+      init={...init,body:JSON.stringify({...payload,supervisorToken:window.supervisorToken})};
+      if(payload.action==="getLogs")init={...init,body:JSON.stringify({...payload,supervisorToken:window.supervisorToken,userRole:"supervisor"})};
+    }else if(userRole==="guard"&&payload.action==="checkin"){
+      init={...init,body:JSON.stringify({...payload,userRole:"guard",securityEmail:loggedInUser.email})};
+    }
+  }
+  return supervisorAwareFetch(input,init);
+};
 function populateCheckInDocks(role,docksArray){const dockSelect=document.getElementById('dockNumber');if(!dockSelect)return;dockSelect.innerHTML=`<option value="" disabled selected>${tr('Select Dock...')}</option>`;let docksToRender=[];if(role==='admin'||!docksArray||docksArray.length===0){for(let i=15;i<=90;i++)docksToRender.push(i);}else{docksToRender=docksArray.sort((a,b)=>a-b);}docksToRender.forEach(d=>{dockSelect.innerHTML+=`<option value="${d}">${d}</option>`;});dockSelect.innerHTML+=`<option value="Others">${tr('Others / آخر')}</option>`;const customInput=document.getElementById('dockNumberCustom');if(customInput)customInput.style.display='none';}
 function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){if(role==='guard'&&window.guardLoginError(name,email,noonId,assignedDocks)){if(isInitialLoad)localStorage.removeItem('noonSlpUserSession');return;}email=String(email||"").trim().toLowerCase();loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-photo-audit',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');
 if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}window.logoutUser=function(){if(userRole==='guard'&&loginSelectedDocks&&loginSelectedDocks.length>0){let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length>0){alert(tr("You cannot log out. You must check out your active trucks at your assigned docks first."));return;}}localStorage.removeItem('noonSlpUserSession');location.reload();};
@@ -1512,15 +1660,15 @@ async function saveDriverEdit(){const oldName=document.getElementById('editDrive
 window.saveDriverEdit=saveDriverEdit;
 async function deleteDriver(driverName,iqama,btn){if(!confirm(currentLang==='ar'?'هل أنت متأكد من حذف هذا السائق؟ سيتم مسح جميع سجلاته.':'Are you sure you want to delete this driver?'))return;const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteDriver',driverName:driverName,iqamaNumber:iqama})});driversRegistryList=driversRegistryList.filter(d=>!(d.name===driverName&&(d.id===iqama||d.id==="--")));compileDriversRegistryCards();}catch(e){console.error(e);alert("Error deleting driver.");btn.innerText=originalText;btn.disabled=false;}}
 window.deleteDriver=deleteDriver;
-function openEditGuardModal(name,guardId){document.getElementById('editGuardOldName').value=name;document.getElementById('editGuardName').value=name;document.getElementById('editGuardId').value=guardId!=='--'?guardId:'';document.getElementById('editGuardModal').classList.add('modal-active');}
+function openEditGuardModal(name,guardId){document.getElementById('editGuardOldName').value=name;document.getElementById('editGuardOldId').value=guardId;document.getElementById('editGuardName').value=name;document.getElementById('editGuardId').value=guardId!=='--'?guardId:'';document.getElementById('editGuardModal').classList.add('modal-active');}
 window.openEditGuardModal=openEditGuardModal;
 function closeEditGuardModal(){document.getElementById('editGuardModal').classList.remove('modal-active');}
 window.closeEditGuardModal=closeEditGuardModal;
-async function saveGuardEdit(){const oldName=document.getElementById('editGuardOldName').value;const newName=document.getElementById('editGuardName').value.trim();const newGuardId=document.getElementById('editGuardId').value.trim();if(!newName||!newGuardId){alert(currentLang==='ar'?"يرجى ملء جميع الحقول المطلوبة.":"Please fill in all required fields.");return;}window.isSavingEdit=true;const btn=document.querySelector('#editGuardModal .submit-btn-global');const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'editGuard',oldSecurityName:oldName,securityName:newName,securityId:newGuardId})});securityRegistryList.forEach(g=>{if(g.securityName.toLowerCase()===oldName.toLowerCase()){g.securityName=newName;g.securityId=newGuardId;}});closeEditGuardModal();compileSecurityRegistryCards();}catch(e){console.error(e);}finally{btn.innerText=originalText;btn.disabled=false;setTimeout(()=>{window.isSavingEdit=false;},5000);}}
+async function saveGuardEdit(){const oldName=document.getElementById('editGuardOldName').value;const oldGuardId=document.getElementById('editGuardOldId').value;const newName=document.getElementById('editGuardName').value.trim();const newGuardId=document.getElementById('editGuardId').value.trim();if(!newName||!newGuardId){alert(currentLang==='ar'?"يرجى ملء جميع الحقول المطلوبة.":"Please fill in all required fields.");return;}window.isSavingEdit=true;const btn=document.querySelector('#editGuardModal .submit-btn-global');const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'editGuard',oldSecurityName:oldName,oldSecurityId:oldGuardId,securityName:newName,securityId:newGuardId})});securityRegistryList.forEach(g=>{if(g.securityName.toLowerCase()===oldName.toLowerCase()&&String(g.securityId)===oldGuardId){g.securityName=newName;g.securityId=newGuardId;}});closeEditGuardModal();compileSecurityRegistryCards();}catch(e){console.error(e);}finally{btn.innerText=originalText;btn.disabled=false;setTimeout(()=>{window.isSavingEdit=false;},5000);}}
 window.saveGuardEdit=saveGuardEdit;
 async function deleteGuard(guardName,guardId,btn){if(!confirm(currentLang==='ar'?'هل أنت متأكد من حذف هذا الحارس؟':'Are you sure you want to delete this guard?'))return;const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteGuard',securityName:guardName,securityId:guardId})});securityRegistryList=securityRegistryList.filter(g=>!(g.securityName===guardName&&g.securityId===guardId));compileSecurityRegistryCards();}catch(e){console.error(e);alert("Error deleting guard.");btn.innerText=originalText;btn.disabled=false;}}
 window.deleteGuard=deleteGuard;
-window.renderLoginGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('loginNameSuggestions'),listId=document.getElementById('loginIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(currentLoginMode==='admin'||!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');let combinedGuards=[...localGuards];securityRegistryList.forEach(g=>{if(!combinedGuards.some(lg=>lg.securityId===g.securityId&&lg.securityName===g.securityName))combinedGuards.push(g);});let matches=combinedGuards.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('loginName'),idEl=document.getElementById('loginNoonId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
+window.renderLoginGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('loginNameSuggestions'),listId=document.getElementById('loginIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(currentLoginMode!=='guard'||!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');let combinedGuards=[...localGuards];securityRegistryList.forEach(g=>{if(!combinedGuards.some(lg=>lg.securityId===g.securityId&&lg.securityName===g.securityName))combinedGuards.push(g);});let matches=combinedGuards.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('loginName'),idEl=document.getElementById('loginNoonId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
 window.renderHandoverGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('handoverNameSuggestions'),listId=document.getElementById('handoverIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');let combinedGuards=[...localGuards];securityRegistryList.forEach(g=>{if(!combinedGuards.some(lg=>lg.securityId===g.securityId&&lg.securityName===g.securityName))combinedGuards.push(g);});let matches=combinedGuards.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('handoverNewName'),idEl=document.getElementById('handoverNewId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
 function updateSelectedDriverUI(){if(!window.selectedDriverProfile)return;const d=window.selectedDriverProfile;const nameText=document.getElementById('selDriverNameText');const metaText=document.getElementById('selDriverMetaText');const selBox=document.getElementById('selectedDriverBox');if(nameText)nameText.innerText=d.name;if(metaText)metaText.innerText=`Plate: ${d.plate} | Iqama: ${d.id} | Mobile: ${d.phone}`;if(selBox)selBox.classList.add('active');const editBtn=document.getElementById('inlineDriverEditBtn');if(editBtn)editBtn.style.display=(userRole==='admin')?'block':'none';const dName=document.getElementById('driverName');if(dName)dName.value=d.name;const iqNum=document.getElementById('iqamaNumber');if(iqNum)iqNum.value=d.id!=='--'?d.id:'';const mobNum=document.getElementById('mobileNumber');if(mobNum)mobNum.value=d.phone!=='--'?d.phone:'';const pNumD=document.getElementById('plateNumberDigits'),pNumL=document.getElementById('plateNumberLetters');let plateStr=d.plate!=='--'?d.plate:'';let numMatch=plateStr.match(/\d+/),letMatch=plateStr.match(/[A-Za-z]+/g);if(pNumD)pNumD.value=numMatch?numMatch[0]:'';if(pNumL)pNumL.value=letMatch?letMatch.join(''):'';}
 function editSelectedDriverInline(){if(!window.selectedDriverProfile)return;const d=window.selectedDriverProfile;openEditDriverModal(d.name,d.id,d.plate,d.phone);}
@@ -2065,8 +2213,13 @@ window.filterRegistryCards=function(){
 };
 const previousSwitchView=window.switchView;
 window.switchView=function(viewId,element){
+  if(userRole==="supervisor"&&!["security","active-trucks","supervisor-shifts"].includes(viewId)){alert("Supervisor access is limited to Guard List, Active Trucks, and Shifts & Attendance.");return;}
+  if(viewId==="supervisor-shifts"&&userRole!=="supervisor"){alert("Shifts & Attendance is only available to supervisors.");return;}
+  if(viewId==="security"&&userRole!=="admin"&&userRole!=="supervisor"){alert("Guard List access is restricted.");return;}
   if(viewId==="photo-audit"&&userRole!=="admin"){alert("Admin access required for audit.");return;}
   previousSwitchView(viewId,element);
+  if(viewId==="active-trucks"&&userRole==="supervisor")document.body.classList.add("supervisor-mode");
+  if(viewId==="supervisor-shifts"&&userRole==="supervisor")window.loadSupervisorSchedule();
   if(viewId==="drivers"&&window.hasFetchedLogs)window.compileDriversRegistryCards();
   if(viewId==="photo-audit"&&userRole==="admin")window.renderPhotoAudit();
 };
@@ -2283,7 +2436,48 @@ window.handleOcrSmartChoice=function(choice){
     document.getElementById("ocrSmartAddCarBtn").style.display="none";
   }
 };
+const baseExecuteLogin=executeLogin;
+executeLogin=function(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){
+  if(isInitialLoad&&role==="guard"){
+    fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAttendance",securityName:name,securityId:noonId,email:email})})
+      .then(response=>response.json()).then(result=>{
+        if(result.status!=="success"||!result.present){localStorage.removeItem("noonSlpUserSession");return;}
+        baseExecuteLogin(name,email,noonId,role,true,assignedDocks);
+        fetchLogs();
+      }).catch(error=>{console.error("Saved guard attendance verification failed:",error);localStorage.removeItem("noonSlpUserSession");});
+    return;
+  }
+  baseExecuteLogin(name,email,noonId,role,isInitialLoad,assignedDocks);
+  if(role==="admin"||role==="guard"){
+    if(isInitialLoad)fetchLogs();
+    else setTimeout(fetchLogs,2700);
+  }
+};
+const baseFetchLogs=fetchLogs;
+fetchLogs=function(){
+  const overlay=document.getElementById("introOverlay");
+  if(overlay&&!overlay.classList.contains("hidden"))return;
+  return baseFetchLogs();
+};
+window.fetchLogs=fetchLogs;
+const baseCompileSecurityRegistryCards=compileSecurityRegistryCards;
+compileSecurityRegistryCards=function(){
+  baseCompileSecurityRegistryCards();
+  if(userRole!=="supervisor")return;
+  document.querySelectorAll(".security-card").forEach(card=>{
+    const guard=securityRegistryList.find(item=>String(item.securityName||"").toLowerCase()===String(card.dataset.name||"").toLowerCase());
+    const actions=card.querySelector(".card-actions-wrapper");
+    if(!guard||!actions)return;
+    const edit=document.createElement("button");edit.type="button";edit.className="btn-card-action edit-btn";edit.textContent="Edit";
+    edit.addEventListener("click",()=>openEditGuardModal(guard.securityName,guard.securityId));
+    const remove=document.createElement("button");remove.type="button";remove.className="btn-card-action";remove.textContent="Delete";remove.style.cssText="border-color:rgba(248,81,73,0.4);color:var(--danger-color)";
+    remove.addEventListener("click",()=>window.deleteGuard(guard.securityName,guard.securityId,remove));
+    actions.append(edit,remove);
+  });
+};
+window.compileSecurityRegistryCards=compileSecurityRegistryCards;
 translations["Brightness"]="السطوع";
+translations["Supervisor"]="مشرف";
 </script>
 </body>
 </html>
