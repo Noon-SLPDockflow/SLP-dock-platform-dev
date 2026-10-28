@@ -900,6 +900,10 @@ body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
 </table>
 </div>
 <div id="securityRegistryMessage" style="margin-top:.75rem;color:var(--text-muted)"></div>
+<div id="guardStatusAuditSection" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-color)">
+<button id="guardStatusAuditToggle" type="button" class="btn-card-action" onclick="window.toggleGuardStatusAudit()">See more: guard status history</button>
+<div id="guardStatusAuditContent" style="display:none;margin-top:1rem"></div>
+</div>
 </div>
 <div id="view-photo-audit" class="app-view">
 <div class="view-header-row">
@@ -1527,27 +1531,116 @@ document.addEventListener("click",event=>{
   }
 },true);
 window.supervisorToken="";
+window.guardRosterLoaded=false;
+window.guardRosterRequest=null;
 async function supervisorRequest(action,data={}){
   const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,...data,supervisorToken:window.supervisorToken})});
   const result=await response.json();
   if(result.status!=="success")throw new Error(result.message||"Supervisor request failed.");
   return result;
 }
-window.loadGuardRoster=async function(){
+window.loadGuardRoster=function(){
+  if(window.guardRosterRequest)return window.guardRosterRequest;
+  window.guardRosterRequest=(async()=>{
   const message=document.getElementById("securityRegistryMessage");
   if(message)message.textContent="Loading guard list…";
   try{
     const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getGuardRoster",userRole:userRole,supervisorToken:window.supervisorToken})});
-    const result=await response.json();
+    let result=await response.json();
+    if(result.status!=="success"&&String(result.message||"").toLowerCase().includes("invalid action")){
+      console.warn("Guard roster endpoint is unavailable; using the existing logs response for roster suggestions.");
+      const legacyResponse=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getLogs"})});
+      const legacyResult=await legacyResponse.json();
+      if(!Array.isArray(legacyResult.guards))throw new Error(legacyResult.message||"The guard roster response was invalid.");
+      result={status:"success",guards:legacyResult.guards};
+    }
     if(result.status!=="success")throw new Error(result.message||"Unable to load guard roster.");
     if(!Array.isArray(result.guards))throw new Error("The guard roster response was invalid.");
     securityRegistryList=result.guards;
+    window.guardRosterLoaded=true;
     if(message)message.textContent="";
     window.compileSecurityRegistryCards();
     renderSupervisorDutyStatus();
+    return true;
   }catch(error){
     console.error("Could not load guard roster:",error);
     if(message)message.textContent=error.message||"Unable to load guard roster.";
+    return false;
+  }
+  })().finally(()=>{window.guardRosterRequest=null;});
+  return window.guardRosterRequest;
+};
+window.guardStatusAuditLoaded=false;
+window.guardStatusAuditEntries=[];
+window.toggleGuardStatusAudit=async function(){
+  const content=document.getElementById("guardStatusAuditContent");
+  const button=document.getElementById("guardStatusAuditToggle");
+  if(!content||!button)return;
+  const isExpanded=content.style.display!=="none";
+  if(isExpanded){
+    content.style.display="none";
+    button.textContent="See more: guard status history";
+    return;
+  }
+  content.style.display="block";
+  button.textContent="See less: guard status history";
+  if(window.guardStatusAuditLoaded)return;
+  content.textContent="Loading status history…";
+  try{
+    let result;
+    if(userRole==="supervisor")result=await window.supervisorRequest("getGuardStatusAudit");
+    else{
+      const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getGuardStatusAudit",userRole:"admin"})});
+      result=await response.json();
+      if(result.status!=="success")throw new Error(result.message||"Unable to load guard status history.");
+    }
+    if(!Array.isArray(result.entries))throw new Error("The guard status history response was invalid.");
+    window.guardStatusAuditEntries=result.entries;
+    window.guardStatusAuditLoaded=true;
+    content.replaceChildren();
+    if(!result.entries.length){
+      content.textContent="No guard status changes have been recorded.";
+      return;
+    }
+    const table=document.createElement("table");
+    table.style.cssText="width:100%;border-collapse:collapse;min-width:680px";
+    const header=document.createElement("tr");
+    ["Date and time","Supervisor","Supervisor email","Guard","Security ID","Status"].forEach(label=>{
+      const cell=document.createElement("th");
+      cell.textContent=label;
+      cell.style.cssText="padding:.65rem;text-align:left;border-bottom:1px solid var(--border-color);color:var(--text-muted)";
+      header.appendChild(cell);
+    });
+    const thead=document.createElement("thead");thead.appendChild(header);table.appendChild(thead);
+    const tbody=document.createElement("tbody");
+    result.entries.forEach(entry=>{
+      const row=document.createElement("tr");
+      const timestamp=new Date(entry.timestamp);
+      const values=[
+        Number.isNaN(timestamp.getTime())?String(entry.timestamp||"--"):timestamp.toLocaleString(),
+        entry.supervisorName||"--",
+        entry.supervisorEmail||"--",
+        entry.guardName||"--",
+        entry.guardId||"--",
+        entry.status||"--"
+      ];
+      values.forEach((value,index)=>{
+        const cell=document.createElement("td");
+        cell.textContent=String(value);
+        cell.style.cssText="padding:.65rem;border-bottom:1px solid var(--border-color);text-align:left";
+        if(index===5)cell.style.color=String(value)==="Active"?"#4ade80":"#ff6b6b";
+        row.appendChild(cell);
+      });
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    const wrapper=document.createElement("div");
+    wrapper.style.cssText="overflow-x:auto";
+    wrapper.appendChild(table);
+    content.appendChild(wrapper);
+  }catch(error){
+    console.error("Could not load guard status history:",error);
+    content.textContent=error.message||"Unable to load guard status history.";
   }
 };
 window.enterSupervisorApp=function(name,email){
@@ -1966,7 +2059,7 @@ window.addNewGuard=async function(){
 };
 async function deleteGuard(guardName,guardId,btn){if(!confirm(currentLang==='ar'?'هل أنت متأكد من حذف هذا الحارس؟':'Are you sure you want to delete this guard?'))return;const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteGuard',securityName:guardName,securityId:guardId})});securityRegistryList=securityRegistryList.filter(g=>!(g.securityName===guardName&&g.securityId===guardId));compileSecurityRegistryCards();}catch(e){console.error(e);alert("Error deleting guard.");btn.innerText=originalText;btn.disabled=false;}}
 window.deleteGuard=deleteGuard;
-window.renderLoginGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('loginNameSuggestions'),listId=document.getElementById('loginIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(currentLoginMode!=='guard'||!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';const matches=securityRegistryList.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('loginName'),idEl=document.getElementById('loginNoonId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
+window.renderLoginGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('loginNameSuggestions'),listId=document.getElementById('loginIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(currentLoginMode!=='guard'||!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';if(!window.guardRosterLoaded){window.loadGuardRoster().then(loaded=>{if(loaded&&document.activeElement?.id===(type==='name'?'loginName':'loginNoonId')&&document.activeElement.value===value)window.renderLoginGuardSuggestions(value,type);});return;}const matches=securityRegistryList.filter(g=>String(g.status||'Active').toLowerCase()==='active'&&(type==='name'?String(g.securityName||'').toUpperCase().includes(value.toUpperCase()):type==='id'?String(g.securityId||'').toUpperCase().includes(value.toUpperCase()):false)).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('loginName'),idEl=document.getElementById('loginNoonId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
 window.renderHandoverGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('handoverNameSuggestions'),listId=document.getElementById('handoverIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';const matches=securityRegistryList.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('handoverNewName'),idEl=document.getElementById('handoverNewId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
 function updateSelectedDriverUI(){if(!window.selectedDriverProfile)return;const d=window.selectedDriverProfile;const nameText=document.getElementById('selDriverNameText');const metaText=document.getElementById('selDriverMetaText');const selBox=document.getElementById('selectedDriverBox');if(nameText)nameText.innerText=d.name;if(metaText)metaText.innerText=`Plate: ${d.plate} | Iqama: ${d.id} | Mobile: ${d.phone}`;if(selBox)selBox.classList.add('active');const editBtn=document.getElementById('inlineDriverEditBtn');if(editBtn)editBtn.style.display=(userRole==='admin')?'block':'none';const dName=document.getElementById('driverName');if(dName)dName.value=d.name;const iqNum=document.getElementById('iqamaNumber');if(iqNum)iqNum.value=d.id!=='--'?d.id:'';const mobNum=document.getElementById('mobileNumber');if(mobNum)mobNum.value=d.phone!=='--'?d.phone:'';const pNumD=document.getElementById('plateNumberDigits'),pNumL=document.getElementById('plateNumberLetters');let plateStr=d.plate!=='--'?d.plate:'';let numMatch=plateStr.match(/\d+/),letMatch=plateStr.match(/[A-Za-z]+/g);if(pNumD)pNumD.value=numMatch?numMatch[0]:'';if(pNumL)pNumL.value=letMatch?letMatch.join(''):'';}
 function editSelectedDriverInline(){if(!window.selectedDriverProfile)return;const d=window.selectedDriverProfile;openEditDriverModal(d.name,d.id,d.plate,d.phone);}
@@ -2043,7 +2136,7 @@ window.handleCheckoutPhoto=handleCheckoutPhoto;
 function exportHistoryToExcel(){if(!globalLogsCache||globalLogsCache.length===0){alert('No data to export.');return;}const headers=['Driver','Iqama Number','Plate','Direction','Dock','Noon Employee ID','Boxes/Pallets','Seal Number','Check In Truck','Check Out','Security'];const csvLines=[headers.join(',')];globalLogsCache.forEach(r=>{let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'Inside');const line=[r.driverName||'',r.iqamaNumber||'',r.plateNumber||'',r.direction||'',r.dockNumber||'',r.noonEmployeeId||'',r.boxCount||'0',r.sealNumber||'--',safeCheckInStr,safeCheckOutStr,r.securityName||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');csvLines.push(line);});const csvContent=csvLines.join('\n');const blob=new Blob(["\uFEFF"+csvContent],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`movement-history-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 window.exportHistoryToExcel=exportHistoryToExcel;
 const CURRENT_APP_VERSION="10.1";
-function checkForNewCode(){fetch(window.location.href.split('#')[0].split('?')[0]+'?cachebust='+new Date().getTime(),{cache:'no-store'}).then(r=>r.text()).then(html=>{const match=html.match(/const\s+CURRENT_APP_VERSION\s*=\s*"([^"]+)";/);if(match&&match[1]!==CURRENT_APP_VERSION){const btn=document.getElementById('updateAppBtn');if(btn)btn.style.display='flex';}}).catch(()=>{});}
+function checkForNewCode(){if(document.visibilityState==="hidden"||window.updateCheckInProgress||Date.now()-(window.lastUpdateCheck||0)<600000)return;window.updateCheckInProgress=true;fetch(window.location.href.split('#')[0].split('?')[0]+'?cachebust='+new Date().getTime(),{cache:'no-store'}).then(r=>r.text()).then(html=>{window.lastUpdateCheck=Date.now();const match=html.match(/const\s+CURRENT_APP_VERSION\s*=\s*"([^"]+)";/);if(match&&match[1]!==CURRENT_APP_VERSION){const btn=document.getElementById('updateAppBtn');if(btn)btn.style.display='flex';}}).catch(()=>{}).finally(()=>{window.updateCheckInProgress=false;});}
 const renderHistoryWhenVisible=applyHistoryFilters;
 applyHistoryFilters=function(){if(document.getElementById('view-history').classList.contains('active-view'))renderHistoryWhenVisible();};
 const renderAnalyticsWhenVisible=applyAnalyticsFilters;
@@ -2516,6 +2609,7 @@ window.switchView=function(viewId,element){
   if(viewId==="photo-audit"&&userRole!=="admin"){alert("Admin access required for audit.");return;}
   previousSwitchView(viewId,element);
   if(viewId==="security")window.loadGuardRoster();
+  if(viewId==="active-trucks")updateOverdueTruckRows();
   if(viewId==="active-trucks"&&userRole==="supervisor")document.body.classList.add("supervisor-mode");
   if(viewId==="drivers"&&window.hasFetchedLogs)window.compileDriversRegistryCards();
   if(viewId==="photo-audit"&&userRole==="admin")window.renderPhotoAudit();
@@ -2788,6 +2882,7 @@ window.handleLogsResponse=function(payload){
   updateOverdueTruckRows();
 };
 function updateOverdueTruckRows(){
+  if(document.visibilityState==="hidden"||!document.getElementById("view-active-trucks")?.classList.contains("active-view"))return;
   const tableBody=document.getElementById("activeYardTableBody");
   if(!tableBody)return;
   const activeTrucks=globalLogsCache.filter(truck=>!truck.checkOutTime);
@@ -2824,7 +2919,7 @@ function updateOverdueTruckRows(){
   const counter=document.getElementById("activeYardCounter");
   if(counter)counter.textContent=String(visibleCount);
 }
-setInterval(updateOverdueTruckRows,1000);
+setInterval(updateOverdueTruckRows,15000);
 const baseCompileSecurityRegistryCards=compileSecurityRegistryCards;
 compileSecurityRegistryCards=function(){
   baseCompileSecurityRegistryCards();
