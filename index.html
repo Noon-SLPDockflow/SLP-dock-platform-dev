@@ -629,7 +629,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID" required style="text-align:center;border-color:rgba(231,201,138,0.42)" data-i18n="Noon ID" autocomplete="off" oninput="window.renderLoginGuardSuggestions(this.value,'id')">
 <div id="loginIdSuggestions" class="suggestions-dropdown" style="text-align:left;max-height:150px"></div>
 </div>
-<input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align:center;border-color:rgba(231,201,138,0.42)" data-i18n="Authorized Noon Email">
+<input type="email" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" autocomplete="email" required style="text-align:center;border-color:rgba(231,201,138,0.42)" data-i18n="Authorized Noon Email">
 <div id="loginDocksContainer" style="width:100%;display:block">
 <div class="input-box-styled" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:rgba(231,201,138,0.42);text-align:left" onclick="toggleLoginDockGrid()">
 <span id="assignedDocksLabel" style="color:var(--text-muted);font-size:0.8rem;font-weight:700" data-i18n="Assigned Docks *">Assigned Docks *</span>
@@ -924,7 +924,6 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <thead><tr><th style="text-align:left;padding:.75rem">Guard</th><th style="text-align:left;padding:.75rem">Auto Checkouts</th><th style="text-align:left;padding:.75rem">Days with Auto Checkout</th><th style="text-align:left;padding:.75rem">Details</th></tr></thead>
 <tbody id="autoCheckoutAuditBody"></tbody>
 </table>
-<div id="autoCheckoutGuardDetails" style="margin-top:1.25rem"></div>
 </div>
 <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-top:.75rem">
 <span id="auditPageInfo" style="color:var(--text-muted)"></span>
@@ -1359,32 +1358,34 @@ window.renderPhotoAudit=function(){
     button.addEventListener("click",()=>{window.auditState.selectedGuard=window.auditState.selectedGuard===guard?"":guard;window.renderPhotoAudit();});
     detailCell.appendChild(button);row.appendChild(detailCell);
     body.appendChild(row);
+    if(window.auditState.selectedGuard===guard){
+      const detailsRow=document.createElement("tr");
+      const detailsCell=document.createElement("td");
+      detailsCell.colSpan=4;
+      detailsCell.style.cssText="padding:1rem;border-top:1px solid var(--border-color);background:var(--card-solid)";
+      const title=document.createElement("h3");
+      const selectedDays=new Set(records.map(record=>{const date=parseFlexibleDate(record.checkOutTime);return isNaN(date.getTime())?"":date.toDateString();}).filter(Boolean));
+      title.textContent=`${guard}: ${records.length} auto checkouts across ${selectedDays.size} days`;
+      title.style.margin="0 0 .75rem";
+      detailsCell.appendChild(title);
+      const table=document.createElement("table");
+      table.style.cssText="width:100%;border-collapse:collapse;min-width:800px";
+      const thead=document.createElement("thead");
+      const headRow=document.createElement("tr");
+      ["Date","Time","Dock","Driver","Plate"].forEach(label=>{const th=document.createElement("th");th.textContent=label;th.style.cssText="text-align:left;padding:.75rem";headRow.appendChild(th);});
+      thead.appendChild(headRow);table.appendChild(thead);
+      const detailsBody=document.createElement("tbody");
+      records.slice().sort((a,b)=>parseFlexibleDate(b.checkOutTime)-parseFlexibleDate(a.checkOutTime)).forEach(record=>{
+        const checkout=parseFlexibleDate(record.checkOutTime),detailsRecordRow=document.createElement("tr");
+        const values=[!isNaN(checkout.getTime())?checkout.toLocaleDateString():(record.checkOutTime||"--"),
+          !isNaN(checkout.getTime())?checkout.toLocaleTimeString():"--",record.dockNumber||"--",record.driverName||"--",record.plateNumber||"--"];
+        values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";detailsRecordRow.appendChild(cell);});
+        detailsBody.appendChild(detailsRecordRow);
+      });
+      table.appendChild(detailsBody);detailsCell.appendChild(table);detailsRow.appendChild(detailsCell);
+      body.appendChild(detailsRow);
+    }
   });
-  const details=document.getElementById("autoCheckoutGuardDetails");
-  if(!details)return;
-  details.replaceChildren();
-  const selectedRecords=guardRecords.get(window.auditState.selectedGuard);
-  if(!selectedRecords)return;
-  const title=document.createElement("h3");
-  const selectedDays=new Set(selectedRecords.map(record=>{const date=parseFlexibleDate(record.checkOutTime);return isNaN(date.getTime())?"":date.toDateString();}).filter(Boolean));
-  title.textContent=`${window.auditState.selectedGuard}: ${selectedRecords.length} auto checkouts across ${selectedDays.size} days`;
-  title.style.margin="0 0 .75rem";
-  details.appendChild(title);
-  const table=document.createElement("table");
-  table.style.cssText="width:100%;border-collapse:collapse;min-width:800px";
-  const thead=document.createElement("thead");
-  const headRow=document.createElement("tr");
-  ["Date","Time","Dock","Driver","Plate"].forEach(label=>{const th=document.createElement("th");th.textContent=label;th.style.cssText="text-align:left;padding:.75rem";headRow.appendChild(th);});
-  thead.appendChild(headRow);table.appendChild(thead);
-  const tbody=document.createElement("tbody");
-  selectedRecords.slice().sort((a,b)=>parseFlexibleDate(b.checkOutTime)-parseFlexibleDate(a.checkOutTime)).forEach(record=>{
-    const checkout=parseFlexibleDate(record.checkOutTime),row=document.createElement("tr");
-    const values=[!isNaN(checkout.getTime())?checkout.toLocaleDateString():(record.checkOutTime||"--"),
-      !isNaN(checkout.getTime())?checkout.toLocaleTimeString():"--",record.dockNumber||"--",record.driverName||"--",record.plateNumber||"--"];
-    values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";row.appendChild(cell);});
-    tbody.appendChild(row);
-  });
-  table.appendChild(tbody);details.appendChild(table);
 };
 let temporaryCapturedImage=null,temporaryCapturedItemImage=null,temporaryCapturedIqamaImage=null;
 let tempCheckoutTruckPhoto=null,tempCheckoutItemPhoto=null;
@@ -1421,8 +1422,29 @@ window.toggleLoginDockGrid=function(){const grid=document.getElementById('loginD
 window.toggleLoginDock=function(dockNum,btn){if(loginSelectedDocks.includes(dockNum)){loginSelectedDocks=loginSelectedDocks.filter(d=>d!==dockNum);btn.classList.remove('selected');}else{loginSelectedDocks.push(dockNum);btn.classList.add('selected');}const label=document.getElementById('assignedDocksLabel');if(label){if(loginSelectedDocks.length>0){label.innerText=loginSelectedDocks.length+" "+tr("Docks Selected");label.style.color="#fff";}else{label.innerText=tr("Assigned Docks *");label.style.color="var(--text-muted)";}}};
 function switchLoginMode(mode,btn){currentLoginMode=mode;document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('loginNoonId',(mode==='admin')?'none':'block');setDisp('loginIdWrapper',(mode==='admin')?'none':'block');setDisp('loginDocksContainer',(mode==='admin')?'none':'block');setDisp('adminPasswordContainer',(mode==='admin')?'block':'none');if(mode==='admin'){document.getElementById('loginNameSuggestions').classList.remove('open');document.getElementById('loginIdSuggestions').classList.remove('open');}}
 window.switchLoginMode=switchLoginMode;
+const authorizedGuardEmails=new Set(Array.from({length:14},(_,index)=>`ruh01dock.security${index+1}@noon.com`).concat(["fsbutt@noon.com","mmaali@noon.com"]));
+window.guardLoginError=function(name,email,noonId,assignedDocks){
+  if(!String(name||"").trim())return "Please enter your name.";
+  if(!String(noonId||"").trim())return "Please enter your Noon ID.";
+  const normalizedEmail=String(email||"").trim().toLowerCase();
+  if(!normalizedEmail)return "Please enter your Noon email.";
+  if(!authorizedGuardEmails.has(normalizedEmail))return "This email is not authorized for guard login.";
+  if(!Array.isArray(assignedDocks)||assignedDocks.length===0)return "Please select at least one assigned dock.";
+  return "";
+};
+document.addEventListener("click",event=>{
+  if(event.target.closest("#customSignInBtn")&&currentLoginMode==="guard"){
+    const error=window.guardLoginError(
+      document.getElementById("loginName").value,
+      document.getElementById("loginEmail").value,
+      document.getElementById("loginNoonId").value,
+      loginSelectedDocks
+    );
+    if(error){event.preventDefault();event.stopImmediatePropagation();alert(error);}
+  }
+},true);
 function populateCheckInDocks(role,docksArray){const dockSelect=document.getElementById('dockNumber');if(!dockSelect)return;dockSelect.innerHTML=`<option value="" disabled selected>${tr('Select Dock...')}</option>`;let docksToRender=[];if(role==='admin'||!docksArray||docksArray.length===0){for(let i=15;i<=90;i++)docksToRender.push(i);}else{docksToRender=docksArray.sort((a,b)=>a-b);}docksToRender.forEach(d=>{dockSelect.innerHTML+=`<option value="${d}">${d}</option>`;});dockSelect.innerHTML+=`<option value="Others">${tr('Others / آخر')}</option>`;const customInput=document.getElementById('dockNumberCustom');if(customInput)customInput.style.display='none';}
-function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-photo-audit',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');
+function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){if(role==='guard'&&window.guardLoginError(name,email,noonId,assignedDocks)){if(isInitialLoad)localStorage.removeItem('noonSlpUserSession');return;}email=String(email||"").trim().toLowerCase();loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-photo-audit',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');
 if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}window.logoutUser=function(){if(userRole==='guard'&&loginSelectedDocks&&loginSelectedDocks.length>0){let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length>0){alert(tr("You cannot log out. You must check out your active trucks at your assigned docks first."));return;}}localStorage.removeItem('noonSlpUserSession');location.reload();};
 window.openAdminPhotoAudit=function(element){if(userRole!=="admin"){alert("Admin access required for audit.");return;}window.switchView("photo-audit",element||document.getElementById("nav-photo-audit"));};
 window.openHandoverModal=function(){if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0){alert(tr("Only guards with assigned docks can perform a shift handover."));return;}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length===0){alert(tr("Your assigned docks are completely clear. No handover required. You may sign out."));return;}const countEl=document.getElementById('handoverTruckCount');if(countEl)countEl.innerText=myActiveTrucks.length;document.getElementById('handoverModal').classList.add('modal-active');};window.closeHandoverModal=function(){document.getElementById('handoverModal').classList.remove('modal-active');};
