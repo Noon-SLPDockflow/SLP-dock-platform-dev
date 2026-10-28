@@ -662,7 +662,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <li class="nav-item" id="nav-history" onclick="switchView('history',this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
 <li class="nav-item" id="nav-drivers" onclick="switchView('drivers',this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
 <li class="nav-item" id="nav-security" onclick="switchView('security',this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
-<li class="nav-item" id="nav-photo-audit" onclick="openAdminPhotoAudit()"><span class="nav-icon">🧪</span><span class="nav-text">Photo Audit</span></li>
+<li class="nav-item" id="nav-photo-audit" onclick="openAdminPhotoAudit(this)" style="display:none"><span class="nav-icon">🧪</span><span class="nav-text">Photo Audit</span></li>
 </ul>
 <div class="sidebar-footer">
 <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700;color:var(--success-color);margin-top:1px">Operational</div></div><div class="health-dot"></div></div>
@@ -881,6 +881,21 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <div class="header-search-box-container" style="width:320px"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" data-i18n="Search guards..." placeholder="Search name or ID..." oninput="if(window.debouncedFilterSecurityCards) window.debouncedFilterSecurityCards()"></div>
 </div>
 <div class="drivers-grid" id="securityRegistryContainer"></div>
+</div>
+<div id="view-photo-audit" class="app-view">
+<div class="view-header-row">
+<div class="view-header-title"><h1>Photo Audit</h1><p>Admin-only photo review. Automated image detection is not enabled yet.</p></div>
+<button type="button" class="submit-btn-global" style="width:auto;margin:0" onclick="renderPhotoAudit()">Refresh Audit</button>
+</div>
+<div class="card" style="margin-bottom:1rem">
+<p style="color:var(--text-muted);line-height:1.6">Photos are listed for admin review. Missing uploads are marked Missing; available images are marked Review Needed. Open each image to inspect it. This pilot does not automatically decide whether a photo is valid.</p>
+</div>
+<div class="card" style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;min-width:850px">
+<thead><tr><th style="text-align:left;padding:.75rem">Plate</th><th style="text-align:left;padding:.75rem">Check-in</th><th style="text-align:left;padding:.75rem">Truck Photo</th><th style="text-align:left;padding:.75rem">Item Photo</th><th style="text-align:left;padding:.75rem">ID Photo</th></tr></thead>
+<tbody id="photoAuditTableBody"><tr><td colspan="5" style="padding:1rem;text-align:center;color:var(--text-muted)">Loading log records…</td></tr></tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="modal-overlay" id="driverProfileModal">
@@ -1153,113 +1168,67 @@ window.currentAlert=null;
 window.audioCtx=null;
 window.alarmSource=null;
 window.alarmGain=null;
-window.photoAuditCache={};
 let loginSelectedDocks=[];
-
-window.getPhotoAuditStatusLabel=function(status){
-  if(status==="pass")return "PASS";
-  if(status==="review")return "ADMIN REVIEW";
-  if(status==="missing")return "MISSING";
-  return "N/A";
-};
-
-window.runPhotoAuditForRecord=async function(record){
-  const row={
-    plateNumber:String(record&&record.plateNumber||""),
-    truckPhotoUrl:String(record&&record.truckPhotoUrl||""),
-    itemPhotoUrl:String(record&&record.itemPhotoUrl||""),
-    iqamaPhotoUrl:String(record&&record.iqamaPhotoUrl||"")
-  };
-  const result={
-    plateNumber:row.plateNumber,
-    truck:{status:"missing",reason:"No truck photo uploaded"},
-    item:{status:"missing",reason:"No item photo uploaded"},
-    iqama:{status:"missing",reason:"No iqama photo uploaded"}
-  };
-
-  const evalField=(url,kind)=>{
-    if(!url||!String(url).trim()){
-      return {status:"missing",reason:kind==="truck"?"No truck photo uploaded":kind==="item"?"No item photo uploaded":"No iqama photo uploaded"};
-    }
-    return new Promise((resolve)=>{
-      const img=new Image();
-      img.crossOrigin="anonymous";
-      img.onload=()=>{
-        const canvas=document.createElement("canvas");
-        const ctx=canvas.getContext("2d");
-        const scale=Math.min(1,240/Math.max(img.width,img.height));
-        const w=Math.max(1,Math.round(img.width*scale));
-        const h=Math.max(1,Math.round(img.height*scale));
-        canvas.width=w; canvas.height=h;
-        ctx.drawImage(img,0,0,w,h);
-        const data=ctx.getImageData(0,0,w,h).data;
-        let dark=0,total=0,edge=0;
-        for(let i=0;i<data.length;i+=4){
-          const r=data[i],g=data[i+1],b=data[i+2];
-          const brightness=(r+g+b)/3;
-          total++;
-          if(brightness<35)dark++;
-          if(i>4){
-            const prevR=data[i-4],prevG=data[i-3],prevB=data[i-2];
-            const diff=Math.abs(r-prevR)+Math.abs(g-prevG)+Math.abs(b-prevB);
-            if(diff>120)edge++;
-          }
-        }
-        const darkRatio=dark/Math.max(1,total);
-        const edgeRatio=edge/Math.max(1,total);
-        if(kind==="truck"){
-          let foundPlate=false;
-          const tempCanvas=document.createElement("canvas");
-          const tempCtx=tempCanvas.getContext("2d");
-          const cropW=Math.round(w*0.65), cropH=Math.round(h*0.3), cropX=Math.round(w*0.18), cropY=Math.round(h*0.55);
-          tempCanvas.width=cropW; tempCanvas.height=cropH;
-          tempCtx.drawImage(img,cropX,cropY,cropW,cropH,0,0,cropW,cropH);
-          const plateData=tempCtx.getImageData(0,0,cropW,cropH).data;
-          let highContrast=0;
-          for(let i=0;i<plateData.length;i+=4){
-            const r=plateData[i],g=plateData[i+1],b=plateData[i+2];
-            const brightness=(r+g+b)/3;
-            if(brightness<170||brightness>210){highContrast++;}
-          }
-          const plateSignal=(highContrast/(plateData.length/4));
-          foundPlate=(plateSignal>0.18 && edgeRatio>0.01);
-          resolve({status:foundPlate?"pass":"review",reason:foundPlate?"Plate-like area detected":"Plate not clearly visible; admin review recommended"});
-        }
-        if(kind==="iqama"){
-          const cardRatio=(w/h);
-          const isCardLike=(cardRatio>1.1 && cardRatio<2.6);
-          const frontArea=(w*h*0.42);
-          const centerDark=0;
-          const faceSignal=((darkRatio<0.2)&&(edgeRatio>0.005)&&isCardLike)?"likely-id":"unclear";
-          const status=(isCardLike && faceSignal==="likely-id")?"pass":"review";
-          const reason=(status==="pass")?"ID card/photo area detected":"ID document not clearly visible; admin review recommended";
-          resolve({status:status,reason:reason});
-        }
-        if(kind==="item"){
-          const boxLike=((edgeRatio>0.03) && (darkRatio<0.7));
-          resolve({status:boxLike?"pass":"review",reason:boxLike?"Boxes or pallet-like structures detected":"No clear boxes/pallets detected; admin review recommended"});
-        }
-      };
-      img.onerror=()=>resolve({status:"review",reason:"Image could not be read for audit"});
-      img.src=url;
-    });
-  };
-
-  result.truck=await evalField(row.truckPhotoUrl,"truck");
-  result.item=await evalField(row.itemPhotoUrl,"item");
-  result.iqama=await evalField(row.iqamaPhotoUrl,"iqama");
-  return result;
-};
-
-window.runPhotoAuditForAllLogs=async function(){
-  const logs=Array.isArray(globalLogsCache)?globalLogsCache:[];
-  const results=[];
-  for(const log of logs){
-    const result=await window.runPhotoAuditForRecord(log);
-    results.push(result);
+window.photoAuditStatus=function(url){return url?"Review Needed":"Missing";};
+window.renderPhotoAudit=function(){
+  const body=document.getElementById("photoAuditTableBody");
+  if(!body)return;
+  body.replaceChildren();
+  if(!Array.isArray(globalLogsCache)||globalLogsCache.length===0){
+    const row=document.createElement("tr");
+    const cell=document.createElement("td");
+    cell.colSpan=5;
+    cell.textContent=window.hasFetchedLogs?"No log records are available.":"Waiting for log records to load…";
+    cell.style.cssText="padding:1rem;text-align:center;color:var(--text-muted)";
+    row.appendChild(cell);
+    body.appendChild(row);
+    return;
   }
-  window.photoAuditCache={results};
-  return results;
+
+  globalLogsCache.slice(0,100).forEach(record=>{
+    const row=document.createElement("tr");
+    const checkInDate=parseFlexibleDate(record.checkInTime);
+    const formattedCheckIn=!isNaN(checkInDate.getTime())?formatEnglishDate(checkInDate):(record.checkInTime||"--");
+    [record.plateNumber||"--",formattedCheckIn].forEach(value=>{
+      const cell=document.createElement("td");
+      cell.textContent=String(value);
+      cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";
+      row.appendChild(cell);
+    });
+    [
+      [record.truckPhotoUrl,"Truck photo"],
+      [record.itemPhotoUrl,"Item photo"],
+      [record.iqamaPhotoUrl,"ID photo"]
+    ].forEach(([url,label])=>{
+      const cell=document.createElement("td");
+      cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";
+      const status=document.createElement("div");
+      status.textContent=window.photoAuditStatus(url);
+      status.style.cssText=url?"color:var(--accent-color);font-weight:700":"color:var(--danger-color);font-weight:700";
+      cell.appendChild(status);
+      if(url){
+        const link=document.createElement("a");
+        link.href=String(url);
+        link.target="_blank";
+        link.rel="noopener noreferrer";
+        link.textContent="Open image";
+        link.setAttribute("aria-label",`Open ${label} for ${record.plateNumber||"unknown plate"}`);
+        link.style.cssText="display:inline-block;margin-top:.35rem;color:#79c0ff";
+        cell.appendChild(link);
+      }
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  });
+  if(globalLogsCache.length>100){
+    const row=document.createElement("tr");
+    const cell=document.createElement("td");
+    cell.colSpan=5;
+    cell.textContent=`Showing the 100 most recent records of ${globalLogsCache.length}.`;
+    cell.style.cssText="padding:.75rem;text-align:center;color:var(--text-muted)";
+    row.appendChild(cell);
+    body.appendChild(row);
+  }
 };
 let temporaryCapturedImage=null,temporaryCapturedItemImage=null,temporaryCapturedIqamaImage=null;
 let tempCheckoutTruckPhoto=null,tempCheckoutItemPhoto=null;
@@ -1299,7 +1268,7 @@ window.switchLoginMode=switchLoginMode;
 function populateCheckInDocks(role,docksArray){const dockSelect=document.getElementById('dockNumber');if(!dockSelect)return;dockSelect.innerHTML=`<option value="" disabled selected>${tr('Select Dock...')}</option>`;let docksToRender=[];if(role==='admin'||!docksArray||docksArray.length===0){for(let i=15;i<=90;i++)docksToRender.push(i);}else{docksToRender=docksArray.sort((a,b)=>a-b);}docksToRender.forEach(d=>{dockSelect.innerHTML+=`<option value="${d}">${d}</option>`;});dockSelect.innerHTML+=`<option value="Others">${tr('Others / آخر')}</option>`;const customInput=document.getElementById('dockNumberCustom');if(customInput)customInput.style.display='none';}
 function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){loggedInUser={name,email,noonId};userRole=role;if(!isInitialLoad){localStorage.setItem('noonSlpUserSession',JSON.stringify({name,email,noonId,role,assignedDocks,loginTime:Date.now()}));}populateCheckInDocks(role,assignedDocks);const setDisp=(id,display)=>{const el=document.getElementById(id);if(el)el.style.display=display;};setDisp('nav-dashboard',(role==='admin')?'flex':'none');setDisp('nav-analytics',(role==='admin')?'flex':'none');setDisp('nav-checkin',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-active-trucks',(role==='admin'||role==='guard')?'flex':'none');setDisp('nav-history',(role==='admin')?'flex':'none');setDisp('nav-drivers',(role==='admin')?'flex':'none');setDisp('nav-security',(role==='admin')?'flex':'none');setDisp('nav-photo-audit',(role==='admin')?'flex':'none');setDisp('nav-handover',(role==='guard')?'flex':'none');setDisp('btnExportExcel',(role==='admin')?'block':'none');
 if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}window.logoutUser=function(){if(userRole==='guard'&&loginSelectedDocks&&loginSelectedDocks.length>0){let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length>0){alert(tr("You cannot log out. You must check out your active trucks at your assigned docks first."));return;}}localStorage.removeItem('noonSlpUserSession');location.reload();};
-window.openAdminPhotoAudit=function(){if(userRole!=='admin'){alert('Admin access required for audit.');return;}if(!globalLogsCache||!globalLogsCache.length){alert('No logs are available for audit.');return;}window.runPhotoAuditForAllLogs().then(results=>{const rows=results.filter(r=>r.plateNumber||r.truck.status!=='missing'||r.item.status!=='missing'||r.iqama.status!=='missing');if(!rows.length){alert('No photo audit entries were found.');return;}let summary='';rows.forEach((r,index)=>{const truck=window.getPhotoAuditStatusLabel(r.truck.status);const item=window.getPhotoAuditStatusLabel(r.item.status);const iqama=window.getPhotoAuditStatusLabel(r.iqama.status);summary += `${index+1}. ${r.plateNumber || 'Unknown'} | Truck: ${truck} | Item: ${item} | IQAMA: ${iqama}\n`;});alert('ADMIN ONLY PHOTO AUDIT\n\n' + summary);}).catch(err=>{console.error(err);alert('Photo audit failed.');});};
+window.openAdminPhotoAudit=function(element){if(userRole!=="admin"){alert("Admin access required for audit.");return;}window.switchView("photo-audit",element||document.getElementById("nav-photo-audit"));};
 window.openHandoverModal=function(){if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0){alert(tr("Only guards with assigned docks can perform a shift handover."));return;}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length===0){alert(tr("Your assigned docks are completely clear. No handover required. You may sign out."));return;}const countEl=document.getElementById('handoverTruckCount');if(countEl)countEl.innerText=myActiveTrucks.length;document.getElementById('handoverModal').classList.add('modal-active');};window.closeHandoverModal=function(){document.getElementById('handoverModal').classList.remove('modal-active');};
 window.confirmHandover=function(){const newName=document.getElementById('handoverNewName').value.trim();const newId=document.getElementById('handoverNewId').value.trim();if(!newName||!newId){alert(tr("Please enter the incoming guard's Name and ID."));return;}const btn=document.getElementById('btnConfirmHandover');btn.innerText="⏳...";btn.disabled=true;const payload={action:'handover',assignedDocks:loginSelectedDocks,newGuardName:newName,newGuardId:newId};let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');if(!localGuards.some(g=>g.securityId===newId&&g.securityName===newName)){localGuards.push({securityName:newName,securityId:newId});localStorage.setItem('noonSlpLocalGuards',JSON.stringify(localGuards));fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'addGuard',securityName:newName,securityId:newId})}).catch(e=>console.error(e));}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));myActiveTrucks.forEach(t=>{t.securityName=t.securityName+" / "+newName;t.securityId=newId;});window.handleLogsResponse({logs:globalLogsCache});fetch(API_URL,{method:'POST',body:JSON.stringify(payload)}).catch(e=>console.error(e));loggedInUser.name=newName;loggedInUser.noonId=newId;localStorage.setItem('noonSlpUserSession',JSON.stringify({name:newName,email:loggedInUser.email,noonId:newId,role:userRole,assignedDocks:loginSelectedDocks,loginTime:Date.now()}));const secNameField=document.getElementById('securityNameField');const secIdField=document.getElementById('securityNameId');if(secNameField)secNameField.value=newName;if(secIdField)secIdField.value=newId;document.getElementById('handoverModal').classList.remove('modal-active');btn.innerText="CONFIRM TRANSFER";btn.disabled=false;document.getElementById('handoverNewName').value='';document.getElementById('handoverNewId').value='';alert(currentLang==='ar'?`تم نقل المناوبة بنجاح! أنت الآن مسجل الدخول باسم ${newName}.`:`Shift transferred successfully! You are now logged in as ${newName}.`);};
 function resumeAlarmAudio(){if(!window.audioCtx){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass){console.error('Web Audio is not supported by this browser.');return;}window.audioCtx=new AudioContextClass();}if(window.audioCtx.state==='suspended')window.audioCtx.resume().catch(err=>console.warn('Could not resume alert audio:',err));}
@@ -1809,6 +1778,7 @@ window.handleLogsResponse=function(payload){
   window.handleLogsResponseWithVehicles(payload);
   driversRegistryList=groupDriverRecords(driversRegistryList);
   compileDriversRegistryCards();
+  if(document.getElementById("view-photo-audit")?.classList.contains("active-view"))window.renderPhotoAudit();
 };
 
 function makeVehiclePlateElement(plate){
@@ -1919,6 +1889,7 @@ const previousSwitchView=window.switchView;
 window.switchView=function(viewId,element){
   previousSwitchView(viewId,element);
   if(viewId==="drivers"&&window.hasFetchedLogs)window.compileDriversRegistryCards();
+  if(viewId==="photo-audit"&&userRole==="admin")window.renderPhotoAudit();
 };
 
 window.openDriverProfileModal=function(name,iqama,plates,date,phone){
