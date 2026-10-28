@@ -891,9 +891,21 @@ body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
 </div>
 <div id="view-supervisor-shifts" class="app-view">
 <div class="view-header-title"><h1>Shifts &amp; Attendance</h1><p>Set each guard’s recurring shift and mark attendance for today. A Present mark is required to sign in.</p></div>
+<div class="card" style="display:flex;flex-wrap:wrap;align-items:end;gap:.75rem;margin-top:1rem;padding:1rem">
+<div style="flex:1;min-width:220px"><label for="supervisorShiftSearch" style="display:block;margin-bottom:.35rem;font-weight:700">Filter guards</label><input id="supervisorShiftSearch" class="input-box-styled" type="search" placeholder="Search guard name or ID" oninput="window.filterSupervisorSchedule()"></div>
+<div style="min-width:210px"><label for="supervisorShiftTimeFilter" style="display:block;margin-bottom:.35rem;font-weight:700">Shift start time</label><select id="supervisorShiftTimeFilter" class="input-box-styled" onchange="window.filterSupervisorSchedule()"><option value="">All shift times</option></select></div>
+</div>
+<div id="supervisorBulkAttendance" class="card" style="display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:.75rem;padding:1rem;border:1px solid rgba(151,117,250,.55);background:linear-gradient(110deg,rgba(107,73,203,.18),rgba(25,28,40,.96))">
+<strong id="supervisorBulkSelectionLabel" style="flex:1;min-width:180px">Choose guards to apply a shift or attendance.</strong>
+<label style="display:flex;align-items:center;gap:.35rem">Start <input id="supervisorBulkShiftStart" class="input-box-styled" type="time" aria-label="Shift start time to apply"></label>
+<label style="display:flex;align-items:center;gap:.35rem">End <input id="supervisorBulkShiftEnd" class="input-box-styled" type="time" aria-label="Shift end time to apply"></label>
+<button id="supervisorApplyShift" type="button" class="tab-filter-item" style="border:1px solid #d5a833;color:#ffe8a3;background:linear-gradient(135deg,rgba(174,123,24,.35),rgba(90,63,12,.3));font-weight:800" onclick="window.saveSelectedGuardShifts()">Apply shift to selected</button>
+<button type="button" class="tab-filter-item" style="border-color:#26a269;color:#b8f5d2;background:rgba(38,162,105,.2)" onclick="window.markSelectedShiftAttendance(true)">Present selected on shift</button>
+<button type="button" class="tab-filter-item" style="border-color:#e05b63;color:#ffc6c8;background:rgba(224,91,99,.18)" onclick="window.markSelectedShiftAttendance(false)">Absent selected on shift</button>
+</div>
 <div class="card" style="margin-top:1rem;padding:1rem;overflow-x:auto">
-<table style="width:100%;border-collapse:collapse;min-width:780px">
-<thead><tr><th style="text-align:left;padding:.75rem">Guard</th><th style="text-align:left;padding:.75rem">Shift start</th><th style="text-align:left;padding:.75rem">Shift end</th><th style="text-align:left;padding:.75rem">Updated by</th><th style="text-align:left;padding:.75rem">Today</th><th style="text-align:left;padding:.75rem">Actions</th></tr></thead>
+<table style="width:100%;border-collapse:collapse;min-width:820px">
+<thead><tr><th style="text-align:left;padding:.75rem"><input id="supervisorSelectVisibleGuards" type="checkbox" aria-label="Select all visible guards" onchange="window.selectAllShiftGuards(this.checked)"></th><th style="text-align:left;padding:.75rem">Guard</th><th style="text-align:left;padding:.75rem">Shift start</th><th style="text-align:left;padding:.75rem">Shift end</th><th style="text-align:left;padding:.75rem">Updated by</th><th style="text-align:left;padding:.75rem">Today</th><th style="text-align:left;padding:.75rem">Actions</th></tr></thead>
 <tbody id="supervisorScheduleBody"></tbody>
 </table>
 </div>
@@ -1550,33 +1562,110 @@ window.loadSupervisorSchedule=async function(){
     if(message)message.textContent=error.message;
   }
 };
+window.supervisorSelectedGuardIds=window.supervisorSelectedGuardIds||new Set();
+window.filterSupervisorSchedule=function(){
+  if(window.supervisorScheduleData)window.renderSupervisorSchedule(window.supervisorScheduleData);
+};
 window.renderSupervisorSchedule=function(data){
   const body=document.getElementById("supervisorScheduleBody");
   const message=document.getElementById("supervisorScheduleMessage");
   if(!body)return;
+  window.supervisorScheduleData=data;
   body.replaceChildren();
   const shifts=new Map((data.shifts||[]).map(shift=>[String(shift.securityId),shift]));
   const attendance=new Map((data.attendance||[]).map(entry=>[String(entry.securityId),entry]));
-  (data.guards||[]).forEach(guard=>{
-    const row=document.createElement("tr");
-    const guardCell=document.createElement("td");guardCell.textContent=`${guard.securityName||"--"} (${guard.securityId||"--"})`;guardCell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color);font-weight:700";row.appendChild(guardCell);
+  const timeFilter=document.getElementById("supervisorShiftTimeFilter");
+  if(timeFilter){
+    const previousTime=timeFilter.value;
+    const times=[...new Set((data.shifts||[]).map(shift=>String(shift.start||"")).filter(Boolean))].sort();
+    timeFilter.replaceChildren(new Option("All shift times",""));
+    times.forEach(time=>timeFilter.add(new Option(time,time)));
+    if(times.includes(previousTime))timeFilter.value=previousTime;
+  }
+  const selectedTime=timeFilter?timeFilter.value:"";
+  const search=(document.getElementById("supervisorShiftSearch")?.value||"").trim().toLowerCase();
+  const matchingGuards=(data.guards||[]).filter(guard=>{
     const shift=shifts.get(String(guard.securityId))||{};
+    const searchable=`${guard.securityName||""} ${guard.securityId||""}`.toLowerCase();
+    return (!selectedTime||shift.start===selectedTime)&&(!search||searchable.includes(search));
+  });
+  const rosterGuardIds=(data.guards||[]).map(guard=>String(guard.securityId));
+  window.supervisorSelectedGuardIds=new Set([...window.supervisorSelectedGuardIds].filter(id=>rosterGuardIds.includes(id)));
+  matchingGuards.forEach(guard=>{
+    const row=document.createElement("tr");
+    const shift=shifts.get(String(guard.securityId))||{};
+    const selectCell=document.createElement("td");selectCell.style.cssText="padding:.5rem;border-top:1px solid var(--border-color)";
+    const checkbox=document.createElement("input");checkbox.type="checkbox";checkbox.className="supervisor-guard-select";checkbox.dataset.guardId=String(guard.securityId);checkbox.checked=window.supervisorSelectedGuardIds.has(String(guard.securityId));checkbox.setAttribute("aria-label",`Select ${guard.securityName}`);
+    checkbox.addEventListener("change",()=>{const id=String(guard.securityId);if(checkbox.checked)window.supervisorSelectedGuardIds.add(id);else window.supervisorSelectedGuardIds.delete(id);window.updateSupervisorBulkSelection();});
+    selectCell.appendChild(checkbox);
+    row.appendChild(selectCell);
+    const guardCell=document.createElement("td");guardCell.textContent=`${guard.securityName||"--"} (${guard.securityId||"--"})`;guardCell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color);font-weight:700";row.appendChild(guardCell);
     const startCell=document.createElement("td"),start=document.createElement("input");start.type="time";start.value=shift.start||"";start.className="input-box-styled";start.setAttribute("aria-label",`Shift start for ${guard.securityName}`);startCell.appendChild(start);startCell.style.cssText="padding:.5rem;border-top:1px solid var(--border-color)";row.appendChild(startCell);
     const endCell=document.createElement("td"),end=document.createElement("input");end.type="time";end.value=shift.end||"";end.className="input-box-styled";end.setAttribute("aria-label",`Shift end for ${guard.securityName}`);endCell.appendChild(end);endCell.style.cssText="padding:.5rem;border-top:1px solid var(--border-color)";row.appendChild(endCell);
     const updatedBy=document.createElement("td");updatedBy.textContent=shift.updatedByEmail?`${shift.updatedByName} (${shift.updatedByEmail})`:"Not set";updatedBy.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";row.appendChild(updatedBy);
     const today=document.createElement("td"),marked=attendance.get(String(guard.securityId)),present=Boolean(marked&&marked.status==="Present");today.textContent=marked?`${marked.status} · ${marked.markedByName} (${marked.markedByEmail})`:"Not marked";today.style.cssText=`padding:.75rem;border-top:1px solid var(--border-color);color:${present?"var(--success-color)":"var(--text-muted)"}`;row.appendChild(today);
     const actions=document.createElement("td");actions.style.cssText="padding:.5rem;border-top:1px solid var(--border-color);white-space:nowrap";
-    const save=document.createElement("button");save.type="button";save.className="tab-filter-item";save.textContent="Save shift";save.addEventListener("click",async()=>{
+    const save=document.createElement("button");save.type="button";save.className="tab-filter-item";save.style.cssText="border:1px solid #d5a833;color:#ffe8a3;background:linear-gradient(135deg,rgba(174,123,24,.35),rgba(90,63,12,.3));font-weight:800;box-shadow:0 2px 8px rgba(212,166,57,.16)";save.textContent="Save shift";save.addEventListener("click",async()=>{
       try{await supervisorRequest("saveGuardShift",{securityName:guard.securityName,securityId:guard.securityId,start:start.value,end:end.value});await window.loadSupervisorSchedule();}
       catch(error){alert(error.message);}
     });actions.appendChild(save);
-    const mark=document.createElement("button");mark.type="button";mark.className="tab-filter-item";mark.style.marginLeft=".4rem";mark.textContent=present?"Undo present":"Mark present";mark.addEventListener("click",async()=>{
+    const mark=document.createElement("button");mark.type="button";mark.className="tab-filter-item";mark.style.cssText=`margin-left:.4rem;border:1px solid ${present?"#e05b63":"#26a269"};color:${present?"#ffc6c8":"#b8f5d2"};background:${present?"rgba(224,91,99,.18)":"rgba(38,162,105,.2)"};font-weight:800`;mark.textContent=present?"Mark absent":"Mark present";mark.addEventListener("click",async()=>{
       try{await supervisorRequest("markGuardPresent",{securityName:guard.securityName,securityId:guard.securityId,present:!present});await window.loadSupervisorSchedule();}
       catch(error){alert(error.message);}
     });actions.appendChild(mark);row.appendChild(actions);body.appendChild(row);
   });
+  window.updateSupervisorBulkSelection();
   if(message)message.textContent=`Attendance date: ${data.date}. Presence can be marked before a shift starts. Guards need a Present mark today to sign in; shift times are for scheduling and do not block sign-in by time.`;
-  if(!data.guards||!data.guards.length){const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=6;cell.textContent="No guards are in the guard list yet.";cell.style.cssText="padding:1rem;text-align:center";row.appendChild(cell);body.appendChild(row);}
+  if(!matchingGuards.length){const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=7;cell.textContent=(data.guards||[]).length?"No guards match these filters.":"No guards are in the guard list yet.";cell.style.cssText="padding:1rem;text-align:center";row.appendChild(cell);body.appendChild(row);}
+};
+window.updateSupervisorBulkSelection=function(){
+  const label=document.getElementById("supervisorBulkSelectionLabel");
+  const time=document.getElementById("supervisorShiftTimeFilter")?.value||"";
+  const data=window.supervisorScheduleData;
+  const selected=window.supervisorSelectedGuardIds.size;
+  const shifts=new Map((data?.shifts||[]).map(shift=>[String(shift.securityId),shift]));
+  const attendanceSelection=time?[...window.supervisorSelectedGuardIds].filter(id=>(shifts.get(id)||{}).start===time):[];
+  if(label)label.textContent=`${selected} selected for shift updates${time?` · ${attendanceSelection.length} selected for ${time} attendance`:""}.`;
+  const visible=document.querySelectorAll("#supervisorScheduleBody input.supervisor-guard-select");
+  const selectedVisible=[...visible].filter(checkbox=>checkbox.checked).length;
+  const selectVisible=document.getElementById("supervisorSelectVisibleGuards");
+  if(selectVisible){selectVisible.checked=visible.length>0&&selectedVisible===visible.length;selectVisible.indeterminate=selectedVisible>0&&selectedVisible<visible.length;}
+  const applyShift=document.getElementById("supervisorApplyShift");if(applyShift)applyShift.disabled=!selected;
+  document.querySelectorAll("#supervisorBulkAttendance button:not(#supervisorApplyShift)").forEach(button=>button.disabled=!time||!attendanceSelection.length);
+};
+window.selectAllShiftGuards=function(checked=true){
+  document.querySelectorAll("#supervisorScheduleBody input.supervisor-guard-select").forEach(checkbox=>{
+    const id=checkbox.dataset.guardId;
+    if(checked)window.supervisorSelectedGuardIds.add(id);
+    else window.supervisorSelectedGuardIds.delete(id);
+  });
+  window.renderSupervisorSchedule(window.supervisorScheduleData);
+};
+window.saveSelectedGuardShifts=async function(){
+  const securityIds=[...window.supervisorSelectedGuardIds];
+  const start=document.getElementById("supervisorBulkShiftStart").value;
+  const end=document.getElementById("supervisorBulkShiftEnd").value;
+  if(!securityIds.length||!start||!end||start===end){alert("Select guards and enter valid shift start and end times.");return;}
+  if(!confirm(`Apply the ${start}–${end} shift to ${securityIds.length} selected guard(s)?`))return;
+  const button=document.getElementById("supervisorApplyShift");button.disabled=true;
+  document.querySelectorAll("#supervisorBulkAttendance button").forEach(control=>control.disabled=true);
+  try{
+    await supervisorRequest("bulkSaveGuardShifts",{securityIds:securityIds,start:start,end:end});
+    await window.loadSupervisorSchedule();
+  }catch(error){alert(error.message);window.updateSupervisorBulkSelection();}
+};
+window.markSelectedShiftAttendance=async function(present){
+  const time=document.getElementById("supervisorShiftTimeFilter")?.value||"";
+  const shifts=new Map((window.supervisorScheduleData?.shifts||[]).map(shift=>[String(shift.securityId),shift]));
+  const securityIds=[...window.supervisorSelectedGuardIds].filter(id=>(shifts.get(id)||{}).start===time);
+  if(!time||!securityIds.length)return;
+  const action=present?"Present":"Absent";
+  if(!confirm(`Mark ${securityIds.length} selected guard(s) ${action} for the ${time} shift?`))return;
+  document.querySelectorAll("#supervisorBulkAttendance button").forEach(button=>button.disabled=true);
+  try{
+    await supervisorRequest("bulkMarkGuardAttendance",{start:time,securityIds:securityIds,present:present});
+    await window.loadSupervisorSchedule();
+  }catch(error){alert(error.message);window.updateSupervisorBulkSelection();}
 };
 const supervisorAwareFetch=window.fetch.bind(window);
 window.fetch=function(input,init){
@@ -1649,7 +1738,7 @@ window.applyAnalyticsFilters=applyAnalyticsFilters;
 function compileDriversRegistryCards(){const container=document.getElementById('driversRegistryContainer');if(!container)return;let html='';const isAdmin=(userRole==='admin');driversRegistryList.forEach(d=>{const searchName=String(d.name||"").toLowerCase(),searchPlate=String(d.plate||"").toLowerCase(),searchIqama=String(d.id||"").toLowerCase();const editBtnHtml=isAdmin?`<button class="btn-card-action edit-btn" onclick="openEditDriverModal('${String(d.name||"").replace(/'/g,"\\'")}', '${String(d.id||"").replace(/'/g,"\\'")}', '${String(d.plate||"").replace(/'/g,"\\'")}', '${String(d.phone||"").replace(/'/g,"\\'")}')" data-i18n="Edit">Edit</button>`:'';const deleteBtnHtml=isAdmin?`<button class="btn-card-action" style="border-color:rgba(248,81,73,0.4);color:var(--danger-color);" onclick="deleteDriver('${String(d.name||"").replace(/'/g,"\\'")}', '${String(d.id||"").replace(/'/g,"\\'")}', this)" data-i18n="Delete">Delete</button>`:'';html+=`<div class="driver-registry-card driver-card" data-name="${searchName}" data-plate="${searchPlate}" data-iqama="${searchIqama}"><div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${d.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span></div></div></div><div class="driver-card-info-grid"><div><p class="info-block">Driver Name</p><p>${d.name}</p></div><div><p class="info-block">Plate Number</p><p>${generatePlateBumperUI(d.plate)}</p></div><div><p class="info-block">Iqama Number</p><p>${d.id}</p></div><div><p class="info-block">Phone Number</p><p>${d.phone}</p></div></div><div class="card-actions-wrapper"><button class="btn-card-action" onclick="openDriverProfileModal('${String(d.name||"").replace(/'/g,"\\'")}', '${String(d.id||"").replace(/'/g,"\\'")}', '${String(d.plate||"").replace(/'/g,"\\'")}', '--', '${String(d.phone||"").replace(/'/g,"\\'")}')" data-i18n="View Records">View Records</button>${editBtnHtml}${deleteBtnHtml}</div></div>`;});container.innerHTML=html;filterRegistryCards();const mDrv=document.getElementById('metric-drivers-count');if(mDrv)mDrv.innerText=driversRegistryList.length;}
 function filterRegistryCards(){const input=document.getElementById('driverRegistrySearch');let query=input?input.value.toLowerCase().trim():'';document.querySelectorAll('.driver-card').forEach(card=>{let name=String(card.getAttribute('data-name')||''),plate=String(card.getAttribute('data-plate')||''),iqama=String(card.getAttribute('data-iqama')||'');card.style.display=(name.includes(query)||plate.includes(query)||iqama.includes(query))?'flex':'none';});}
 window.filterRegistryCards=filterRegistryCards;
-function compileSecurityRegistryCards(){const container=document.getElementById('securityRegistryContainer');if(!container)return;let html='';const isAdmin=(userRole==='admin');securityRegistryList.forEach(g=>{const searchName=String(g.securityName||"").toLowerCase();const editBtnHtml=isAdmin?`<button class="btn-card-action edit-btn" onclick="openEditGuardModal('${String(g.securityName||"").replace(/'/g,"\\'")}', '${String(g.securityId||'').replace(/'/g,"\\'")}')" data-i18n="Edit">Edit</button>`:'';const deleteBtnHtml=isAdmin?`<button class="btn-card-action" style="border-color:rgba(248,81,73,0.4);color:var(--danger-color);" onclick="deleteGuard('${String(g.securityName||"").replace(/'/g,"\\'")}', '${String(g.securityId||'').replace(/'/g,"\\'")}', this)" data-i18n="Delete">Delete</button>`:'';html+=`<div class="driver-registry-card security-card" data-name="${searchName}"><div class="driver-card-header"><div class="driver-avatar-img" style="color:#79c0ff;">🛡️</div><div class="driver-meta"><h3>${g.securityName}</h3><div class="driver-badges"><span class="tag-badge carrier">Guard</span></div></div></div><div class="driver-card-info-grid"><div><p class="info-block">Security ID</p><data>${g.securityId||'--'}</data></div></div><div class="card-actions-wrapper">${editBtnHtml}${deleteBtnHtml}</div></div>`;});container.innerHTML=html;filterSecurityCards();}
+function compileSecurityRegistryCards(){const container=document.getElementById('securityRegistryContainer');if(!container)return;let html='';const canManageGuards=(userRole==='admin'||userRole==='supervisor');securityRegistryList.forEach(g=>{const searchName=String(g.securityName||"").toLowerCase();const editBtnHtml=canManageGuards?`<button class="btn-card-action edit-btn" onclick="openEditGuardModal('${String(g.securityName||"").replace(/'/g,"\\'")}', '${String(g.securityId||'').replace(/'/g,"\\'")}')" data-i18n="Edit">Edit</button>`:'';const deleteBtnHtml=canManageGuards?`<button class="btn-card-action" style="border-color:rgba(248,81,73,0.4);color:var(--danger-color);" onclick="deleteGuard('${String(g.securityName||"").replace(/'/g,"\\'")}', '${String(g.securityId||'').replace(/'/g,"\\'")}', this)" data-i18n="Delete">Delete</button>`:'';html+=`<div class="driver-registry-card security-card" data-name="${searchName}"><div class="driver-card-header"><div class="driver-avatar-img" style="color:#79c0ff;">🛡️</div><div class="driver-meta"><h3>${g.securityName}</h3><div class="driver-badges"><span class="tag-badge carrier">Guard</span></div></div></div><div class="driver-card-info-grid"><div><p class="info-block">Security ID</p><data>${g.securityId||'--'}</data></div></div><div class="card-actions-wrapper">${editBtnHtml}${deleteBtnHtml}</div></div>`;});container.innerHTML=html;filterSecurityCards();}
 function filterSecurityCards(){const input=document.getElementById('securityRegistrySearch');let query=input?input.value.toLowerCase().trim():'';document.querySelectorAll('.security-card').forEach(card=>{let name=String(card.getAttribute('data-name')||'');card.style.display=name.includes(query)?'flex':'none';});}
 window.filterSecurityCards=filterSecurityCards;
 function openEditDriverModal(name,iqama,plate,mobile){document.getElementById('editDriverOldName').value=name;document.getElementById('editDriverName').value=name;document.getElementById('editDriverIqama').value=iqama!=='--'?iqama:'';let plateStr=plate!=='--'?plate.trim():'';let numMatch=plateStr.match(/\d+/),letMatch=plateStr.match(/[A-Za-z]+/g);document.getElementById('editDriverPlateNumbers').value=numMatch?numMatch[0]:'';document.getElementById('editDriverPlateLetters').value=letMatch?letMatch.join(''):'';document.getElementById('editDriverMobile').value=mobile!=='--'?mobile:'';document.getElementById('editDriverModal').classList.add('modal-active');}
@@ -2463,17 +2552,6 @@ window.fetchLogs=fetchLogs;
 const baseCompileSecurityRegistryCards=compileSecurityRegistryCards;
 compileSecurityRegistryCards=function(){
   baseCompileSecurityRegistryCards();
-  if(userRole!=="supervisor")return;
-  document.querySelectorAll(".security-card").forEach(card=>{
-    const guard=securityRegistryList.find(item=>String(item.securityName||"").toLowerCase()===String(card.dataset.name||"").toLowerCase());
-    const actions=card.querySelector(".card-actions-wrapper");
-    if(!guard||!actions)return;
-    const edit=document.createElement("button");edit.type="button";edit.className="btn-card-action edit-btn";edit.textContent="Edit";
-    edit.addEventListener("click",()=>openEditGuardModal(guard.securityName,guard.securityId));
-    const remove=document.createElement("button");remove.type="button";remove.className="btn-card-action";remove.textContent="Delete";remove.style.cssText="border-color:rgba(248,81,73,0.4);color:var(--danger-color)";
-    remove.addEventListener("click",()=>window.deleteGuard(guard.securityName,guard.securityId,remove));
-    actions.append(edit,remove);
-  });
 };
 window.compileSecurityRegistryCards=compileSecurityRegistryCards;
 translations["Brightness"]="السطوع";
