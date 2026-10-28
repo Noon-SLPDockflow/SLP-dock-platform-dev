@@ -662,7 +662,7 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 <li class="nav-item" id="nav-history" onclick="switchView('history',this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
 <li class="nav-item" id="nav-drivers" onclick="switchView('drivers',this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
 <li class="nav-item" id="nav-security" onclick="switchView('security',this)"><span class="nav-icon">🛡️</span><span class="nav-text" data-i18n="Security Guard Database">Security Guard Database</span></li>
-<li class="nav-item" id="nav-photo-audit" onclick="openAdminPhotoAudit(this)" style="display:none"><span class="nav-icon">🧪</span><span class="nav-text">Photo Audit</span></li>
+<li class="nav-item" id="nav-photo-audit" onclick="openAdminPhotoAudit(this)" style="display:none"><span class="nav-icon">🧪</span><span class="nav-text">Audit</span></li>
 </ul>
 <div class="sidebar-footer">
 <div class="system-health"><div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700;color:var(--success-color);margin-top:1px">Operational</div></div><div class="health-dot"></div></div>
@@ -884,17 +884,50 @@ html[dir="rtl"] #introOverlay .login-form-panel::before{direction:rtl}
 </div>
 <div id="view-photo-audit" class="app-view">
 <div class="view-header-row">
-<div class="view-header-title"><h1>Photo Audit</h1><p>Admin-only photo review. Automated image detection is not enabled yet.</p></div>
-<button type="button" class="submit-btn-global" style="width:auto;margin:0" onclick="renderPhotoAudit()">Refresh Audit</button>
+<div class="view-header-title"><h1>Audit</h1><p>Admin-only photo review and automatic checkout reports.</p></div>
+<button type="button" class="submit-btn-global" style="width:auto;margin:0" onclick="fetchLogs()">Refresh Audit</button>
 </div>
 <div class="card" style="margin-bottom:1rem">
-<p style="color:var(--text-muted);line-height:1.6">Photos are listed for admin review. Missing uploads are marked Missing; available images are marked Review Needed. Open each image to inspect it. This pilot does not automatically decide whether a photo is valid.</p>
+<div class="filter-tabs-container" style="justify-content:flex-start">
+<button type="button" id="auditTabPhotos" class="tab-filter-item active" onclick="setAuditMode('photos',this)">Photo Review</button>
+<button type="button" id="auditTabAutoCheckout" class="tab-filter-item" onclick="setAuditMode('auto-checkout',this)">Auto Checkouts</button>
 </div>
-<div class="card" style="overflow-x:auto">
-<table style="width:100%;border-collapse:collapse;min-width:850px">
-<thead><tr><th style="text-align:left;padding:.75rem">Plate</th><th style="text-align:left;padding:.75rem">Check-in</th><th style="text-align:left;padding:.75rem">Truck Photo</th><th style="text-align:left;padding:.75rem">Item Photo</th><th style="text-align:left;padding:.75rem">ID Photo</th></tr></thead>
-<tbody id="photoAuditTableBody"><tr><td colspan="5" style="padding:1rem;text-align:center;color:var(--text-muted)">Loading log records…</td></tr></tbody>
+<p id="auditDescription" style="color:var(--text-muted);line-height:1.6;margin-top:1rem">Search all loaded log and archive records by driver, guard, plate, dock, or date. Available photos need manual review; this page does not automatically decide whether a photo is valid.</p>
+</div>
+<div class="card" style="padding:1.25rem;margin-bottom:1rem">
+<div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+<div class="header-search-box-container" style="flex:1 1 300px;min-width:240px"><span>🔍</span><input type="search" id="auditSearch" class="header-search-input" placeholder="Search driver, guard, plate, dock, or date..." oninput="applyAuditFilters()"></div>
+<select id="auditDateRange" class="input-box-styled" style="width:auto;min-width:150px" onchange="applyAuditFilters()">
+<option value="all">All dates</option><option value="today">Today</option><option value="7days">Last 7 days</option><option value="monthly">Last month</option><option value="1year">Last year</option><option value="custom">Custom dates</option>
+</select>
+<div id="auditCustomDates" style="display:none;gap:.5rem;align-items:center;flex-wrap:wrap">
+<input type="date" id="auditDateFrom" class="input-box-styled" aria-label="Start date" onchange="applyAuditFilters()">
+<span>to</span>
+<input type="date" id="auditDateTo" class="input-box-styled" aria-label="End date" onchange="applyAuditFilters()">
+</div>
+</div>
+</div>
+<div id="auditPhotosPanel" class="card" style="overflow-x:auto">
+<div id="auditPhotoCount" style="padding:.75rem;color:var(--text-muted)"></div>
+<table style="width:100%;border-collapse:collapse;min-width:1100px">
+<thead><tr><th style="text-align:left;padding:.75rem">Driver</th><th style="text-align:left;padding:.75rem">Guard</th><th style="text-align:left;padding:.75rem">Plate</th><th style="text-align:left;padding:.75rem">Dock</th><th style="text-align:left;padding:.75rem">Check-in</th><th style="text-align:left;padding:.75rem">Truck Photo</th><th style="text-align:left;padding:.75rem">Item Photo</th><th style="text-align:left;padding:.75rem">ID Photo</th></tr></thead>
+<tbody id="photoAuditTableBody"><tr><td colspan="8" style="padding:1rem;text-align:center;color:var(--text-muted)">Loading log records…</td></tr></tbody>
 </table>
+</div>
+<div id="auditAutoCheckoutPanel" class="card" style="display:none;overflow-x:auto">
+<h2 style="margin:.5rem .75rem">Auto Checkout by Guard</h2>
+<div id="autoCheckoutSummary" style="padding:.75rem;color:var(--text-muted)"></div>
+<table style="width:100%;border-collapse:collapse;min-width:900px">
+<thead><tr><th style="text-align:left;padding:.75rem">Guard</th><th style="text-align:left;padding:.75rem">Auto Checkouts</th><th style="text-align:left;padding:.75rem">Driver</th><th style="text-align:left;padding:.75rem">Plate</th><th style="text-align:left;padding:.75rem">Dock</th><th style="text-align:left;padding:.75rem">Check-in</th><th style="text-align:left;padding:.75rem">Auto Checkout Time</th></tr></thead>
+<tbody id="autoCheckoutAuditBody"></tbody>
+</table>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-top:.75rem">
+<span id="auditPageInfo" style="color:var(--text-muted)"></span>
+<div style="display:flex;gap:.5rem">
+<button type="button" class="tab-filter-item" id="auditPrevPage" onclick="changeAuditPage(-1)">Previous</button>
+<button type="button" class="tab-filter-item" id="auditNextPage" onclick="changeAuditPage(1)">Next</button>
+</div>
 </div>
 </div>
 </div>
@@ -1169,66 +1202,131 @@ window.audioCtx=null;
 window.alarmSource=null;
 window.alarmGain=null;
 let loginSelectedDocks=[];
+window.auditState={mode:"photos",page:0,pageSize:100};
 window.photoAuditStatus=function(url){return url?"Review Needed":"Missing";};
+window.setAuditMode=function(mode,button){
+  if(userRole!=="admin")return;
+  window.auditState.mode=mode;
+  window.auditState.page=0;
+  document.getElementById("auditTabPhotos").classList.toggle("active",mode==="photos");
+  document.getElementById("auditTabAutoCheckout").classList.toggle("active",mode==="auto-checkout");
+  document.getElementById("auditPhotosPanel").style.display=mode==="photos"?"block":"none";
+  document.getElementById("auditAutoCheckoutPanel").style.display=mode==="auto-checkout"?"block":"none";
+  document.getElementById("auditDescription").textContent=mode==="photos"
+    ?"Search all loaded log and archive records by driver, guard, plate, dock, or date. Available photos need manual review; this page does not automatically decide whether a photo is valid."
+    :"Auto-checkout records are identified by the AUTO-CHECKOUT marker. Counts are grouped by the guard recorded on each log.";
+  if(button)button.blur();
+  window.renderPhotoAudit();
+};
+window.changeAuditPage=function(offset){
+  window.auditState.page=Math.max(0,window.auditState.page+offset);
+  window.renderPhotoAudit();
+};
+window.applyAuditFilters=function(){
+  window.auditState.page=0;
+  const range=document.getElementById("auditDateRange");
+  const customDates=document.getElementById("auditCustomDates");
+  if(customDates)customDates.style.display=range&&range.value==="custom"?"flex":"none";
+  window.renderPhotoAudit();
+};
 window.renderPhotoAudit=function(){
-  const body=document.getElementById("photoAuditTableBody");
-  if(!body)return;
-  body.replaceChildren();
-  if(!Array.isArray(globalLogsCache)||globalLogsCache.length===0){
-    const row=document.createElement("tr");
-    const cell=document.createElement("td");
-    cell.colSpan=5;
-    cell.textContent=window.hasFetchedLogs?"No log records are available.":"Waiting for log records to load…";
-    cell.style.cssText="padding:1rem;text-align:center;color:var(--text-muted)";
-    row.appendChild(cell);
-    body.appendChild(row);
+  const logs=Array.isArray(globalLogsCache)?globalLogsCache:[];
+  const query=String(document.getElementById("auditSearch")?.value||"").trim().toLocaleLowerCase();
+  const range=document.getElementById("auditDateRange")?.value||"all";
+  const fromDate=document.getElementById("auditDateFrom")?.value||"";
+  const toDate=document.getElementById("auditDateTo")?.value||"";
+  const now=new Date();
+  const autoMode=window.auditState.mode==="auto-checkout";
+  const matchesSearch=record=>{
+    if(!query)return true;
+    const checkInDate=parseFlexibleDate(record.checkInTime);
+    const checkOutDate=parseFlexibleDate(record.checkOutTime);
+    return [record.driverName,record.securityName,record.securityId,record.plateNumber,record.dockNumber,
+      record.checkInTime,record.checkOutTime,
+      !isNaN(checkInDate.getTime())?formatEnglishDate(checkInDate):"",
+      !isNaN(checkOutDate.getTime())?formatEnglishDate(checkOutDate):"",
+      record.direction,record.noonEmployeeId]
+      .some(value=>String(value||"").toLocaleLowerCase().includes(query));
+  };
+  const dateMatches=value=>isDateInRange(value,range,now,fromDate,toDate);
+  const filtered=logs.filter(record=>{
+    if(!matchesSearch(record))return false;
+    if(autoMode){
+      return String(record.sealNumber||"").trim().toLocaleUpperCase()==="AUTO-CHECKOUT"&&dateMatches(record.checkOutTime);
+    }
+    return dateMatches(record.checkInTime);
+  });
+  const pageSize=window.auditState.pageSize;
+  const pageCount=Math.max(1,Math.ceil(filtered.length/pageSize));
+  window.auditState.page=Math.min(window.auditState.page,pageCount-1);
+  const start=window.auditState.page*pageSize;
+  const visible=filtered.slice(start,start+pageSize);
+  const pageInfo=document.getElementById("auditPageInfo");
+  const previous=document.getElementById("auditPrevPage");
+  const next=document.getElementById("auditNextPage");
+  if(pageInfo)pageInfo.textContent=filtered.length?`Showing ${start+1}-${Math.min(start+pageSize,filtered.length)} of ${filtered.length} records`:"No records match the selected filters.";
+  if(previous)previous.disabled=window.auditState.page===0;
+  if(next)next.disabled=window.auditState.page>=pageCount-1;
+
+  if(!autoMode){
+    const body=document.getElementById("photoAuditTableBody");
+    const count=document.getElementById("auditPhotoCount");
+    if(count)count.textContent=`${filtered.length} matching records from ${logs.length} total log records`;
+    if(!body)return;
+    body.replaceChildren();
+    if(!filtered.length){
+      const row=document.createElement("tr"),cell=document.createElement("td");
+      cell.colSpan=8;cell.textContent=window.hasFetchedLogs?"No log records match the selected filters.":"Waiting for log records to load…";
+      cell.style.cssText="padding:1rem;text-align:center;color:var(--text-muted)";row.appendChild(cell);body.appendChild(row);return;
+    }
+    visible.forEach(record=>{
+      const row=document.createElement("tr");
+      [record.driverName||"--",record.securityName||"--",record.plateNumber||"--",record.dockNumber||"--"].forEach(value=>{
+        const cell=document.createElement("td");cell.textContent=String(value);cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";row.appendChild(cell);
+      });
+      const checkIn=parseFlexibleDate(record.checkInTime);
+      const checkInCell=document.createElement("td");
+      checkInCell.textContent=!isNaN(checkIn.getTime())?formatEnglishDate(checkIn):(record.checkInTime||"--");
+      checkInCell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";row.appendChild(checkInCell);
+      [[record.truckPhotoUrl,"Truck photo"],[record.itemPhotoUrl,"Item photo"],[record.iqamaPhotoUrl,"ID photo"]].forEach(([url,label])=>{
+        const cell=document.createElement("td");cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";
+        const status=document.createElement("div");status.textContent=window.photoAuditStatus(url);status.style.cssText=url?"color:var(--accent-color);font-weight:700":"color:var(--danger-color);font-weight:700";cell.appendChild(status);
+        if(url){const link=document.createElement("a");link.href=String(url);link.target="_blank";link.rel="noopener noreferrer";link.textContent="Open image";link.setAttribute("aria-label",`Open ${label} for ${record.plateNumber||"unknown plate"}`);link.style.cssText="display:inline-block;margin-top:.35rem;color:#79c0ff";cell.appendChild(link);}
+        row.appendChild(cell);
+      });
+      body.appendChild(row);
+    });
     return;
   }
 
-  globalLogsCache.slice(0,100).forEach(record=>{
+  const counts=new Map();
+  filtered.forEach(record=>{const guard=String(record.securityName||"Unassigned");counts.set(guard,(counts.get(guard)||0)+1);});
+  const summary=document.getElementById("autoCheckoutSummary");
+  if(summary){
+    const ranking=Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    summary.textContent=filtered.length
+      ?`Total: ${filtered.length} auto checkouts · Guards: ${counts.size} · Ranking: ${ranking.map(([guard,count],index)=>`${index+1}. ${guard} (${count})`).join(" · ")}`
+      :"No auto-checkout records match the selected filters.";
+  }
+  const body=document.getElementById("autoCheckoutAuditBody");
+  if(!body)return;
+  body.replaceChildren();
+  visible.slice().sort((a,b)=>{
+    const guardA=String(a.securityName||"Unassigned"),guardB=String(b.securityName||"Unassigned");
+    const countDiff=(counts.get(guardB)||0)-(counts.get(guardA)||0);
+    if(countDiff)return countDiff;
+    const guardOrder=guardA.localeCompare(guardB);
+    if(guardOrder)return guardOrder;
+    return parseFlexibleDate(b.checkOutTime)-parseFlexibleDate(a.checkOutTime);
+  }).forEach(record=>{
     const row=document.createElement("tr");
-    const checkInDate=parseFlexibleDate(record.checkInTime);
-    const formattedCheckIn=!isNaN(checkInDate.getTime())?formatEnglishDate(checkInDate):(record.checkInTime||"--");
-    [record.plateNumber||"--",formattedCheckIn].forEach(value=>{
-      const cell=document.createElement("td");
-      cell.textContent=String(value);
-      cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";
-      row.appendChild(cell);
-    });
-    [
-      [record.truckPhotoUrl,"Truck photo"],
-      [record.itemPhotoUrl,"Item photo"],
-      [record.iqamaPhotoUrl,"ID photo"]
-    ].forEach(([url,label])=>{
-      const cell=document.createElement("td");
-      cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";
-      const status=document.createElement("div");
-      status.textContent=window.photoAuditStatus(url);
-      status.style.cssText=url?"color:var(--accent-color);font-weight:700":"color:var(--danger-color);font-weight:700";
-      cell.appendChild(status);
-      if(url){
-        const link=document.createElement("a");
-        link.href=String(url);
-        link.target="_blank";
-        link.rel="noopener noreferrer";
-        link.textContent="Open image";
-        link.setAttribute("aria-label",`Open ${label} for ${record.plateNumber||"unknown plate"}`);
-        link.style.cssText="display:inline-block;margin-top:.35rem;color:#79c0ff";
-        cell.appendChild(link);
-      }
-      row.appendChild(cell);
-    });
+    const checkIn=parseFlexibleDate(record.checkInTime),checkOut=parseFlexibleDate(record.checkOutTime);
+    const values=[record.securityName||"Unassigned",counts.get(String(record.securityName||"Unassigned"))||0,record.driverName||"--",
+      record.plateNumber||"--",record.dockNumber||"--",!isNaN(checkIn.getTime())?formatEnglishDate(checkIn):(record.checkInTime||"--"),
+      !isNaN(checkOut.getTime())?formatEnglishDate(checkOut):(record.checkOutTime||"--")];
+    values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color)";row.appendChild(cell);});
     body.appendChild(row);
   });
-  if(globalLogsCache.length>100){
-    const row=document.createElement("tr");
-    const cell=document.createElement("td");
-    cell.colSpan=5;
-    cell.textContent=`Showing the 100 most recent records of ${globalLogsCache.length}.`;
-    cell.style.cssText="padding:.75rem;text-align:center;color:var(--text-muted)";
-    row.appendChild(cell);
-    body.appendChild(row);
-  }
 };
 let temporaryCapturedImage=null,temporaryCapturedItemImage=null,temporaryCapturedIqamaImage=null;
 let tempCheckoutTruckPhoto=null,tempCheckoutItemPhoto=null;
@@ -1887,6 +1985,7 @@ window.filterRegistryCards=function(){
 };
 const previousSwitchView=window.switchView;
 window.switchView=function(viewId,element){
+  if(viewId==="photo-audit"&&userRole!=="admin"){alert("Admin access required for audit.");return;}
   previousSwitchView(viewId,element);
   if(viewId==="drivers"&&window.hasFetchedLogs)window.compileDriversRegistryCards();
   if(viewId==="photo-audit"&&userRole==="admin")window.renderPhotoAudit();
