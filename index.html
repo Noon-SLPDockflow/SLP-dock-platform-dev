@@ -1524,9 +1524,11 @@ document.addEventListener("click",event=>{
     const button=document.getElementById("customSignInBtn");button.disabled=true;
     fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAccess",securityName:name,securityId:noonId,email:email})})
       .then(response=>response.json()).then(result=>{
-        if(result.status!=="success"||!result.active){alert(result.message||"This guard is Inactive. Please contact your Supervisor.");return;}
-        executeLogin(name,email,noonId,"guard",false,loginSelectedDocks);
-      }).catch(error=>{console.error("Guard access verification failed:",error);alert(error.message||"Unable to verify guard status. Please try again.");})
+      if(result.status!=="success"){alert(result.message||"Unable to verify guard access. Please try again.");return;}
+      if(result.found===false){alert("This guard is not in the roster. Please contact your Supervisor or Admin to add them.");return;}
+      if(!result.active){alert("This guard is Inactive. Please contact your Supervisor.");return;}
+      executeLogin(name,email,noonId,"guard",false,loginSelectedDocks);
+    }).catch(error=>{console.error("Guard access verification failed:",error);alert(error.message||"Unable to verify guard status. Please try again.");})
       .finally(()=>{button.disabled=false;});
   }
 },true);
