@@ -837,7 +837,7 @@ body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
 </div>
 <div id="view-active-trucks" class="app-view">
 <div class="view-header-row">
-<div class="view-header-title"><h1 data-i18n="Active Trucks in Facility">Active Trucks in Facility</h1><p data-i18n="Currently Checked-In Vehicles">Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ <span data-i18n="Total Inside">Total Inside</span>: <span id="activeYardCounter">0</span></div></div>
+<div class="view-header-title"><h1 data-i18n="Active Trucks in Facility">Active Trucks in Facility</h1><p>Unextended trucks checked in for over 30 minutes.</p><div class="counter-badge-orange">⏳ <span data-i18n="Total Inside">Total Inside</span>: <span id="activeYardCounter">0</span></div></div>
 <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="if(window.debouncedFilterActiveTrucks) window.debouncedFilterActiveTrucks()"></div>
 </div>
 <div class="card table-responsive" style="padding:0.5rem">
@@ -887,9 +887,15 @@ body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
 <div class="header-search-box-container" style="width:320px"><span>🔍</span><input type="text" id="securityRegistrySearch" class="header-search-input" placeholder="Search name, ID, or vendor..." oninput="if(window.debouncedFilterSecurityCards) window.debouncedFilterSecurityCards()"></div>
 <button id="addGuardButton" type="button" class="submit-btn-global" style="width:auto;margin:0;white-space:nowrap" onclick="window.openAddGuardModal()">＋ ADD NEW GUARD</button>
 </div>
+<div id="bulkGuardStatusControls" style="display:none;align-items:center;gap:.65rem;flex-wrap:wrap;margin-top:.75rem">
+<label style="display:inline-flex;align-items:center;gap:.45rem;color:var(--text-muted);font-weight:700"><input id="selectAllGuards" type="checkbox" aria-label="Select all guards"> Select all guards</label>
+<span id="selectedGuardCount" style="color:var(--text-muted);font-size:.85rem">0 selected</span>
+<button id="activateSelectedGuards" type="button" class="submit-btn-global" style="width:auto;margin:0;background:#16803c;border-color:#24a148" onclick="window.setSelectedGuardsStatus('Active')">Activate selected</button>
+<button id="deactivateSelectedGuards" type="button" class="submit-btn-global" style="width:auto;margin:0;background:#c62828;border-color:#ff3b30" onclick="window.setSelectedGuardsStatus('Inactive')">Deactivate selected</button>
+</div>
 <div class="card" style="margin-top:1rem;padding:1rem;overflow-x:auto">
 <table style="width:100%;border-collapse:collapse;min-width:720px">
-<thead><tr><th style="text-align:left;padding:.75rem">Guard Name</th><th style="text-align:left;padding:.75rem">Security ID</th><th style="text-align:left;padding:.75rem">Vendor</th><th style="text-align:left;padding:.75rem">Edit</th><th style="text-align:left;padding:.75rem">Active / Inactive</th></tr></thead>
+<thead><tr><th id="guardSelectionHeader" style="text-align:left;padding:.75rem;display:none">Select</th><th style="text-align:left;padding:.75rem">Guard Name</th><th style="text-align:left;padding:.75rem">Security ID</th><th style="text-align:left;padding:.75rem">Vendor</th><th style="text-align:left;padding:.75rem">Edit</th><th style="text-align:left;padding:.75rem">Active / Inactive</th></tr></thead>
 <tbody id="securityRegistryContainer"></tbody>
 </table>
 </div>
@@ -1512,11 +1518,8 @@ document.addEventListener("click",event=>{
     const error=window.guardLoginError(name,email,noonId,loginSelectedDocks);
     if(error){alert(error);return;}
     const button=document.getElementById("customSignInBtn");button.disabled=true;
-    fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"addGuard",securityName:name,securityId:noonId})})
-      .then(response=>response.json()).then(registration=>{
-        if(registration.status!=="success")throw new Error(registration.message||"Unable to register guard in the roster.");
-        return fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAccess",securityName:name,securityId:noonId,email:email})});
-      }).then(response=>response.json()).then(result=>{
+    fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAccess",securityName:name,securityId:noonId,email:email})})
+      .then(response=>response.json()).then(result=>{
         if(result.status!=="success"||!result.active){alert(result.message||"This guard is Inactive. Please contact your Supervisor.");return;}
         executeLogin(name,email,noonId,"guard",false,loginSelectedDocks);
       }).catch(error=>{console.error("Guard access verification failed:",error);alert(error.message||"Unable to verify guard status. Please try again.");})
@@ -1541,6 +1544,7 @@ window.loadGuardRoster=async function(){
     securityRegistryList=result.guards;
     if(message)message.textContent="";
     window.compileSecurityRegistryCards();
+    renderSupervisorDutyStatus();
   }catch(error){
     console.error("Could not load guard roster:",error);
     if(message)message.textContent=error.message||"Unable to load guard roster.";
@@ -1707,7 +1711,34 @@ function executeLogin(name,email,noonId,role,isInitialLoad=false,assignedDocks=[
 if(role==='guard'){const secName=document.getElementById('securityNameField');const secId=document.getElementById('securityNameId');if(secName)secName.value=name;if(secId)secId.value=noonId;}const overlay=document.getElementById('introOverlay');const defaultViewId=(role==='admin')?'dashboard':'checkin';let navItems=Array.from(document.querySelectorAll('.nav-item'));const defaultNavId=navItems.find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes(defaultViewId));if(isInitialLoad){if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});if(overlay){overlay.style.display='none';overlay.classList.add('hidden');}switchView(defaultViewId,defaultNavId);}else{setDisp('customLoginBox','none');const tabs=document.querySelector('.login-tabs');if(tabs)tabs.style.display='none';setDisp('authStatus','block');setTimeout(()=>{const authText=document.getElementById('authText');if(authText){authText.innerText="SYSTEM AUTHENTICATION COMPLETE";authText.style.color="var(--success-color)";authText.classList.remove('pulsing');}setTimeout(()=>{if(window.hasFetchedLogs&&globalLogsCache)window.handleLogsResponse({logs:globalLogsCache});switchView(defaultViewId,defaultNavId);if(overlay)overlay.classList.add('hidden');setTimeout(()=>{if(overlay)overlay.style.display='none';},1000);},1200);},1200);}}window.logoutUser=function(){if(userRole==='guard'&&loginSelectedDocks&&loginSelectedDocks.length>0){let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length>0){alert(tr("You cannot log out. You must check out your active trucks at your assigned docks first."));return;}}localStorage.removeItem('noonSlpUserSession');location.reload();};
 window.openAdminPhotoAudit=function(element){if(userRole!=="admin"){alert("Admin access required for audit.");return;}window.switchView("photo-audit",element||document.getElementById("nav-photo-audit"));};
 window.openHandoverModal=function(){if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0){alert(tr("Only guards with assigned docks can perform a shift handover."));return;}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));if(myActiveTrucks.length===0){alert(tr("Your assigned docks are completely clear. No handover required. You may sign out."));return;}const countEl=document.getElementById('handoverTruckCount');if(countEl)countEl.innerText=myActiveTrucks.length;document.getElementById('handoverModal').classList.add('modal-active');};window.closeHandoverModal=function(){document.getElementById('handoverModal').classList.remove('modal-active');};
-window.confirmHandover=function(){const newName=document.getElementById('handoverNewName').value.trim();const newId=document.getElementById('handoverNewId').value.trim();if(!newName||!newId){alert(tr("Please enter the incoming guard's Name and ID."));return;}const btn=document.getElementById('btnConfirmHandover');btn.innerText="⏳...";btn.disabled=true;const payload={action:'handover',assignedDocks:loginSelectedDocks,newGuardName:newName,newGuardId:newId};let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');if(!localGuards.some(g=>g.securityId===newId&&g.securityName===newName)){localGuards.push({securityName:newName,securityId:newId});localStorage.setItem('noonSlpLocalGuards',JSON.stringify(localGuards));fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'addGuard',securityName:newName,securityId:newId})}).catch(e=>console.error(e));}let myActiveTrucks=globalLogsCache.filter(r=>!r.checkOutTime&&loginSelectedDocks.some(d=>String(d)===String(r.dockNumber).trim()));myActiveTrucks.forEach(t=>{t.securityName=t.securityName+" / "+newName;t.securityId=newId;});window.handleLogsResponse({logs:globalLogsCache});fetch(API_URL,{method:'POST',body:JSON.stringify(payload)}).catch(e=>console.error(e));loggedInUser.name=newName;loggedInUser.noonId=newId;localStorage.setItem('noonSlpUserSession',JSON.stringify({name:newName,email:loggedInUser.email,noonId:newId,role:userRole,assignedDocks:loginSelectedDocks,loginTime:Date.now()}));const secNameField=document.getElementById('securityNameField');const secIdField=document.getElementById('securityNameId');if(secNameField)secNameField.value=newName;if(secIdField)secIdField.value=newId;document.getElementById('handoverModal').classList.remove('modal-active');btn.innerText="CONFIRM TRANSFER";btn.disabled=false;document.getElementById('handoverNewName').value='';document.getElementById('handoverNewId').value='';alert(currentLang==='ar'?`تم نقل المناوبة بنجاح! أنت الآن مسجل الدخول باسم ${newName}.`:`Shift transferred successfully! You are now logged in as ${newName}.`);};
+window.confirmHandover=async function(){
+  const newName=document.getElementById('handoverNewName').value.trim();
+  const newId=document.getElementById('handoverNewId').value.trim();
+  if(!newName||!newId){alert(tr("Please enter the incoming guard's Name and ID."));return;}
+  const btn=document.getElementById('btnConfirmHandover');
+  btn.disabled=true;btn.innerText="⏳...";
+  try{
+    const accessResponse=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'checkGuardAccess',securityName:newName,securityId:newId,email:loggedInUser.email})});
+    const access=await accessResponse.json();
+    if(access.status!=="success"||!access.active)throw new Error(access.message||"The incoming guard is not Active in the roster. Ask a Supervisor or Admin to add and activate the guard.");
+    const payload={action:'handover',assignedDocks:loginSelectedDocks,newGuardName:newName,newGuardId:newId};
+    const handoverResponse=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    const handover=await handoverResponse.json();
+    if(handover.status!=="success")throw new Error(handover.message||"Unable to transfer the active trucks.");
+    const myActiveTrucks=globalLogsCache.filter(row=>!row.checkOutTime&&loginSelectedDocks.some(dock=>String(dock)===String(row.dockNumber).trim()));
+    myActiveTrucks.forEach(truck=>{truck.securityName=truck.securityName+" / "+newName;truck.securityId=newId;});
+    window.handleLogsResponse({logs:globalLogsCache});
+    loggedInUser.name=newName;loggedInUser.noonId=newId;
+    localStorage.setItem('noonSlpUserSession',JSON.stringify({name:newName,email:loggedInUser.email,noonId:newId,role:userRole,assignedDocks:loginSelectedDocks,loginTime:Date.now()}));
+    const secNameField=document.getElementById('securityNameField'),secIdField=document.getElementById('securityNameId');
+    if(secNameField)secNameField.value=newName;
+    if(secIdField)secIdField.value=newId;
+    document.getElementById('handoverModal').classList.remove('modal-active');
+    document.getElementById('handoverNewName').value='';document.getElementById('handoverNewId').value='';
+    alert(currentLang==='ar'?`تم نقل المناوبة بنجاح! أنت الآن مسجل الدخول باسم ${newName}.`:`Shift transferred successfully! You are now logged in as ${newName}.`);
+  }catch(error){console.error("Guard handover failed:",error);alert(error.message||"Unable to complete guard handover.");}
+  finally{btn.innerText="CONFIRM TRANSFER";btn.disabled=false;}
+};
 function resumeAlarmAudio(){if(!window.audioCtx){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass){console.error('Web Audio is not supported by this browser.');return;}window.audioCtx=new AudioContextClass();}if(window.audioCtx.state==='suspended')window.audioCtx.resume().catch(err=>console.warn('Could not resume alert audio:',err));}
 document.addEventListener('pointerdown',resumeAlarmAudio,{once:true});
 function playAlarm(){if(window.alarmSource)return;const startLoop=()=>{if(window.alarmSource)return;const context=window.audioCtx;if(!context||context.state!=='running'){console.error('Alert audio is not running; interact with the page to enable sound.');return;}const sampleRate=context.sampleRate,duration=1,beepDuration=0.38,buffer=context.createBuffer(1,sampleRate*duration,sampleRate),samples=buffer.getChannelData(0);for(let i=0;i<samples.length;i++){const t=i/sampleRate;if(t<beepDuration){const envelope=Math.min(1,t/0.012,(beepDuration-t)/0.045);samples[i]=Math.sin(2*Math.PI*880*t)*Math.max(0,envelope)*0.95;}}const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;source.loop=true;gain.gain.setValueAtTime(1,context.currentTime);source.connect(gain);gain.connect(context.destination);source.start();window.alarmSource=source;window.alarmGain=gain;};if(!window.audioCtx)resumeAlarmAudio();if(!window.audioCtx)return;if(window.audioCtx.state==='running')startLoop();else window.audioCtx.resume().then(startLoop).catch(err=>console.error('Could not start alert audio:',err));}
@@ -1753,7 +1784,7 @@ function setHistoryDateFilter(range,btnEl){currentHistoryDateRange=range;documen
 window.setHistoryDateFilter=setHistoryDateFilter;
 function applyHistoryFilters(){let range=currentHistoryDateRange;const fromEl=document.getElementById('customDateFrom');const fromStr=fromEl?fromEl.value:'';const toEl=document.getElementById('customDateTo');const toStr=toEl?toEl.value:'';const input=document.getElementById('historySearchQuery');let query=input?input.value.toLowerCase().trim():'';const timeFilterEl=document.getElementById('historyTimeFilter');let timeFilter=timeFilterEl?timeFilterEl.value:'both';const now=new Date();let filtered=globalLogsCache.filter(r=>{const checkInMatch=isDateInRange(r.checkInTime,range,now,fromStr,toStr);const checkOutMatch=r.checkOutTime?isDateInRange(r.checkOutTime,range,now,fromStr,toStr):false;if(timeFilter==='in')return checkInMatch;if(timeFilter==='out')return checkOutMatch;return checkInMatch||checkOutMatch;});let html='';let count=0;for(let i=0;i<filtered.length;i++){if(count>=500)break;let r=filtered[i];if(query&&!String(r.driverName).toLowerCase().includes(query)&&!String(r.plateNumber).toLowerCase().includes(query))continue;const dir=String(r.direction||'').split('-')[0].trim().toUpperCase();const badgeClass=getBadgeClass(dir,r.checkOutTime!=="");const durStr=calculateDurationStr(r.checkInTime,r.checkOutTime);let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'<span style="color:var(--accent-color);font-weight:700">Inside</span>');html+=`<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${badgeClass}">${dir}</span></td><td><strong>${r.dockNumber}</strong></td><td><span style="font-family:monospace;color:var(--text-muted)">${r.noonEmployeeId||'--'}</span></td><td>${r.boxCount||'--'}</td><td style="font-family:monospace;" class="notranslate" translate="no">${r.sealNumber&&r.sealNumber!==""?r.sealNumber:'--'}</td><td class="notranslate" translate="no">${safeCheckInStr}</td><td class="notranslate" translate="no">${safeCheckOutStr}</td><td style="color:var(--accent-color);font-weight:bold;" class="notranslate" translate="no">${durStr}</td><td>🛡️ ${r.securityName}</td></tr>`;count++;}const hTable=document.getElementById('historyLogTableBody');if(hTable)hTable.innerHTML=html||`<tr><td colspan="11" style="text-align:center">No records match</td></tr>`;}
 window.applyHistoryFilters=applyHistoryFilters;
-function filterActiveTrucks(){const input=document.getElementById('yardSearchQuery');let query=input?input.value.toLowerCase().trim():'';document.querySelectorAll('#activeYardTableBody tr').forEach(row=>{row.style.display=String(row.innerText).toLowerCase().includes(query)?'':'none';});}
+function filterActiveTrucks(){if(typeof updateOverdueTruckRows==="function"){updateOverdueTruckRows();return;}const input=document.getElementById('yardSearchQuery');let query=input?input.value.toLowerCase().trim():'';document.querySelectorAll('#activeYardTableBody tr').forEach(row=>{row.style.display=String(row.innerText).toLowerCase().includes(query)?'':'none';});}
 window.filterActiveTrucks=filterActiveTrucks;
 function applyAnalyticsFilters(){let range=currentAnalyticsDateRange;const fromEl=document.getElementById('analyticsCustomDateFrom');const fromStr=fromEl?fromEl.value:'';const toEl=document.getElementById('analyticsCustomDateTo');const toStr=toEl?toEl.value:'';const input=document.getElementById('analyticsSearchQuery');let query=input?input.value.toLowerCase().trim():'';const timeFilterEl=document.getElementById('analyticsTimeFilter');let timeFilter=timeFilterEl?timeFilterEl.value:'both';const now=new Date();let filtered=globalLogsCache.filter(r=>{const checkInMatch=isDateInRange(r.checkInTime,range,now,fromStr,toStr);const checkOutMatch=r.checkOutTime?isDateInRange(r.checkOutTime,range,now,fromStr,toStr):false;if(timeFilter==='in')return checkInMatch;if(timeFilter==='out')return checkOutMatch;return checkInMatch||checkOutMatch;});let unit='month',step=1,diffDays=0;if(range==='custom'||range==='all'){if(range==='custom'&&fromStr&&toStr){diffDays=(new Date(toStr)-new Date(fromStr))/(1000*60*60*24);}else if(filtered.length>0){let times=filtered.map(r=>parseFlexibleDate(r.checkInTime).getTime()).filter(t=>!isNaN(t));if(times.length>0)diffDays=(Math.max(...times)-Math.min(...times))/(1000*60*60*24);}}if(range==='today'||((range==='custom'||range==='all')&&diffDays<=1)){unit='hour';step=1;}else if(range==='weekly'||range==='7days'||((range==='custom'||range==='all')&&diffDays<=14)){unit='day';step=1;}else if(range==='monthly'||((range==='custom'||range==='all')&&diffDays<=60)){unit='week';step=1;}else if(range==='6months'||((range==='custom'||range==='all')&&diffDays<=180)){unit='month';step=1;}else if(range==='1year'||((range==='custom'||range==='all')&&diffDays<=365)){unit='month';step=1;}else if(range==='all'||(range==='custom'&&diffDays>365)){unit='month';step=3;}let growthMap={};filtered.forEach(log=>{let time=parseFlexibleDate(log.checkInTime);if(!isNaN(time.getTime())){let key;if(unit==='hour')key=`${time.getFullYear()}-${String(time.getMonth()+1).padStart(2,'0')}-${String(time.getDate()).padStart(2,'0')}T${String(time.getHours()).padStart(2,'0')}:00:00`;else if(unit==='day')key=`${time.getFullYear()}-${String(time.getMonth()+1).padStart(2,'0')}-${String(time.getDate()).padStart(2,'0')}T00:00:00`;else if(unit==='week'){let d=new Date(time);d.setHours(0,0,0,0);d.setDate(d.getDate()-d.getDay());key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T00:00:00`;}else{key=`${time.getFullYear()}-${String(time.getMonth()+1).padStart(2,'0')}-01T00:00:00`;}if(!growthMap[key])growthMap[key]=0;growthMap[key]++;}});let growthData=Object.keys(growthMap).map(k=>({x:k,y:growthMap[k]})).sort((a,b)=>a.x.localeCompare(b.x));if(growthData.length===1){let singleDate=new Date(growthData[0].x);if(unit==='hour')singleDate.setHours(singleDate.getHours()-1);else if(unit==='day')singleDate.setDate(singleDate.getDate()-1);else if(unit==='week')singleDate.setDate(singleDate.getDate()-7);else singleDate.setMonth(singleDate.getMonth()-1);let dummyX=`${singleDate.getFullYear()}-${String(singleDate.getMonth()+1).padStart(2,'0')}-${String(singleDate.getDate()).padStart(2,'0')}T${String(singleDate.getHours()).padStart(2,'0')}:00:00`;growthData.unshift({x:dummyX,y:0});}const lineCont=document.getElementById('chartGrowthLine');if(lineCont){lineCont.innerHTML='<div style="position:relative;height:220px;width:100%"><canvas id="growthChartCanvas"></canvas></div>';if(window.myGrowthChart)window.myGrowthChart.destroy();const ctx=document.getElementById('growthChartCanvas').getContext('2d');window.myGrowthChart=new Chart(ctx,{type:'line',data:{datasets:[{data:growthData,borderColor:'#ffc107',backgroundColor:'#1a1c23',pointBackgroundColor:'#1a1c23',pointBorderColor:'#ffc107',pointBorderWidth:2,pointRadius:5,pointHoverRadius:7,borderWidth:3,tension:0}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:25,left:15,right:15}},plugins:{legend:{display:false},datalabels:{color:'#ffffff',align:'top',offset:6,font:{weight:'bold',size:12},formatter:function(value){return value.y>0?value.y:"";}}},scales:{x:{type:'time',time:{unit:unit,stepSize:step,displayFormats:{hour:'HH:mm',day:'MMM d',week:'MMM d',month:'MMM yyyy'}},grid:{display:false,drawBorder:false},ticks:{color:'#888',font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:8}},y:{display:false,min:0,grace:'20%'}}}});}let hourMap={};filtered.forEach(log=>{let time=parseFlexibleDate(log.checkInTime);if(!isNaN(time.getTime())){let hour=time.getHours(),ampm=hour>=12?'PM':'AM',hourLabel=`${hour%12||12} ${ampm}`;if(!hourMap[hourLabel])hourMap[hourLabel]={count:0,rawHr:hour};hourMap[hourLabel].count++;}});let hourData=Object.keys(hourMap).map(k=>({label:k,count:hourMap[k].count,rawHr:hourMap[k].rawHr})).sort((a,b)=>a.rawHr-b.rawHr);const hoursCont=document.getElementById('chartHoursColumns');if(hoursCont){if(hourData.length===0){hoursCont.innerHTML="<div style='color:var(--text-muted);text-align:center'>No Data</div>";}else{let maxH=Math.max(...hourData.map(item=>item.count));if(maxH===0)maxH=1;let hHtml=`<div style="display:flex;align-items:flex-end;justify-content:space-around;height:180px;padding-bottom:30px;border-bottom:2px solid rgba(255,255,255,0.05);border-left:2px solid rgba(255,255,255,0.05);position:relative;margin-top:1rem;padding-left:10px">`;hourData.slice(0,7).forEach((item,idx)=>{let c=chartColors[idx%chartColors.length];let heightPct=(item.count/maxH)*100;hHtml+=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:40px;position:relative"><div style="font-size:0.9rem;color:#fff;font-weight:800;margin-bottom:8px">${item.count}</div><div style="width:100%;background:${c};height:${heightPct}%;border-radius:4px 4px 0 0"></div><div style="position:absolute;bottom:-25px;font-size:0.7rem;color:var(--text-muted);font-weight:700;white-space:nowrap">${item.label}</div></div>`;});hHtml+=`</div>`;hoursCont.innerHTML=hHtml;}}let cohortMap={};filtered.forEach(log=>{let dir=String(log.direction||"Unknown").split('-')[0].trim().toUpperCase();cohortMap[dir]=(cohortMap[dir]||0)+1;});let cohortData=Object.keys(cohortMap).map(k=>({label:k,count:cohortMap[k]})).sort((a,b)=>b.count-a.count);const barsCont=document.getElementById('chartCohortsBars');if(barsCont){if(cohortData.length===0){barsCont.innerHTML="<div style='color:var(--text-muted);text-align:center'>No Data</div>";}else{let maxC=Math.max(...cohortData.map(d=>d.count));if(maxC===0)maxC=1;let bHtml='';cohortData.slice(0,5).forEach((d,idx)=>{let c=chartColors[idx%chartColors.length];bHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="width:85px;font-size:0.65rem;font-weight:700;color:var(--text-muted);text-align:right">${d.label}</div><div style="flex-grow:1;background:rgba(255,255,255,0.05);height:20px;border-radius:4px;margin:0 10px;overflow:hidden"><div style="width:${(d.count/maxC)*100}%;background:${c};height:100%"></div></div><div style="font-size:0.75rem;font-weight:bold;color:#fff">${d.count}</div></div>`;});barsCont.innerHTML=bHtml;}}let dockMap={};filtered.forEach(log=>{let dock=log.dockNumber;if(dock)dockMap[dock]=(dockMap[dock]||0)+1;});let dockData=Object.keys(dockMap).map(k=>({label:k,count:dockMap[k]})).sort((a,b)=>b.count-a.count);let total=dockData.reduce((sum,item)=>sum+item.count,0);let donutEl=document.getElementById('chartDocksDonut'),legendEl=document.getElementById('chartDocksLegend');if(total>0){let gradientParts=[],currentPct=0,legendHTML='';dockData.slice(0,5).forEach((item,index)=>{let color=chartColors[index%chartColors.length],pct=(item.count/total)*100,nextPct=currentPct+pct;gradientParts.push(`${color} ${currentPct}% ${nextPct}%`);currentPct=nextPct;legendHTML+=`<li><div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:${color}"></span>${item.label}</div><span>${item.count} Uses</span></li>`;});if(donutEl)donutEl.style.background=`conic-gradient(${gradientParts.join(', ')})`;if(legendEl)legendEl.innerHTML=legendHTML;}else{if(donutEl)donutEl.style.background='var(--card-solid)';if(legendEl)legendEl.innerHTML=`<li>No Data</li>`;}const aTables=document.getElementById('analyticsGroupedTables');if(aTables){let openAccordions=[];aTables.querySelectorAll('.accordion-wrapper').forEach(wrapper=>{const content=wrapper.querySelector('.accordion-content');if(content&&content.classList.contains('open'))openAccordions.push(wrapper.querySelector('.accordion-title span').innerText.trim());});let groups={};filtered.forEach(r=>{let dDir=String(r.direction||'').split('-')[0].trim().toUpperCase();if(!groups[dDir])groups[dDir]=[];groups[dDir].push(r);});let aHtml='';for(let [dir,items] of Object.entries(groups)){let badgeCls=getBadgeClass(dir,false);let rows=items.slice(0,20).map(r=>{let dCheckIn=parseFlexibleDate(r.checkInTime);let safeCheckInStr=!isNaN(dCheckIn.getTime())?formatEnglishDate(dCheckIn):r.checkInTime;let dCheckOut=r.checkOutTime?parseFlexibleDate(r.checkOutTime):null;let safeCheckOutStr=dCheckOut&&!isNaN(dCheckOut.getTime())?formatEnglishDate(dCheckOut):(r.checkOutTime||'Inside');return `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><strong>${r.dockNumber}</strong></td><td style="font-family:monospace;color:var(--text-muted);" class="notranslate" translate="no">${r.sealNumber&&r.sealNumber!==""?r.sealNumber:'--'}</td><td class="notranslate" translate="no">${safeCheckInStr}</td><td class="notranslate" translate="no">${safeCheckOutStr}</td><td style="color:var(--accent-color);font-weight:bold;" class="notranslate" translate="no">${calculateDurationStr(r.checkInTime,r.checkOutTime)}</td><td>🛡️ ${r.securityName}</td></tr>`;}).join('');let isOpenClass=openAccordions.includes(dir)?'open':'';aHtml+=`<div class="accordion-wrapper"><div class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open')"><div class="accordion-title"><span class="${badgeCls}">${dir}</span></div><div class="accordion-badge">${items.length}</div></div><div class="accordion-content ${isOpenClass}"><div class="table-responsive"><table><thead><tr><th>Driver</th><th>Plate</th><th>Dock</th><th>Seal Number</th><th>Check In</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead><tbody>${rows}</tbody></table></div></div></div>`;}aTables.innerHTML=aHtml;}}
 window.applyAnalyticsFilters=applyAnalyticsFilters;
@@ -1765,7 +1796,12 @@ function compileSecurityRegistryCards(){
   const addButton=document.getElementById("addGuardButton");
   if(!container)return;
   const canManage=userRole==="admin"||userRole==="supervisor";
+  const canBulkManage=userRole==="supervisor";
+  const selectionHeader=document.getElementById("guardSelectionHeader");
+  const bulkControls=document.getElementById("bulkGuardStatusControls");
   if(addButton)addButton.style.display=canManage?"inline-flex":"none";
+  if(selectionHeader)selectionHeader.style.display=canBulkManage?"table-cell":"none";
+  if(bulkControls)bulkControls.style.display=canBulkManage?"flex":"none";
   container.replaceChildren();
   securityRegistryList.forEach(guard=>{
     const row=document.createElement("tr");
@@ -1773,6 +1809,22 @@ function compileSecurityRegistryCards(){
     row.dataset.name=String(guard.securityName||"").toLowerCase();
     row.dataset.id=String(guard.securityId||"").toLowerCase();
     row.dataset.vendor=String(guard.vendor||"").toLowerCase();
+    if(canBulkManage){
+      const selectCell=document.createElement("td");
+      const checkbox=document.createElement("input");
+      checkbox.type="checkbox";
+      checkbox.className="guard-row-select";
+      checkbox.value=String(guard.securityId||"");
+      checkbox.checked=window.selectedGuardIds.has(checkbox.value);
+      checkbox.setAttribute("aria-label",`Select ${guard.securityName}`);
+      checkbox.addEventListener("change",()=>{
+        if(checkbox.checked)window.selectedGuardIds.add(checkbox.value);
+        else window.selectedGuardIds.delete(checkbox.value);
+        updateSelectedGuardControls();
+      });
+      selectCell.appendChild(checkbox);
+      row.appendChild(selectCell);
+    }
     const nameCell=document.createElement("td");nameCell.textContent=guard.securityName||"--";
     const idCell=document.createElement("td");idCell.textContent=guard.securityId||"--";
     const vendorCell=document.createElement("td");vendorCell.textContent=guard.vendor||"--";
@@ -1788,26 +1840,76 @@ function compileSecurityRegistryCards(){
       const status=document.createElement("select");status.className="input-box-styled";status.setAttribute("aria-label",`Status for ${guard.securityName}`);
       [["Active","Active"],["Inactive","Inactive"]].forEach(([value,label])=>status.add(new Option(label,value)));
       status.value=isActive?"Active":"Inactive";
-      status.style.cssText=`width:auto;min-width:120px;font-weight:800;border-color:${isActive?"#26a269":"#e05b63"};color:${isActive?"#b8f5d2":"#ffc6c8"};background:${isActive?"rgba(38,162,105,.16)":"rgba(224,91,99,.16)"}`;
+      status.style.cssText=`width:auto;min-width:120px;font-weight:800;border:1px solid ${isActive?"#24a148":"#ff3b30"};color:#fff;background:${isActive?"#16803c":"#c62828"};box-shadow:0 0 0 1px ${isActive?"#24a148":"#ff3b30"}`;
       status.addEventListener("change",async()=>{
         const previous=isActive?"Active":"Inactive";status.disabled=true;
         try{
           await window.supervisorRequest("setGuardStatus",{securityId:guard.securityId,status:status.value});
-          guard.status=status.value;compileSecurityRegistryCards();
+          guard.status=status.value;compileSecurityRegistryCards();renderSupervisorDutyStatus();
         }catch(error){status.value=previous;status.disabled=false;alert(error.message);}
       });
       statusCell.appendChild(status);
     }else{
       const badge=document.createElement("span");badge.className="tag-badge";badge.textContent=isActive?"Active":"Inactive";
-      badge.style.cssText=`border:1px solid ${isActive?"#26a269":"#e05b63"};color:${isActive?"#b8f5d2":"#ffc6c8"};background:${isActive?"rgba(38,162,105,.16)":"rgba(224,91,99,.16)"}`;
+      badge.style.cssText=`border:1px solid ${isActive?"#24a148":"#ff3b30"};color:#fff;background:${isActive?"#16803c":"#c62828"}`;
       statusCell.appendChild(badge);
     }
     [nameCell,idCell,vendorCell,editCell,statusCell].forEach(cell=>{cell.style.cssText="padding:.75rem;border-top:1px solid var(--border-color);text-align:left";row.appendChild(cell);});
     container.appendChild(row);
   });
-  if(!securityRegistryList.length){const row=document.createElement("tr");const cell=document.createElement("td");cell.colSpan=5;cell.textContent="No guards are in the roster yet.";cell.style.cssText="padding:1rem;text-align:center;color:var(--text-muted)";row.appendChild(cell);container.appendChild(row);}
+  if(!securityRegistryList.length){const row=document.createElement("tr");const cell=document.createElement("td");cell.colSpan=canBulkManage?6:5;cell.textContent="No guards are in the roster yet.";cell.style.cssText="padding:1rem;text-align:center;color:var(--text-muted)";row.appendChild(cell);container.appendChild(row);}
   filterSecurityCards();
+  updateSelectedGuardControls();
 }
+window.selectedGuardIds=window.selectedGuardIds||new Set();
+function updateSelectedGuardControls(){
+  const selectedIds=window.selectedGuardIds;
+  document.querySelectorAll("#securityRegistryContainer .guard-row-select").forEach(checkbox=>{checkbox.checked=selectedIds.has(checkbox.value);});
+  const availableIds=securityRegistryList.map(guard=>String(guard.securityId||""));
+  const selectAll=document.getElementById("selectAllGuards");
+  const count=document.getElementById("selectedGuardCount");
+  const availableSelected=availableIds.filter(id=>selectedIds.has(id)).length;
+  if(selectAll){
+    selectAll.checked=availableIds.length>0&&availableSelected===availableIds.length;
+    selectAll.indeterminate=availableSelected>0&&availableSelected<availableIds.length;
+  }
+  if(count)count.textContent=`${availableSelected} selected`;
+  ["activateSelectedGuards","deactivateSelectedGuards"].forEach(id=>{
+    const button=document.getElementById(id);
+    if(button)button.disabled=availableSelected===0;
+  });
+}
+document.getElementById("selectAllGuards")?.addEventListener("change",event=>{
+  const checkbox=event.currentTarget;
+  securityRegistryList.forEach(guard=>{
+    const securityId=String(guard.securityId||"");
+    if(checkbox.checked)window.selectedGuardIds.add(securityId);
+    else window.selectedGuardIds.delete(securityId);
+  });
+  updateSelectedGuardControls();
+});
+window.setSelectedGuardsStatus=async function(status){
+  const securityIds=securityRegistryList.map(guard=>String(guard.securityId||"")).filter(id=>window.selectedGuardIds.has(id));
+  if(!securityIds.length){alert("Select at least one guard.");return;}
+  if(!confirm(`Mark ${securityIds.length} selected guard(s) ${status}?`))return;
+  const buttons=["activateSelectedGuards","deactivateSelectedGuards"].map(id=>document.getElementById(id)).filter(Boolean);
+  buttons.forEach(button=>button.disabled=true);
+  try{
+    const result=await window.supervisorRequest("bulkSetGuardStatus",{securityIds:securityIds,status:status});
+    const updatedIds=new Set(securityIds.map(id=>id.trim().toLowerCase()));
+    securityRegistryList.forEach(guard=>{if(updatedIds.has(String(guard.securityId||"").trim().toLowerCase()))guard.status=status;});
+    window.selectedGuardIds.clear();
+    compileSecurityRegistryCards();
+    updateSelectedGuardControls();
+    renderSupervisorDutyStatus();
+    const message=document.getElementById("securityRegistryMessage");
+    if(message)message.textContent=`${result.updated} guard(s) marked ${status}.`;
+  }catch(error){
+    console.error("Bulk guard status update failed:",error);
+    alert(error.message||"Unable to update selected guards.");
+    updateSelectedGuardControls();
+  }
+};
 function filterSecurityCards(){
   const input=document.getElementById("securityRegistrySearch");
   const query=input?input.value.toLowerCase().trim():"";
@@ -1853,7 +1955,7 @@ window.addNewGuard=async function(){
     let result;
     if(userRole==="supervisor")result=await window.supervisorRequest("addGuard",data);
     else{
-      const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"addGuard",...data})});
+      const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"addGuard",userRole:"admin",...data})});
       result=await response.json();
       if(result.status!=="success")throw new Error(result.message||"Unable to add guard.");
     }
@@ -1864,8 +1966,8 @@ window.addNewGuard=async function(){
 };
 async function deleteGuard(guardName,guardId,btn){if(!confirm(currentLang==='ar'?'هل أنت متأكد من حذف هذا الحارس؟':'Are you sure you want to delete this guard?'))return;const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteGuard',securityName:guardName,securityId:guardId})});securityRegistryList=securityRegistryList.filter(g=>!(g.securityName===guardName&&g.securityId===guardId));compileSecurityRegistryCards();}catch(e){console.error(e);alert("Error deleting guard.");btn.innerText=originalText;btn.disabled=false;}}
 window.deleteGuard=deleteGuard;
-window.renderLoginGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('loginNameSuggestions'),listId=document.getElementById('loginIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(currentLoginMode!=='guard'||!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');let combinedGuards=[...localGuards];securityRegistryList.forEach(g=>{if(!combinedGuards.some(lg=>lg.securityId===g.securityId&&lg.securityName===g.securityName))combinedGuards.push(g);});let matches=combinedGuards.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('loginName'),idEl=document.getElementById('loginNoonId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
-window.renderHandoverGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('handoverNameSuggestions'),listId=document.getElementById('handoverIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');let combinedGuards=[...localGuards];securityRegistryList.forEach(g=>{if(!combinedGuards.some(lg=>lg.securityId===g.securityId&&lg.securityName===g.securityName))combinedGuards.push(g);});let matches=combinedGuards.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('handoverNewName'),idEl=document.getElementById('handoverNewId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
+window.renderLoginGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('loginNameSuggestions'),listId=document.getElementById('loginIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(currentLoginMode!=='guard'||!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';const matches=securityRegistryList.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('loginName'),idEl=document.getElementById('loginNoonId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
+window.renderHandoverGuardSuggestions=debounce(function(value,type){const listName=document.getElementById('handoverNameSuggestions'),listId=document.getElementById('handoverIdSuggestions');if(listName)listName.classList.remove('open');if(listId)listId.classList.remove('open');if(!value)return;const listEl=type==='name'?listName:listId;if(!listEl)return;listEl.innerHTML='';const matches=securityRegistryList.filter(g=>{if(type==='name')return String(g.securityName||'').toUpperCase().includes(value.toUpperCase());if(type==='id')return String(g.securityId||'').toUpperCase().includes(value.toUpperCase());return false;}).slice(0,5);if(matches.length===0)return;matches.forEach(g=>{const item=document.createElement('div');item.className='suggestion-item';item.innerHTML=`<strong>${g.securityName}</strong><br><small>ID: ${g.securityId}</small>`;item.addEventListener('click',()=>{const nameEl=document.getElementById('handoverNewName'),idEl=document.getElementById('handoverNewId');if(nameEl)nameEl.value=g.securityName;if(idEl)idEl.value=g.securityId||'';listEl.classList.remove('open');});listEl.appendChild(item);});listEl.classList.add('open');},250);
 function updateSelectedDriverUI(){if(!window.selectedDriverProfile)return;const d=window.selectedDriverProfile;const nameText=document.getElementById('selDriverNameText');const metaText=document.getElementById('selDriverMetaText');const selBox=document.getElementById('selectedDriverBox');if(nameText)nameText.innerText=d.name;if(metaText)metaText.innerText=`Plate: ${d.plate} | Iqama: ${d.id} | Mobile: ${d.phone}`;if(selBox)selBox.classList.add('active');const editBtn=document.getElementById('inlineDriverEditBtn');if(editBtn)editBtn.style.display=(userRole==='admin')?'block':'none';const dName=document.getElementById('driverName');if(dName)dName.value=d.name;const iqNum=document.getElementById('iqamaNumber');if(iqNum)iqNum.value=d.id!=='--'?d.id:'';const mobNum=document.getElementById('mobileNumber');if(mobNum)mobNum.value=d.phone!=='--'?d.phone:'';const pNumD=document.getElementById('plateNumberDigits'),pNumL=document.getElementById('plateNumberLetters');let plateStr=d.plate!=='--'?d.plate:'';let numMatch=plateStr.match(/\d+/),letMatch=plateStr.match(/[A-Za-z]+/g);if(pNumD)pNumD.value=numMatch?numMatch[0]:'';if(pNumL)pNumL.value=letMatch?letMatch.join(''):'';}
 function editSelectedDriverInline(){if(!window.selectedDriverProfile)return;const d=window.selectedDriverProfile;openEditDriverModal(d.name,d.id,d.plate,d.phone);}
 window.editSelectedDriverInline=editSelectedDriverInline;
@@ -2655,6 +2757,74 @@ fetchLogs=function(){
   return baseFetchLogs();
 };
 window.fetchLogs=fetchLogs;
+function renderSupervisorDutyStatus(){
+  const rows=Array.from(document.querySelectorAll("#activeYardTableBody tr"));
+  rows.forEach(row=>row.querySelectorAll(".supervisor-inactive-duty-badge").forEach(badge=>badge.remove()));
+  if(userRole!=="supervisor")return;
+  const activeTrucks=globalLogsCache.filter(log=>!log.checkOutTime);
+  rows.forEach((row,index)=>{
+    const truck=activeTrucks[index];
+    const securityCell=row.cells[10];
+    if(!truck||!securityCell)return;
+    const truckId=String(truck.securityId||"").trim().toLowerCase();
+    const truckName=String(truck.securityName||"").trim().toLowerCase();
+    const guard=securityRegistryList.find(item=>{
+      const guardId=String(item.securityId||"").trim().toLowerCase();
+      const guardName=String(item.securityName||"").trim().toLowerCase();
+      return truckId?guardId===truckId:guardName===truckName;
+    });
+    if(!guard||String(guard.status||"").trim().toLowerCase()!=="inactive")return;
+    const badge=document.createElement("span");
+    badge.className="supervisor-inactive-duty-badge";
+    badge.textContent="INACTIVE ON DUTY";
+    badge.style.cssText="display:inline-block;margin-left:.5rem;padding:.2rem .45rem;border:1px solid #ff3b30;border-radius:999px;background:rgba(220,38,38,.24);color:#ff6b6b;font-size:.7rem;font-weight:800;white-space:nowrap";
+    securityCell.appendChild(badge);
+  });
+}
+const originalHandleLogsResponse=window.handleLogsResponse;
+window.handleLogsResponse=function(payload){
+  originalHandleLogsResponse(payload);
+  renderSupervisorDutyStatus();
+  updateOverdueTruckRows();
+};
+function updateOverdueTruckRows(){
+  const tableBody=document.getElementById("activeYardTableBody");
+  if(!tableBody)return;
+  const activeTrucks=globalLogsCache.filter(truck=>!truck.checkOutTime);
+  const yardTrucks=userRole==="guard"&&loginSelectedDocks&&loginSelectedDocks.length>0
+    ?activeTrucks.filter(truck=>loginSelectedDocks.some(dock=>String(dock)===String(truck.dockNumber).trim()))
+    :activeTrucks;
+  const searchQuery=String(document.getElementById("yardSearchQuery")?.value||"").toLowerCase().trim();
+  const rows=Array.from(tableBody.rows).filter(row=>row.cells.length>1);
+  let visibleCount=0;
+  rows.forEach((row,index)=>{
+    const truck=yardTrucks[index];
+    if(!truck){row.style.display="none";return;}
+    const checkInTime=parseFlexibleDate(truck.checkInTime).getTime();
+    const serverExtensions=Number(truck.extensions)||0;
+    const localExtensions=Number(window.truckExtensions[String(truck.plateNumber||"")])||0;
+    const isOverThirtyMinutes=Number.isFinite(checkInTime)&&Date.now()-checkInTime>30*60*1000;
+    const shouldShow=isOverThirtyMinutes&&Math.max(serverExtensions,localExtensions)===0;
+    const matchesSearch=String(row.innerText||"").toLowerCase().includes(searchQuery);
+    row.style.display=shouldShow&&matchesSearch?"":"none";
+    if(shouldShow)visibleCount++;
+  });
+  Array.from(tableBody.rows).filter(row=>row.cells.length===1).forEach(row=>row.remove());
+  tableBody.querySelectorAll("[data-overdue-empty]").forEach(row=>row.remove());
+  if(visibleCount===0){
+    const emptyRow=document.createElement("tr");
+    emptyRow.dataset.overdueEmpty="true";
+    const cell=document.createElement("td");
+    cell.colSpan=12;
+    cell.textContent="No overdue, unextended trucks.";
+    cell.style.cssText="text-align:center;color:var(--text-muted);padding:3rem;font-style:italic;font-size:.8rem;text-transform:uppercase";
+    emptyRow.appendChild(cell);
+    tableBody.appendChild(emptyRow);
+  }
+  const counter=document.getElementById("activeYardCounter");
+  if(counter)counter.textContent=String(visibleCount);
+}
+setInterval(updateOverdueTruckRows,1000);
 const baseCompileSecurityRegistryCards=compileSecurityRegistryCards;
 compileSecurityRegistryCards=function(){
   baseCompileSecurityRegistryCards();
