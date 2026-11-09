@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Noon SLP Dock Security Platform</title>
+<script>
+try{
+  const savedSupervisorSessionText=localStorage.getItem("noonSlpSupervisorSession");
+  if(savedSupervisorSessionText){
+    const savedSupervisorSession=JSON.parse(savedSupervisorSessionText);
+    if(savedSupervisorSession&&savedSupervisorSession.token&&savedSupervisorSession.name&&savedSupervisorSession.email){
+      window.savedSupervisorSessionBootstrap=savedSupervisorSession;
+      localStorage.removeItem("noonSlpUserSession");
+      document.documentElement.classList.add("supervisor-session-restoring");
+    }
+  }
+}catch(error){
+  console.error("Could not read the saved supervisor session:",error);
+}
+</script>
 <link rel="icon" type="image/png" sizes="128x128" href="./Truck-logo.png?v=5" />
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -11,6 +26,7 @@
 <style>
 :root{--bg-color:#090a0c;--page-bg:#111316;--card-bg:#14171a;--card-solid:#191c20;--sidebar-bg:#0b0d0f;--accent-color:#c4a86b;--accent-soft:#d9c99f;--text-main:#fff;--text-muted:#fff;--border-color:rgba(205,207,211,0.2);--success-color:#3ccf8e;--danger-color:#ff6b5c;--nav-hover:rgba(205,207,211,0.08)}
 html{min-height:100%;background-color:#090a0c;overscroll-behavior-y:none}
+html.supervisor-session-restoring body{visibility:hidden}
 #cameraModal,.camera-modal,.camera-overlay,[id*="camera"]{z-index:999999 !important}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 
@@ -1236,7 +1252,7 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 </div>
 <script>
 let currentLang='en';
-const API_URL="https://script.google.com/macros/s/AKfycbx-ea82luraUQ5tPL5Oc4IrBjO9WSQExSGLHDizQWEHZLFn2OrYHY_1jKLPkjjLRU5w/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
 const OCR_API_URL="https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
 let globalLogsCache=[];
 let driversRegistryList=[];
@@ -1702,34 +1718,30 @@ window.enterSupervisorApp=function(name,email){
   fetchLogs();
 };
 window.restoreSupervisorSession=async function(){
-  const savedSessionText=localStorage.getItem("noonSlpSupervisorSession");
-  if(!savedSessionText)return false;
-  let savedSession;
-  try{
-    savedSession=JSON.parse(savedSessionText);
-  }catch(error){
-    console.error("Saved supervisor session is invalid:",error);
-    localStorage.removeItem("noonSlpSupervisorSession");
-    return false;
-  }
-  if(!savedSession||!savedSession.token||!savedSession.name||!savedSession.email){
-    localStorage.removeItem("noonSlpSupervisorSession");
-    return false;
-  }
+  const savedSession=window.savedSupervisorSessionBootstrap;
+  if(!savedSession)return false;
   localStorage.removeItem("noonSlpUserSession");
+  window.supervisorToken=savedSession.token;
+  window.enterSupervisorApp(savedSession.name,savedSession.email);
+  document.documentElement.classList.remove("supervisor-session-restoring");
   try{
     const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"validateSupervisorSession",supervisorToken:savedSession.token})});
     const result=await response.json();
     if(result.status!=="success"){
-      localStorage.removeItem("noonSlpSupervisorSession");
-      return false;
+      console.warn("Saved supervisor session could not be verified; keeping the saved session visible.");
+      return true;
     }
-    window.supervisorToken=savedSession.token;
-    window.enterSupervisorApp(result.name,result.email);
+    loggedInUser.name=result.name||savedSession.name;
+    loggedInUser.email=result.email||savedSession.email;
+    localStorage.setItem("noonSlpSupervisorSession",JSON.stringify({
+      name:loggedInUser.name,
+      email:loggedInUser.email,
+      token:savedSession.token
+    }));
     return true;
   }catch(error){
     console.error("Could not restore supervisor session:",error);
-    return false;
+    return true;
   }
 };
 document.addEventListener("DOMContentLoaded",()=>{
