@@ -1252,7 +1252,7 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 </div>
 <script>
 let currentLang='en';
-const API_URL="https://script.google.com/macros/s/AKfycbx-ea82luraUQ5tPL5Oc4IrBjO9WSQExSGLHDizQWEHZLFn2OrYHY_1jKLPkjjLRU5w/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
 const OCR_API_URL="https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
 let globalLogsCache=[];
 let driversRegistryList=[];
@@ -1709,6 +1709,7 @@ window.enterSupervisorApp=function(name,email){
   document.querySelector("#nav-active-trucks .nav-text").textContent="Active Trucks";
   document.querySelector("#view-security h1").textContent="Guard List";
   document.querySelector("#view-security .view-header-title p").textContent="Manage guard names, security IDs, vendors, and active status.";
+  document.querySelector("#view-active-trucks .view-header-title p").textContent="Unextended trucks checked in for over 30 minutes.";
   document.getElementById("introOverlay").classList.add("hidden");
   document.getElementById("introOverlay").style.display="none";
   document.getElementById("customLoginBox").style.display="none";
@@ -2921,6 +2922,9 @@ executeLogin=function(name,email,noonId,role,isInitialLoad=false,assignedDocks=[
     return;
   }
   baseExecuteLogin(name,email,noonId,role,isInitialLoad,assignedDocks);
+  const activeTrucksDescription=document.querySelector("#view-active-trucks .view-header-title p");
+  if(activeTrucksDescription&&role==="admin")activeTrucksDescription.textContent="All trucks currently checked in at the facility.";
+  if(activeTrucksDescription&&role==="guard")activeTrucksDescription.textContent="Active trucks at your assigned docks.";
   if(role==="admin"||role==="guard"){
     if(isInitialLoad)fetchLogs();
     else setTimeout(fetchLogs,2700);
@@ -2974,6 +2978,18 @@ function updateOverdueTruckRows(){
   const searchQuery=String(document.getElementById("yardSearchQuery")?.value||"").toLowerCase().trim();
   const rows=Array.from(tableBody.rows).filter(row=>row.cells.length>1);
   let visibleCount=0;
+  tableBody.querySelectorAll("[data-overdue-empty]").forEach(row=>row.remove());
+  if(userRole!=="supervisor"){
+    rows.forEach((row,index)=>{
+      const truck=yardTrucks[index];
+      const matchesSearch=String(row.innerText||"").toLowerCase().includes(searchQuery);
+      row.style.display=truck&&matchesSearch?"":"none";
+      if(truck&&matchesSearch)visibleCount++;
+    });
+    const counter=document.getElementById("activeYardCounter");
+    if(counter)counter.textContent=String(visibleCount);
+    return;
+  }
   rows.forEach((row,index)=>{
     const truck=yardTrucks[index];
     if(!truck){row.style.display="none";return;}
@@ -2987,7 +3003,6 @@ function updateOverdueTruckRows(){
     if(shouldShow)visibleCount++;
   });
   Array.from(tableBody.rows).filter(row=>row.cells.length===1).forEach(row=>row.remove());
-  tableBody.querySelectorAll("[data-overdue-empty]").forEach(row=>row.remove());
   if(visibleCount===0){
     const emptyRow=document.createElement("tr");
     emptyRow.dataset.overdueEmpty="true";
