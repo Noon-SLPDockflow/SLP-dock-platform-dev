@@ -668,6 +668,7 @@ body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
 <li class="nav-item" id="nav-history" onclick="switchView('history',this)"><span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span></li>
 <li class="nav-item" id="nav-drivers" onclick="switchView('drivers',this)"><span class="nav-icon">💳</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span></li>
 <li class="nav-item" id="nav-security" onclick="switchView('security',this)"><span class="nav-icon">🛡️</span><span class="nav-text">Guard List</span></li>
+<li class="nav-item" id="nav-supervisor-audit" onclick="switchView('photo-audit',this)" style="display:none"><span class="nav-icon">📋</span><span class="nav-text">Audit</span></li>
 <li class="nav-item" id="nav-photo-audit" onclick="openAdminPhotoAudit(this)" style="display:none"><span class="nav-icon">🧪</span><span class="nav-text">Audit</span></li>
 </ul>
 <div class="sidebar-footer">
@@ -900,15 +901,20 @@ body.supervisor-mode #view-active-trucks td:last-child{display:none!important}
 </table>
 </div>
 <div id="securityRegistryMessage" style="margin-top:.75rem;color:var(--text-muted)"></div>
-<div id="guardStatusAuditSection" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-color)">
-<button id="guardStatusAuditToggle" type="button" class="btn-card-action" onclick="window.toggleGuardStatusAudit()">See more: guard status history</button>
-<div id="guardStatusAuditContent" style="display:none;margin-top:1rem"></div>
+</div>
+<div id="view-supervisor-audit" class="app-view">
+<div class="view-header-row">
+<div class="view-header-title"><h1>Audit</h1><p>Supervisor sign-ins and actions, including guard status changes.</p></div>
+<button id="guardStatusAuditToggle" type="button" class="submit-btn-global" style="width:auto;margin:0" onclick="window.refreshSupervisorAudit()">Refresh Audit</button>
+</div>
+<div class="card" style="padding:1rem;overflow-x:auto">
+<div id="guardStatusAuditContent" style="display:block">Open Audit to load supervisor activity.</div>
 </div>
 </div>
 <div id="view-photo-audit" class="app-view">
 <div class="view-header-row">
-<div class="view-header-title"><h1>Audit</h1><p>Admin-only photo review and automatic checkout reports.</p></div>
-<button type="button" class="submit-btn-global" style="width:auto;margin:0" onclick="fetchLogs()">Refresh Audit</button>
+<div class="view-header-title"><h1>Audit</h1><p>Photo review and automatic checkout reports.</p></div>
+<button type="button" class="submit-btn-global" style="width:auto;margin:0" onclick="window.refreshPhotoAudit()">Refresh Audit</button>
 </div>
 <div class="card" style="margin-bottom:1rem">
 <div class="filter-tabs-container" style="justify-content:flex-start">
@@ -1230,7 +1236,7 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 </div>
 <script>
 let currentLang='en';
-const API_URL="https://script.google.com/macros/s/AKfycbx-ea82luraUQ5tPL5Oc4IrBjO9WSQExSGLHDizQWEHZLFn2OrYHY_1jKLPkjjLRU5w/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
 const OCR_API_URL="https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
 let globalLogsCache=[];
 let driversRegistryList=[];
@@ -1253,9 +1259,11 @@ window.alarmSource=null;
 window.alarmGain=null;
 let loginSelectedDocks=[];
 window.auditState={mode:"photos",page:0,pageSize:100,selectedGuard:""};
+window.supervisorAuditLogs=null;
+window.supervisorAuditLogsRequest=null;
 window.photoAuditStatus=function(url){return url?"Review Needed":"Missing";};
 window.setAuditMode=function(mode,button){
-  if(userRole!=="admin")return;
+  if(userRole!=="admin"&&userRole!=="supervisor")return;
   window.auditState.mode=mode;
   window.auditState.page=0;
   window.auditState.selectedGuard="";
@@ -1281,7 +1289,8 @@ window.applyAuditFilters=function(){
   window.renderPhotoAudit();
 };
 window.renderPhotoAudit=function(){
-  const logs=Array.isArray(globalLogsCache)?globalLogsCache:[];
+  const isSupervisorAudit=userRole==="supervisor"&&document.getElementById("view-photo-audit")?.classList.contains("active-view");
+  const logs=isSupervisorAudit&&Array.isArray(window.supervisorAuditLogs)?window.supervisorAuditLogs:(Array.isArray(globalLogsCache)?globalLogsCache:[]);
   const query=String(document.getElementById("auditSearch")?.value||"").trim().toLocaleLowerCase();
   const searchField=document.getElementById("auditSearchField")?.value||"all";
   const range=document.getElementById("auditDateRange")?.value||"all";
@@ -1434,6 +1443,31 @@ window.renderPhotoAudit=function(){
     }
   });
 };
+window.loadSupervisorPhotoAudit=async function(forceRefresh=false){
+  if(userRole!=="supervisor")return;
+  if(window.supervisorAuditLogsRequest)return window.supervisorAuditLogsRequest;
+  if(!forceRefresh&&Array.isArray(window.supervisorAuditLogs)){window.renderPhotoAudit();return;}
+  const count=document.getElementById("auditPhotoCount");
+  if(count)count.textContent="Loading audit records…";
+  window.supervisorAuditLogsRequest=(async()=>{
+    try{
+      const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getSupervisorAuditLogs",supervisorToken:window.supervisorToken})});
+      const result=await response.json();
+      if(result.status!=="success")throw new Error(result.message||"Unable to load audit records.");
+      if(!Array.isArray(result.logs))throw new Error("The audit records response was invalid.");
+      window.supervisorAuditLogs=result.logs;
+      window.renderPhotoAudit();
+    }catch(error){
+      console.error("Could not load supervisor photo audit:",error);
+      if(count)count.textContent=error.message||"Unable to load audit records.";
+    }
+  })().finally(()=>{window.supervisorAuditLogsRequest=null;});
+  return window.supervisorAuditLogsRequest;
+};
+window.refreshPhotoAudit=function(){
+  if(userRole==="supervisor")return window.loadSupervisorPhotoAudit(true);
+  return fetchLogs();
+};
 let temporaryCapturedImage=null,temporaryCapturedItemImage=null,temporaryCapturedIqamaImage=null;
 let tempCheckoutTruckPhoto=null,tempCheckoutItemPhoto=null;
 let currentHistoryDateRange='all',currentAnalyticsDateRange='weekly';
@@ -1574,40 +1608,32 @@ window.loadGuardRoster=function(){
 };
 window.guardStatusAuditLoaded=false;
 window.guardStatusAuditEntries=[];
-window.toggleGuardStatusAudit=async function(){
+window.loadSupervisorAudit=async function(forceRefresh=false){
   const content=document.getElementById("guardStatusAuditContent");
-  const button=document.getElementById("guardStatusAuditToggle");
-  if(!content||!button)return;
-  const isExpanded=content.style.display!=="none";
-  if(isExpanded){
-    content.style.display="none";
-    button.textContent="See more: guard status history";
-    return;
-  }
-  content.style.display="block";
-  button.textContent="See less: guard status history";
-  if(window.guardStatusAuditLoaded)return;
-  content.textContent="Loading status history…";
+  if(!content)return;
+  if(window.guardStatusAuditLoaded&&!forceRefresh)return;
+  window.guardStatusAuditLoaded=false;
+  content.textContent="Loading supervisor audit history…";
   try{
     let result;
-    if(userRole==="supervisor")result=await window.supervisorRequest("getGuardStatusAudit");
+    if(userRole==="supervisor")result=await window.supervisorRequest("getSupervisorAudit");
     else{
-      const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getGuardStatusAudit",userRole:"admin"})});
+      const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getSupervisorAudit",userRole:"admin"})});
       result=await response.json();
-      if(result.status!=="success")throw new Error(result.message||"Unable to load guard status history.");
+      if(result.status!=="success")throw new Error(result.message||"Unable to load supervisor audit history.");
     }
-    if(!Array.isArray(result.entries))throw new Error("The guard status history response was invalid.");
+    if(!Array.isArray(result.entries))throw new Error("The supervisor audit history response was invalid.");
     window.guardStatusAuditEntries=result.entries;
     window.guardStatusAuditLoaded=true;
     content.replaceChildren();
     if(!result.entries.length){
-      content.textContent="No guard status changes have been recorded.";
+      content.textContent="No supervisor audit events have been recorded.";
       return;
     }
     const table=document.createElement("table");
     table.style.cssText="width:100%;border-collapse:collapse;min-width:680px";
     const header=document.createElement("tr");
-    ["Date and time","Supervisor","Supervisor email","Guard","Security ID","Status"].forEach(label=>{
+    ["Date and time","Supervisor","Supervisor email","Action","Guard","Security ID","Details"].forEach(label=>{
       const cell=document.createElement("th");
       cell.textContent=label;
       cell.style.cssText="padding:.65rem;text-align:left;border-bottom:1px solid var(--border-color);color:var(--text-muted)";
@@ -1622,15 +1648,16 @@ window.toggleGuardStatusAudit=async function(){
         Number.isNaN(timestamp.getTime())?String(entry.timestamp||"--"):timestamp.toLocaleString(),
         entry.supervisorName||"--",
         entry.supervisorEmail||"--",
+        entry.action||"--",
         entry.guardName||"--",
         entry.guardId||"--",
-        entry.status||"--"
+        entry.details||"--"
       ];
       values.forEach((value,index)=>{
         const cell=document.createElement("td");
         cell.textContent=String(value);
         cell.style.cssText="padding:.65rem;border-bottom:1px solid var(--border-color);text-align:left";
-        if(index===5)cell.style.color=String(value)==="Active"?"#4ade80":"#ff6b6b";
+        if(index===6&&String(entry.action)==="Guard status updated")cell.style.color=String(value)==="Active"?"#4ade80":"#ff6b6b";
         row.appendChild(cell);
       });
       tbody.appendChild(row);
@@ -1641,10 +1668,11 @@ window.toggleGuardStatusAudit=async function(){
     wrapper.appendChild(table);
     content.appendChild(wrapper);
   }catch(error){
-    console.error("Could not load guard status history:",error);
-    content.textContent=error.message||"Unable to load guard status history.";
+    console.error("Could not load supervisor audit history:",error);
+    content.textContent=error.message||"Unable to load supervisor audit history.";
   }
 };
+window.refreshSupervisorAudit=function(){return window.loadSupervisorAudit(true);};
 window.enterSupervisorApp=function(name,email){
   loggedInUser={name,email,noonId:""};userRole="supervisor";loginSelectedDocks=[];
   document.body.classList.add("supervisor-mode");
@@ -1655,6 +1683,7 @@ window.enterSupervisorApp=function(name,email){
   document.getElementById("nav-history").style.display="none";
   document.getElementById("nav-drivers").style.display="none";
   document.getElementById("nav-security").style.display="flex";
+  document.getElementById("nav-supervisor-audit").style.display="flex";
   document.getElementById("nav-photo-audit").style.display="none";
   document.getElementById("nav-handover").style.display="none";
   document.getElementById("addGuardButton").style.display="inline-flex";
@@ -2606,13 +2635,14 @@ window.filterRegistryCards=function(){
 };
 const previousSwitchView=window.switchView;
 window.switchView=function(viewId,element){
-  if(userRole==="supervisor"&&!["security","active-trucks"].includes(viewId)){alert("Supervisor access is limited to Guard List and Active Trucks.");return;}
+  if(userRole==="supervisor"&&!["security","active-trucks","photo-audit"].includes(viewId)){alert("Supervisor access is limited to Guard List, Active Trucks, and Audit.");return;}
   if(viewId==="security"&&userRole!=="admin"&&userRole!=="supervisor"){alert("Guard List access is restricted.");return;}
-  if(viewId==="photo-audit"&&userRole!=="admin"){alert("Admin access required for audit.");return;}
+  if(viewId==="photo-audit"&&userRole!=="admin"&&userRole!=="supervisor"){alert("Audit access is restricted.");return;}
   previousSwitchView(viewId,element);
   if(viewId==="security")window.loadGuardRoster();
   if(viewId==="active-trucks")updateOverdueTruckRows();
   if(viewId==="active-trucks"&&userRole==="supervisor")document.body.classList.add("supervisor-mode");
+  if(viewId==="photo-audit"&&userRole==="supervisor")window.loadSupervisorPhotoAudit();
   if(viewId==="drivers"&&window.hasFetchedLogs)window.compileDriversRegistryCards();
   if(viewId==="photo-audit"&&userRole==="admin")window.renderPhotoAudit();
 };
