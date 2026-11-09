@@ -1675,6 +1675,8 @@ window.loadSupervisorAudit=async function(forceRefresh=false){
 window.refreshSupervisorAudit=function(){return window.loadSupervisorAudit(true);};
 window.enterSupervisorApp=function(name,email){
   loggedInUser={name,email,noonId:""};userRole="supervisor";loginSelectedDocks=[];
+  localStorage.removeItem("noonSlpUserSession");
+  localStorage.setItem("noonSlpSupervisorSession",JSON.stringify({name:name,email:email,token:window.supervisorToken}));
   document.body.classList.add("supervisor-mode");
   document.getElementById("nav-dashboard").style.display="none";
   document.getElementById("nav-analytics").style.display="none";
@@ -1699,6 +1701,40 @@ window.enterSupervisorApp=function(name,email){
   window.switchView("security",document.getElementById("nav-security"));
   fetchLogs();
 };
+window.restoreSupervisorSession=async function(){
+  const savedSessionText=localStorage.getItem("noonSlpSupervisorSession");
+  if(!savedSessionText)return false;
+  let savedSession;
+  try{
+    savedSession=JSON.parse(savedSessionText);
+  }catch(error){
+    console.error("Saved supervisor session is invalid:",error);
+    localStorage.removeItem("noonSlpSupervisorSession");
+    return false;
+  }
+  if(!savedSession||!savedSession.token||!savedSession.name||!savedSession.email){
+    localStorage.removeItem("noonSlpSupervisorSession");
+    return false;
+  }
+  localStorage.removeItem("noonSlpUserSession");
+  try{
+    const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"validateSupervisorSession",supervisorToken:savedSession.token})});
+    const result=await response.json();
+    if(result.status!=="success"){
+      localStorage.removeItem("noonSlpSupervisorSession");
+      return false;
+    }
+    window.supervisorToken=savedSession.token;
+    window.enterSupervisorApp(result.name,result.email);
+    return true;
+  }catch(error){
+    console.error("Could not restore supervisor session:",error);
+    return false;
+  }
+};
+document.addEventListener("DOMContentLoaded",()=>{
+  window.restoreSupervisorSession();
+});
 window.loadSupervisorSchedule=async function(){
   const message=document.getElementById("supervisorScheduleMessage");
   if(message)message.textContent="Loading today’s guard roster…";
@@ -2054,7 +2090,7 @@ function openEditGuardModal(name,guardId,vendor=""){document.getElementById('edi
 window.openEditGuardModal=openEditGuardModal;
 function closeEditGuardModal(){document.getElementById('editGuardModal').classList.remove('modal-active');}
 window.closeEditGuardModal=closeEditGuardModal;
-async function saveGuardEdit(){const oldName=document.getElementById('editGuardOldName').value;const oldGuardId=document.getElementById('editGuardOldId').value;const newName=document.getElementById('editGuardName').value.trim();const newGuardId=document.getElementById('editGuardId').value.trim();const vendor=document.getElementById('editGuardVendor').value.trim();if(!newName||!newGuardId){alert("Guard name and security ID are required.");return;}window.isSavingEdit=true;const btn=document.querySelector('#editGuardModal .submit-btn-global');const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{const payload={action:'editGuard',oldSecurityName:oldName,oldSecurityId:oldGuardId,securityName:newName,securityId:newGuardId,vendor:vendor};const response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});const result=await response.json();if(result.status!=="success")throw new Error(result.message||"Unable to update guard.");securityRegistryList.forEach(g=>{if(g.securityName.toLowerCase()===oldName.toLowerCase()&&String(g.securityId)===oldGuardId){g.securityName=newName;g.securityId=newGuardId;g.vendor=vendor;}});closeEditGuardModal();compileSecurityRegistryCards();}catch(error){console.error("Guard update failed:",error);alert(error.message||"Unable to update guard.");}finally{btn.innerText=originalText;btn.disabled=false;setTimeout(()=>{window.isSavingEdit=false;},5000);}}
+async function saveGuardEdit(){const oldName=document.getElementById('editGuardOldName').value;const oldGuardId=document.getElementById('editGuardOldId').value;const newName=document.getElementById('editGuardName').value.trim();const newGuardId=document.getElementById('editGuardId').value.trim();const vendor=document.getElementById('editGuardVendor').value.trim();if(!newName||!newGuardId){alert("Guard name and security ID are required.");return;}window.isSavingEdit=true;const btn=document.querySelector('#editGuardModal .submit-btn-global');const originalText=btn.innerText;btn.innerText="⏳...";btn.disabled=true;try{const payload={action:'editGuard',oldSecurityName:oldName,oldSecurityId:oldGuardId,securityName:newName,securityId:newGuardId,vendor:vendor};const response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});const result=await response.json();if(result.status!=="success")throw new Error(result.message||"Unable to update guard.");securityRegistryList.forEach(g=>{if(g.securityName.toLowerCase()===oldName.toLowerCase()&&String(g.securityId)===oldGuardId){g.securityName=newName;g.securityId=newGuardId;g.vendor=vendor;}});closeEditGuardModal();compileSecurityRegistryCards();await window.loadGuardRoster();}catch(error){console.error("Guard update failed:",error);alert(error.message||"Unable to update guard.");}finally{btn.innerText=originalText;btn.disabled=false;setTimeout(()=>{window.isSavingEdit=false;},5000);}}
 window.saveGuardEdit=saveGuardEdit;
 window.openAddGuardModal=function(){
   document.getElementById("newGuardName").value="";
@@ -2085,6 +2121,7 @@ window.addNewGuard=async function(){
     }
     securityRegistryList.push(result.guard||{securityName:securityName,securityId:securityId,vendor:vendor,status:"Inactive"});
     window.closeAddGuardModal();compileSecurityRegistryCards();
+    await window.loadGuardRoster();
   }catch(error){alert(error.message||"Unable to add guard.");}
   finally{button.disabled=false;}
 };
@@ -2861,6 +2898,7 @@ window.handleOcrSmartChoice=function(choice){
 };
 const baseExecuteLogin=executeLogin;
 executeLogin=function(name,email,noonId,role,isInitialLoad=false,assignedDocks=[]){
+  if(role!=="supervisor")localStorage.removeItem("noonSlpSupervisorSession");
   if(isInitialLoad&&role==="guard"){
     fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAccess",securityName:name,securityId:noonId,email:email})})
       .then(response=>response.json()).then(result=>{
@@ -2957,6 +2995,15 @@ compileSecurityRegistryCards=function(){
   baseCompileSecurityRegistryCards();
 };
 window.compileSecurityRegistryCards=compileSecurityRegistryCards;
+document.addEventListener("DOMContentLoaded",()=>{
+  const logoutBeforeSupervisorSessionCleanup=window.logoutUser;
+  if(typeof logoutBeforeSupervisorSessionCleanup!=="function")return;
+  window.logoutUser=function(){
+    localStorage.removeItem("noonSlpSupervisorSession");
+    window.supervisorToken="";
+    logoutBeforeSupervisorSessionCleanup();
+  };
+});
 translations["Brightness"]="السطوع";
 translations["Supervisor"]="مشرف";
 </script>
