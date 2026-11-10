@@ -31,6 +31,14 @@ try{
 }catch(error){
   console.error("Could not read the saved supervisor session:",error);
 }
+if(document.documentElement.classList.contains("user-session-restoring")||document.documentElement.classList.contains("supervisor-session-restoring")){
+  window.setTimeout(()=>{
+    if(document.documentElement.classList.contains("user-session-restoring")||document.documentElement.classList.contains("supervisor-session-restoring")){
+      console.warn("Session restoration is taking too long; showing sign-in instead of leaving the page blank.");
+      document.documentElement.classList.remove("user-session-restoring","supervisor-session-restoring");
+    }
+  },15000);
+}
 </script>
 <link rel="icon" type="image/png" sizes="128x128" href="./Truck-logo.png?v=5" />
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -39,7 +47,8 @@ try{
 <style>
 :root{--bg-color:#090a0c;--page-bg:#111316;--card-bg:#14171a;--card-solid:#191c20;--sidebar-bg:#0b0d0f;--accent-color:#c4a86b;--accent-soft:#d9c99f;--text-main:#fff;--text-muted:#fff;--border-color:rgba(205,207,211,0.2);--success-color:#3ccf8e;--danger-color:#ff6b5c;--nav-hover:rgba(205,207,211,0.08)}
 html{min-height:100%;background-color:#090a0c;overscroll-behavior-y:none}
-html.supervisor-session-restoring body,html.user-session-restoring body{visibility:hidden}
+html.supervisor-session-restoring #introOverlay,html.user-session-restoring #introOverlay{display:none!important}
+html.supervisor-session-restoring::after,html.user-session-restoring::after{content:"Restoring your session…";position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#111316,#090a0c 68%);color:#c4a86b;font-size:1rem;font-weight:700;letter-spacing:.04em}
 #cameraModal,.camera-modal,.camera-overlay,[id*="camera"]{z-index:999999 !important}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 
@@ -1270,7 +1279,7 @@ You have <strong id="handoverTruckCount" style="color:#fff;font-size:1.1rem">0</
 </div>
 <script>
 let currentLang='en';
-const API_URL="https://script.google.com/macros/s/AKfycbx-ea82luraUQ5tPL5Oc4IrBjO9WSQExSGLHDizQWEHZLFn2OrYHY_1jKLPkjjLRU5w/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbx-l5ZtDurtnxEqZ-gDgBAwydA7LmMJVRdHkKvuV9eagmMDqj9YwOxz-1cbGELrK5bn8Q/exec";
 const OCR_API_URL="https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
 let globalLogsCache=[];
 let driversRegistryList=[];
