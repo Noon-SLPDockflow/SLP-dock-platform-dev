@@ -48,7 +48,9 @@ if(document.documentElement.classList.contains("user-session-restoring")||docume
 :root{--bg-color:#090a0c;--page-bg:#111316;--card-bg:#14171a;--card-solid:#191c20;--sidebar-bg:#0b0d0f;--accent-color:#c4a86b;--accent-soft:#d9c99f;--text-main:#fff;--text-muted:#fff;--border-color:rgba(205,207,211,0.2);--success-color:#3ccf8e;--danger-color:#ff6b5c;--nav-hover:rgba(205,207,211,0.08)}
 html{min-height:100%;background-color:#090a0c;overscroll-behavior-y:none}
 html.supervisor-session-restoring #introOverlay,html.user-session-restoring #introOverlay{display:none!important}
-html.supervisor-session-restoring::after,html.user-session-restoring::after{content:"Restoring your session…";position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#111316,#090a0c 68%);color:#c4a86b;font-size:1rem;font-weight:700;letter-spacing:.04em}
+html.supervisor-session-restoring #introOverlay:not(.hidden)~.sidebar,html.user-session-restoring #introOverlay:not(.hidden)~.sidebar{display:flex!important}
+html.supervisor-session-restoring #introOverlay:not(.hidden)~.main-content,html.user-session-restoring #introOverlay:not(.hidden)~.main-content{display:block!important}
+html.supervisor-session-restoring body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn,html.user-session-restoring body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn{display:flex!important}
 #cameraModal,.camera-modal,.camera-overlay,[id*="camera"]{z-index:999999 !important}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 
