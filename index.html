@@ -6,31 +6,31 @@
 <title>Noon SLP Dock Security Platform</title>
 <script>
 try{
-  const savedUserSessionText=localStorage.getItem("noonSlpUserSession");
-  if(savedUserSessionText){
-    const savedUserSession=JSON.parse(savedUserSessionText);
-    if(savedUserSession&&savedUserSession.name&&savedUserSession.email&&["admin","guard"].includes(savedUserSession.role)&&Date.now()-savedUserSession.loginTime<43200000){
-      window.savedUserSessionBootstrap=savedUserSession;
-      document.documentElement.classList.add("user-session-restoring");
-      if(savedUserSession.role==="guard")document.documentElement.classList.add("guard-session-restoring");
-    }
-  }
-}catch(error){
-  console.error("Could not read the saved user session:",error);
-}
-try{
-  if(!window.savedUserSessionBootstrap){
-    const savedSupervisorSessionText=localStorage.getItem("noonSlpSupervisorSession");
-    if(savedSupervisorSessionText){
-      const savedSupervisorSession=JSON.parse(savedSupervisorSessionText);
-      if(savedSupervisorSession&&savedSupervisorSession.token&&savedSupervisorSession.name&&savedSupervisorSession.email){
-        window.savedSupervisorSessionBootstrap=savedSupervisorSession;
-        document.documentElement.classList.add("supervisor-session-restoring");
-      }
+  const savedSupervisorSessionText=localStorage.getItem("noonSlpSupervisorSession");
+  if(savedSupervisorSessionText){
+    const savedSupervisorSession=JSON.parse(savedSupervisorSessionText);
+    if(savedSupervisorSession&&savedSupervisorSession.token&&savedSupervisorSession.name&&savedSupervisorSession.email){
+      window.savedSupervisorSessionBootstrap=savedSupervisorSession;
+      document.documentElement.classList.add("supervisor-session-restoring");
     }
   }
 }catch(error){
   console.error("Could not read the saved supervisor session:",error);
+}
+try{
+  if(!window.savedSupervisorSessionBootstrap){
+    const savedUserSessionText=localStorage.getItem("noonSlpUserSession");
+    if(savedUserSessionText){
+      const savedUserSession=JSON.parse(savedUserSessionText);
+      if(savedUserSession&&savedUserSession.name&&savedUserSession.email&&["admin","guard"].includes(savedUserSession.role)&&Date.now()-savedUserSession.loginTime<43200000){
+        window.savedUserSessionBootstrap=savedUserSession;
+        document.documentElement.classList.add("user-session-restoring");
+        if(savedUserSession.role==="guard")document.documentElement.classList.add("guard-session-restoring");
+      }
+    }
+  }
+}catch(error){
+  console.error("Could not read the saved user session:",error);
 }
 if(document.documentElement.classList.contains("user-session-restoring")||document.documentElement.classList.contains("supervisor-session-restoring")){
   window.setTimeout(()=>{
@@ -1586,6 +1586,12 @@ window.guardLoginError=function(name,email,noonId,assignedDocks){
   if(!Array.isArray(assignedDocks)||assignedDocks.length===0)return "Please select at least one assigned dock.";
   return "";
 };
+function getActionErrorMessage(result,actionLabel){
+  const message=String(result.message||`${actionLabel} failed. Please try again.`);
+  return /^invalid action\b/i.test(message)
+    ?`${actionLabel} is not available in the published server version. Update the Apps Script using Code.gs, deploy a new version, and try again.`
+    :message;
+}
 document.addEventListener("click",event=>{
   if(!event.target.closest("#customSignInBtn"))return;
   if(currentLoginMode==="supervisor"){
@@ -1597,7 +1603,7 @@ document.addEventListener("click",event=>{
     const button=document.getElementById("customSignInBtn");button.disabled=true;
     fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"supervisorLogin",name:name,email:email,password:password})})
       .then(response=>response.json()).then(result=>{
-        if(result.status!=="success"){alert(result.message||"Supervisor sign-in failed.");return;}
+        if(result.status!=="success"){alert(getActionErrorMessage(result,"Supervisor sign-in"));return;}
         window.supervisorToken=result.token;
         enterSupervisorApp(result.name,result.email);
       }).catch(error=>{console.error("Supervisor sign-in failed:",error);alert("Unable to verify supervisor sign-in. Please try again.");})
@@ -1615,8 +1621,7 @@ document.addEventListener("click",event=>{
     fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAccess",securityName:name,securityId:noonId,email:email})})
       .then(response=>response.json()).then(result=>{
       if(result.status!=="success"){
-        const message=String(result.message||"Unable to verify guard access. Please try again.");
-        alert(/^invalid action\b/i.test(message)?"Guard login is not available in the published server version. Update the Apps Script using Code.gs, deploy a new version, and try again.":message);
+        alert(getActionErrorMessage(result,"Guard login"));
         return;
       }
       if(result.found===false){alert("This guard is not in the roster. Please contact your Supervisor or Admin to add them.");return;}
