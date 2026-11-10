@@ -52,6 +52,10 @@ html.supervisor-session-restoring #introOverlay,html.user-session-restoring #int
 html.supervisor-session-restoring #introOverlay:not(.hidden)~.sidebar,html.user-session-restoring #introOverlay:not(.hidden)~.sidebar{display:flex!important}
 html.supervisor-session-restoring #introOverlay:not(.hidden)~.main-content,html.user-session-restoring #introOverlay:not(.hidden)~.main-content{display:block!important}
 html.supervisor-session-restoring body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn,html.user-session-restoring body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn{display:flex!important}
+html.supervisor-session-restoring #view-dashboard,html.supervisor-session-restoring #view-analytics,html.supervisor-session-restoring #view-checkin,html.supervisor-session-restoring #view-active-trucks,html.supervisor-session-restoring #view-history,html.supervisor-session-restoring #view-drivers,html.supervisor-session-restoring #view-photo-audit{display:none!important}
+html.supervisor-session-restoring #view-security{display:block!important}
+html.supervisor-session-restoring #nav-dashboard,html.supervisor-session-restoring #nav-analytics,html.supervisor-session-restoring #nav-checkin,html.supervisor-session-restoring #nav-history,html.supervisor-session-restoring #nav-drivers,html.supervisor-session-restoring #nav-photo-audit,html.supervisor-session-restoring #nav-handover{display:none!important}
+html.supervisor-session-restoring #nav-security,html.supervisor-session-restoring #nav-active-trucks,html.supervisor-session-restoring #nav-supervisor-audit{display:flex!important}
 html.guard-session-restoring #view-dashboard,html.guard-session-restoring #view-analytics,html.guard-session-restoring #view-history,html.guard-session-restoring #view-drivers,html.guard-session-restoring #view-security,html.guard-session-restoring #view-photo-audit{display:none!important}
 html.guard-session-restoring #view-checkin{display:block!important}
 html.guard-session-restoring #nav-dashboard,html.guard-session-restoring #nav-analytics,html.guard-session-restoring #nav-history,html.guard-session-restoring #nav-drivers,html.guard-session-restoring #nav-security,html.guard-session-restoring #nav-photo-audit,html.guard-session-restoring #nav-supervisor-audit{display:none!important}
@@ -1799,9 +1803,8 @@ window.restoreSupervisorSession=async function(){
     return true;
   }
 };
-document.addEventListener("DOMContentLoaded",()=>{
-  window.restoreSupervisorSession();
-});
+const startSupervisorSessionRestore=()=>window.restoreSupervisorSession();
+startSupervisorSessionRestore();
 window.loadSupervisorSchedule=async function(){
   const message=document.getElementById("supervisorScheduleMessage");
   if(message)message.textContent="Loading today’s guard roster…";
