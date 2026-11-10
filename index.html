@@ -1270,6 +1270,12 @@ const OCR_API_URL="https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0
 let globalLogsCache=[];
 let driversRegistryList=[];
 let securityRegistryList=[];
+try{
+  const cachedGuardRoster=JSON.parse(localStorage.getItem("noonSlpGuardRoster")||"[]");
+  if(Array.isArray(cachedGuardRoster))securityRegistryList=cachedGuardRoster;
+}catch(error){
+  console.warn("Could not read the cached guard roster:",error);
+}
 window.globalSystemLogs=[];
 window.hasFetchedLogs=false;
 window.isSavingEdit=false;
@@ -1622,6 +1628,11 @@ window.loadGuardRoster=function(){
     if(result.status!=="success")throw new Error(result.message||"Unable to load guard roster.");
     if(!Array.isArray(result.guards))throw new Error("The guard roster response was invalid.");
     securityRegistryList=result.guards;
+    try{
+      localStorage.setItem("noonSlpGuardRoster",JSON.stringify(securityRegistryList));
+    }catch(cacheError){
+      console.warn("Could not cache the guard roster:",cacheError);
+    }
     window.guardRosterLoaded=true;
     if(message)message.textContent="";
     window.compileSecurityRegistryCards();
@@ -1929,13 +1940,13 @@ function resumeAlarmAudio(){if(!window.audioCtx){const AudioContextClass=window.
 document.addEventListener('pointerdown',resumeAlarmAudio,{once:true});
 function playAlarm(){if(window.alarmSource)return;const startLoop=()=>{if(window.alarmSource)return;const context=window.audioCtx;if(!context||context.state!=='running'){console.error('Alert audio is not running; interact with the page to enable sound.');return;}const sampleRate=context.sampleRate,duration=1,beepDuration=0.38,buffer=context.createBuffer(1,sampleRate*duration,sampleRate),samples=buffer.getChannelData(0);for(let i=0;i<samples.length;i++){const t=i/sampleRate;if(t<beepDuration){const envelope=Math.min(1,t/0.012,(beepDuration-t)/0.045);samples[i]=Math.sin(2*Math.PI*880*t)*Math.max(0,envelope)*0.95;}}const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;source.loop=true;gain.gain.setValueAtTime(1,context.currentTime);source.connect(gain);gain.connect(context.destination);source.start();window.alarmSource=source;window.alarmGain=gain;};if(!window.audioCtx)resumeAlarmAudio();if(!window.audioCtx)return;if(window.audioCtx.state==='running')startLoop();else window.audioCtx.resume().then(startLoop).catch(err=>console.error('Could not start alert audio:',err));}
 function stopAlarm(){if(!window.alarmSource)return;const source=window.alarmSource;window.alarmSource=null;window.alarmGain=null;source.stop();source.disconnect();}
-function processAlertQueue(){if(window.isAlertModalOpen||window.alertQueue.length===0)return;let nextAlert=window.alertQueue.shift();window.isAlertModalOpen=true;window.currentAlert=nextAlert;if(nextAlert.type==='30min'){const msgEl=document.getElementById('timerAlertMessage');if(msgEl)msgEl.innerText=`${tr('Dock')} ${nextAlert.truck.dockNumber} ${tr('has been active for ')}${nextAlert.mins}${tr(' minutes.')}`;const extendBtn=document.getElementById('btnExtendTimer');if(extendBtn){extendBtn.onclick=()=>{window.truckExtensions[nextAlert.truck.plateNumber]=(window.truckExtensions[nextAlert.truck.plateNumber]||0)+1;localStorage.setItem('noonSlpExtensions',JSON.stringify(window.truckExtensions));fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'extend',plateNumber:nextAlert.truck.plateNumber})}).catch(e=>console.error(e));closeAlertModal(true);};}const checkoutBtn=document.getElementById('btnCheckoutTimer');if(checkoutBtn){checkoutBtn.onclick=()=>{closeAlertModal(true);promptSignOut(nextAlert.truck.driverName,nextAlert.truck.plateNumber,nextAlert.truck.securityName,nextAlert.truck.dockNumber,nextAlert.truck.dispatchType);};}document.getElementById('timerAlertModal').classList.add('modal-active');playAlarm();}else if(nextAlert.type==='auto'){const msgEl=document.getElementById('autoWarningMessage');if(msgEl)msgEl.innerText=`${tr('Dock')} ${nextAlert.truck.dockNumber} ${tr('Auto-checked out.')} Do not leave the dock; extend every 1 Hour.`;document.getElementById('autoCheckoutWarningModal').classList.add('modal-active');playAlarm();}}
+function processAlertQueue(){if(window.isAlertModalOpen||window.alertQueue.length===0)return;let nextAlert=window.alertQueue.shift();window.isAlertModalOpen=true;window.currentAlert=nextAlert;if(nextAlert.type==='30min'){const msgEl=document.getElementById('timerAlertMessage');if(msgEl)msgEl.innerText=`${tr('Dock')} ${nextAlert.truck.dockNumber} ${tr('has been active for ')}${nextAlert.mins}${tr(' minutes.')}`;const extendBtn=document.getElementById('btnExtendTimer');if(extendBtn){extendBtn.onclick=()=>{window.truckExtensions[nextAlert.truck.plateNumber]=(window.truckExtensions[nextAlert.truck.plateNumber]||0)+1;localStorage.setItem('noonSlpExtensions',JSON.stringify(window.truckExtensions));fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'extend',plateNumber:nextAlert.truck.plateNumber})}).catch(e=>console.error(e));closeAlertModal(true);};}const checkoutBtn=document.getElementById('btnCheckoutTimer');if(checkoutBtn){checkoutBtn.onclick=()=>{closeAlertModal(true);promptSignOut(nextAlert.truck.driverName,nextAlert.truck.plateNumber,nextAlert.truck.securityName,nextAlert.truck.dockNumber,nextAlert.truck.dispatchType);};}document.getElementById('timerAlertModal').classList.add('modal-active');playAlarm();}else if(nextAlert.type==='auto'){const msgEl=document.getElementById('autoWarningMessage');if(msgEl)msgEl.innerText=`${tr('Dock')} ${nextAlert.truck.dockNumber} ${tr('Auto-checked out.')} Auto-checkout occurs after 4 hours.`;document.getElementById('autoCheckoutWarningModal').classList.add('modal-active');playAlarm();}}
 function closeAlertModal(silent){document.getElementById('timerAlertModal').classList.remove('modal-active');stopAlarm();window.isAlertModalOpen=false;window.currentAlert=null;if(silent)processAlertQueue();}
 window.closeAlertModal=closeAlertModal;
 window.closeAutoWarningModal=function(){document.getElementById('autoCheckoutWarningModal').classList.remove('modal-active');stopAlarm();window.isAlertModalOpen=false;window.currentAlert=null;processAlertQueue();};
 function triggerAutoCheckout(truck){if(window.isAlertModalOpen&&window.currentAlert&&window.currentAlert.truck.plateNumber===truck.plateNumber&&window.currentAlert.type==='30min'){document.getElementById('timerAlertModal').classList.remove('modal-active');stopAlarm();window.isAlertModalOpen=false;window.currentAlert=null;}let match=globalLogsCache.find(r=>String(r.plateNumber)===String(truck.plateNumber)&&!r.checkOutTime);if(match){match.checkOutTime=new Date().toISOString();match.sealNumber="AUTO-CHECKOUT";}window.handleLogsResponse({logs:globalLogsCache});const payload={action:"checkout",driverName:truck.driverName,plateNumber:truck.plateNumber,sealNumber:"AUTO-CHECKOUT",truckPhoto:"",itemPhoto:""};fetch(API_URL,{method:'POST',body:JSON.stringify(payload)});delete window.truckExtensions[truck.plateNumber];localStorage.setItem('noonSlpExtensions',JSON.stringify(window.truckExtensions));window.alertQueue.push({type:'auto',truck:truck});processAlertQueue();}
 
-setInterval(()=>{if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0)return;const now=Date.now();const activeTrucks=globalLogsCache.filter(r=>!r.checkOutTime);for(let t of activeTrucks){if(!loginSelectedDocks.some(d=>String(d)===String(t.dockNumber).trim()))continue;let checkInMs=parseFlexibleDate(t.checkInTime).getTime();if(isNaN(checkInMs))continue;let elapsedMins=(now-checkInMs)/60000;let extCount=Number(t.extensions) || window.truckExtensions[t.plateNumber] || 0;let currentLimit=30+(extCount*30);if(elapsedMins>=currentLimit+30){if(window.truckAlerting[t.plateNumber]!=='auto'){window.truckAlerting[t.plateNumber]='auto';triggerAutoCheckout(t);}continue;}if(elapsedMins>=currentLimit+5){let notifyKey='notified_'+currentLimit;if(window.truckAlerting[t.plateNumber]!==notifyKey&&window.truckAlerting[t.plateNumber]!=='auto'){window.truckAlerting[t.plateNumber]=notifyKey;fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'notifyInactiveGuard',guardName:loggedInUser.name,dockNumber:t.dockNumber,plateNumber:t.plateNumber})}).catch(e=>console.error(e));}}if(elapsedMins>=currentLimit&&elapsedMins<currentLimit+30){let alertKey='alert_'+currentLimit;if(window.truckAlerting[t.plateNumber]!==alertKey&&window.truckAlerting[t.plateNumber]!==('notified_'+currentLimit)&&window.truckAlerting[t.plateNumber]!=='auto'){window.truckAlerting[t.plateNumber]=alertKey;window.alertQueue.push({type:'30min',truck:t,mins:currentLimit});processAlertQueue();}}}},5000);
+setInterval(()=>{if(userRole!=='guard'||!loginSelectedDocks||loginSelectedDocks.length===0)return;const now=Date.now();const activeTrucks=globalLogsCache.filter(r=>!r.checkOutTime);for(let t of activeTrucks){if(!loginSelectedDocks.some(d=>String(d)===String(t.dockNumber).trim()))continue;let checkInMs=parseFlexibleDate(t.checkInTime).getTime();if(isNaN(checkInMs))continue;let elapsedMins=(now-checkInMs)/60000;let extCount=Math.max(Number(t.extensions)||0,Number(window.truckExtensions[String(t.plateNumber||"")])||0);let currentLimit=30+(extCount*30);let autoCheckoutLimit=Math.min(currentLimit+30,240);if(elapsedMins>=autoCheckoutLimit){if(window.truckAlerting[t.plateNumber]!=='auto'){window.truckAlerting[t.plateNumber]='auto';triggerAutoCheckout(t);}continue;}if(elapsedMins>=currentLimit+5){let notifyKey='notified_'+currentLimit;if(window.truckAlerting[t.plateNumber]!==notifyKey&&window.truckAlerting[t.plateNumber]!=='auto'){window.truckAlerting[t.plateNumber]=notifyKey;fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'notifyInactiveGuard',guardName:loggedInUser.name,dockNumber:t.dockNumber,plateNumber:t.plateNumber})}).catch(e=>console.error(e));}}if(elapsedMins>=currentLimit&&elapsedMins<autoCheckoutLimit){let alertKey='alert_'+currentLimit;if(window.truckAlerting[t.plateNumber]!==alertKey&&window.truckAlerting[t.plateNumber]!==('notified_'+currentLimit)&&window.truckAlerting[t.plateNumber]!=='auto'){window.truckAlerting[t.plateNumber]=alertKey;window.alertQueue.push({type:'30min',truck:t,mins:currentLimit});processAlertQueue();}}}},5000);
 
 document.addEventListener("DOMContentLoaded",()=>{Chart.register(ChartDataLabels);let savedLang=localStorage.getItem('noonSlpLang')||'en';toggleLang(savedLang);const gridEl=document.getElementById('loginDocksGrid');if(gridEl){let gHtml='';for(let i=15;i<=90;i++){gHtml+=`<button type="button" class="dock-select-btn" onclick="toggleLoginDock(${i}, this)">${i}</button>`;}gridEl.innerHTML=gHtml;}const sessionStr=localStorage.getItem('noonSlpUserSession');if(sessionStr){const sd=JSON.parse(sessionStr);if(Date.now()-sd.loginTime<43200000){loginSelectedDocks=sd.assignedDocks||[];executeLogin(sd.name,sd.email,sd.noonId,sd.role,true,loginSelectedDocks);}else localStorage.removeItem('noonSlpUserSession');}const btnSignIn=document.getElementById('customSignInBtn');if(btnSignIn){btnSignIn.addEventListener('click',(e)=>{e.preventDefault();const name=document.getElementById('loginName').value.trim();const email=document.getElementById('loginEmail').value.trim();const noonId=document.getElementById('loginNoonId').value.trim();const pass=document.getElementById('adminPassword').value;if(currentLoginMode==='admin'){if(pass==='NoonCCTVSLP#2026')executeLogin(name,email,'','admin',false,[]);else alert("Incorrect Password");}else{if(loginSelectedDocks.length===0){alert(currentLang==='ar'?"يرجى تحديد رصيف واحد على الأقل.":"Please select at least one assigned dock.");return;}let localGuards=JSON.parse(localStorage.getItem('noonSlpLocalGuards')||'[]');if(name&&noonId&&!localGuards.some(g=>g.securityId===noonId&&g.securityName===name)){localGuards.push({securityName:name,securityId:noonId});localStorage.setItem('noonSlpLocalGuards',JSON.stringify(localGuards));}fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'addGuard',securityName:name,securityId:noonId})}).catch(e=>console.error(e));executeLogin(name,email,noonId,'guard',false,loginSelectedDocks);}});}const iqNum=document.getElementById('iqamaNumber');if(iqNum){iqNum.addEventListener('input',runInstantConflictCheck);iqNum.addEventListener('change',runInstantConflictCheck);}const plNumD=document.getElementById('plateNumberDigits');if(plNumD){plNumD.addEventListener('input',runInstantConflictCheck);plNumD.addEventListener('change',runInstantConflictCheck);}const plNumL=document.getElementById('plateNumberLetters');if(plNumL){plNumL.addEventListener('input',runInstantConflictCheck);plNumL.addEventListener('change',runInstantConflictCheck);}const secField=document.getElementById('securityNameField');if(secField)secField.addEventListener('input',function(){renderSecuritySuggestions(this.value);});document.addEventListener('click',function(e){const driverList=document.getElementById('driverSuggestionsList');const secList=document.getElementById('securitySuggestionsList');const loginNameList=document.getElementById('loginNameSuggestions');const loginIdList=document.getElementById('loginIdSuggestions');if(driverList&&!e.target.closest('.search-input-wrapper'))driverList.classList.remove('open');if(secList&&!e.target.closest('.form-group'))secList.classList.remove('open');if(loginNameList&&!e.target.closest('#loginNameWrapper'))loginNameList.classList.remove('open');if(loginIdList&&!e.target.closest('#loginIdWrapper'))loginIdList.classList.remove('open');const handoverNameList=document.getElementById('handoverNameSuggestions');const handoverIdList=document.getElementById('handoverIdSuggestions');if(handoverNameList&&!e.target.closest('#handoverModal'))handoverNameList.classList.remove('open');if(handoverIdList&&!e.target.closest('#handoverModal'))handoverIdList.classList.remove('open');});setInterval(()=>{const d=new Date(),monthsEn=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];const dateStr=String(d.getDate()).padStart(2,'0')+" "+monthsEn[d.getMonth()]+" "+d.getFullYear();const badgeD=document.getElementById('heroDateBadge');if(badgeD)badgeD.innerText=dateStr;const ampm=d.getHours()>=12?'PM':'AM',hr=d.getHours()%12||12,min=String(d.getMinutes()).padStart(2,'0'),sec=String(d.getSeconds()).padStart(2,'0');const badgeT=document.getElementById('heroTimeBadge');if(badgeT)badgeT.innerText=`${hr}:${min}:${sec} ${ampm}`;},1000);setInterval(()=>{document.querySelectorAll('.live-duration').forEach(el=>{const checkInTime=el.getAttribute('data-timein');if(checkInTime)el.innerText=calculateDurationStr(checkInTime,null);});},1000);fetchLogs();setInterval(fetchLogs,20000);setTimeout(checkForNewCode,5000);setInterval(checkForNewCode,120000);});
 function toggleCustomDockInput(val){const dCust=document.getElementById('dockNumberCustom');if(dCust)dCust.style.display=(val==='Others')?'block':'none';}
@@ -3054,6 +3065,51 @@ document.addEventListener("DOMContentLoaded",()=>{
     window.supervisorToken="";
     logoutBeforeSupervisorSessionCleanup();
   };
+});
+window.renderLoginGuardSuggestions=function(value,type){
+  const nameList=document.getElementById("loginNameSuggestions");
+  const idList=document.getElementById("loginIdSuggestions");
+  if(nameList)nameList.classList.remove("open");
+  if(idList)idList.classList.remove("open");
+  if(currentLoginMode!=="guard"||!value)return;
+  const list=type==="name"?nameList:idList;
+  const input=document.getElementById(type==="name"?"loginName":"loginNoonId");
+  if(!list)return;
+  list.innerHTML="";
+  const query=String(value).trim().toUpperCase();
+  const matches=securityRegistryList.filter(guard=>
+    String(guard.status||"Active").toLowerCase()==="active"&&
+    (type==="name"?String(guard.securityName||"").toUpperCase().includes(query):String(guard.securityId||"").toUpperCase().includes(query))
+  ).slice(0,5);
+  matches.forEach(guard=>{
+    const item=document.createElement("div");
+    const name=document.createElement("strong");
+    const id=document.createElement("small");
+    item.className="suggestion-item";
+    name.textContent=guard.securityName||"";
+    id.textContent=`ID: ${guard.securityId||""}`;
+    item.appendChild(name);
+    item.appendChild(document.createElement("br"));
+    item.appendChild(id);
+    item.addEventListener("click",()=>{
+      const nameInput=document.getElementById("loginName");
+      const idInput=document.getElementById("loginNoonId");
+      if(nameInput)nameInput.value=guard.securityName||"";
+      if(idInput)idInput.value=guard.securityId||"";
+      list.classList.remove("open");
+    });
+    list.appendChild(item);
+  });
+  if(matches.length)list.classList.add("open");
+  if(!window.guardRosterLoaded){
+    const pendingRoster=window.guardRosterRequest||window.loadGuardRoster();
+    pendingRoster.then(loaded=>{
+      if(loaded&&input&&document.activeElement===input&&input.value===value)window.renderLoginGuardSuggestions(input.value,type);
+    });
+  }
+};
+document.addEventListener("DOMContentLoaded",()=>{
+  if(!window.guardRosterLoaded)window.loadGuardRoster();
 });
 translations["Brightness"]="السطوع";
 translations["Supervisor"]="مشرف";
