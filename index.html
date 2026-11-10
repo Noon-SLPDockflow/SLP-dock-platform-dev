@@ -12,6 +12,7 @@ try{
     if(savedUserSession&&savedUserSession.name&&savedUserSession.email&&["admin","guard"].includes(savedUserSession.role)&&Date.now()-savedUserSession.loginTime<43200000){
       window.savedUserSessionBootstrap=savedUserSession;
       document.documentElement.classList.add("user-session-restoring");
+      if(savedUserSession.role==="guard")document.documentElement.classList.add("guard-session-restoring");
     }
   }
 }catch(error){
@@ -51,6 +52,10 @@ html.supervisor-session-restoring #introOverlay,html.user-session-restoring #int
 html.supervisor-session-restoring #introOverlay:not(.hidden)~.sidebar,html.user-session-restoring #introOverlay:not(.hidden)~.sidebar{display:flex!important}
 html.supervisor-session-restoring #introOverlay:not(.hidden)~.main-content,html.user-session-restoring #introOverlay:not(.hidden)~.main-content{display:block!important}
 html.supervisor-session-restoring body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn,html.user-session-restoring body:has(> #introOverlay:not(.hidden)) > #floatingOpenBtn{display:flex!important}
+html.guard-session-restoring #view-dashboard,html.guard-session-restoring #view-analytics,html.guard-session-restoring #view-history,html.guard-session-restoring #view-drivers,html.guard-session-restoring #view-security,html.guard-session-restoring #view-photo-audit{display:none!important}
+html.guard-session-restoring #view-checkin{display:block!important}
+html.guard-session-restoring #nav-dashboard,html.guard-session-restoring #nav-analytics,html.guard-session-restoring #nav-history,html.guard-session-restoring #nav-drivers,html.guard-session-restoring #nav-security,html.guard-session-restoring #nav-photo-audit,html.guard-session-restoring #nav-supervisor-audit{display:none!important}
+html.guard-session-restoring #nav-checkin,html.guard-session-restoring #nav-active-trucks,html.guard-session-restoring #nav-handover{display:flex!important}
 #cameraModal,.camera-modal,.camera-overlay,[id*="camera"]{z-index:999999 !important}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 
@@ -1609,7 +1614,11 @@ document.addEventListener("click",event=>{
     const button=document.getElementById("customSignInBtn");button.disabled=true;
     fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"checkGuardAccess",securityName:name,securityId:noonId,email:email})})
       .then(response=>response.json()).then(result=>{
-      if(result.status!=="success"){alert(result.message||"Unable to verify guard access. Please try again.");return;}
+      if(result.status!=="success"){
+        const message=String(result.message||"Unable to verify guard access. Please try again.");
+        alert(/^invalid action\b/i.test(message)?"Guard login is not available in the published server version. Update the Apps Script using Code.gs, deploy a new version, and try again.":message);
+        return;
+      }
       if(result.found===false){alert("This guard is not in the roster. Please contact your Supervisor or Admin to add them.");return;}
       if(!result.active){alert("This guard is Inactive. Please contact your Supervisor.");return;}
       executeLogin(name,email,noonId,"guard",false,loginSelectedDocks);
@@ -2958,16 +2967,16 @@ executeLogin=function(name,email,noonId,role,isInitialLoad=false,assignedDocks=[
       .then(response=>response.json()).then(result=>{
         if(result.status!=="success"||!result.active){
           localStorage.removeItem("noonSlpUserSession");
-          document.documentElement.classList.remove("user-session-restoring");
+          document.documentElement.classList.remove("user-session-restoring","guard-session-restoring");
           return;
         }
         baseExecuteLogin(name,email,noonId,role,true,assignedDocks);
-        document.documentElement.classList.remove("user-session-restoring");
+        document.documentElement.classList.remove("user-session-restoring","guard-session-restoring");
         fetchLogs();
       }).catch(error=>{
         console.error("Saved guard access verification failed; restoring the previous session and retrying through normal server-checked actions:",error);
         baseExecuteLogin(name,email,noonId,role,true,assignedDocks);
-        document.documentElement.classList.remove("user-session-restoring");
+        document.documentElement.classList.remove("user-session-restoring","guard-session-restoring");
         fetchLogs();
       });
     return;
